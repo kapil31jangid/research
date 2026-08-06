@@ -2,6 +2,8 @@
 
 All endpoints return JSON. The service has no authentication in this local research-prototype phase.
 
+Interaction decisions expose requested and actual adaptation paths, controller rules, resource and offline availability, model/fallback metadata, and estimated plus measured latency fields. These additive audit fields support reproducible simulated experiments.
+
 ## Health
 
 `GET /health` returns `{"status":"ok","service":"rapid-learn"}`.

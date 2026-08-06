@@ -13,3 +13,5 @@ The experiment runner supports static curriculum, rule-based, BKT-only, ML-only,
 ## Measures and validity
 
 Educational measures include accuracy, learning gain, normalised gain, retention, and time to mastery. System measures include latency, memory, CPU, bandwidth, and resource-normalised utility. Threats include synthetic-learner assumptions, rule validity, curriculum scope, device heterogeneity, and the absence of real learner evidence. Current outputs are synthetic simulations only; no statistical or educational claim is made.
+
+Controller records retain requested and actual adaptation paths, triggered/rejected rules, resource and offline state, optional model version/probability, fallback state, and estimated versus measured latency. These fields support auditability, not claims of classroom effectiveness.

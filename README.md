@@ -8,6 +8,10 @@ All ten planned milestones are implemented as a research prototype: adaptive bac
 
 The system is ready for local and simulated studies. It is not validated for classroom deployment or real learner outcomes.
 
+## Reliability notes
+
+Misconception evidence is learner- and concept-scoped, with validated configurable evidence windows, minima, and thresholds. Cached recommendations require relevant seeded learning content; an app shell alone is insufficient. The optional ML artefact is validated lazily and prediction failures safely use BKT while retaining requested/actual-path metadata. Interactions persist atomically, and measured latency is hardware-dependent.
+
 ## Features
 
 - Fraction prerequisite graph with 12 concepts and 100 seeded questions
