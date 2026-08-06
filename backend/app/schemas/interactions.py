@@ -10,8 +10,8 @@ from app.schemas.state import LearnerConceptStateRead
 
 
 class OfflineContentRequest(BaseModel):
-    cached_activity_ids: list[str] = []
-    cached_concept_ids: list[str] = []
+    cached_activity_ids: list[str] = Field(default_factory=list)
+    cached_concept_ids: list[str] = Field(default_factory=list)
     app_shell_available: bool = False
 
 

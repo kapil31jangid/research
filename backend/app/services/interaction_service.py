@@ -19,10 +19,12 @@ from app.learner_model.state import parameters_for_concept
 from app.learner_model.uncertainty import calculate_uncertainty
 from app.misconceptions.detector import InteractionEvidence, detect_misconceptions
 from app.misconceptions.rules import load_rules
+from app.models.concept import Concept
 from app.models.interaction import Interaction
 from app.models.learner_state import MasteryHistory
 from app.models.question import Question
 from app.models.recommendation import Recommendation
+from app.offline.content_availability import resolve_offline_availability
 from app.recommendation.recommender import generate_recommendation, serialise_recommendation
 from app.resources.monitor import current_resources
 from app.resources.scoring import ResourceSnapshot, snapshot_from_measurements
@@ -169,14 +171,10 @@ def process_interaction(
         state.misconception_confidence = misconception.confidence if misconception else 0.0
         controller_started = perf_counter_ns()
         mastery = {item.concept_id: item.mastery_probability for item in states}
-        cached = payload.offline_content
-        relevant_cache = bool(
-            cached
-            and cached.app_shell_available
-            and (
-                question.concept_id in cached.cached_concept_ids
-                or bool(set(cached.cached_activity_ids))
-            )
+        availability = resolve_offline_availability(
+            payload.offline_content,
+            list(db.scalars(select(Concept))),
+            question.concept_id,
         )
         controller_input = ControllerInput(
             state.misconception_confidence,
@@ -185,7 +183,7 @@ def process_interaction(
             serialise_state(state).retained_mastery,
             sum(item.attempts for item in states),
             resource,
-            offline_cache_available=relevant_cache,
+            offline_cache_available=availability.available,
         )
         decision = decide_adaptation(controller_input)
         controller_latency = (perf_counter_ns() - controller_started) / 1_000_000
