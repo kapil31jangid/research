@@ -4,6 +4,8 @@ All endpoints return JSON. The service has no authentication in this local resea
 
 Interaction decisions expose requested and actual adaptation paths, controller rules, resource and offline availability, model/fallback metadata, and estimated plus measured latency fields. These additive audit fields support reproducible simulated experiments.
 
+Offline metadata is validated against seeded activity metadata rather than trusted directly from the client. The app shell does not imply educational content availability.
+
 ## Health
 
 `GET /health` returns `{"status":"ok","service":"rapid-learn"}`.
