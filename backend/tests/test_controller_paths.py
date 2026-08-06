@@ -40,3 +40,13 @@ def test_every_controller_path_is_reachable(
     )
     values.update(kwargs)
     assert decide_adaptation(ControllerInput(**values)).adaptation_path == expected
+
+
+def test_pedagogical_priorities_override_resource_paths() -> None:
+    critical = _resource("critical")
+    misconception = ControllerInput(0.9, 0.1, 0.9, 0.1, 30, critical, True, True)
+    assert decide_adaptation(misconception).adaptation_path == "misconception_remediation"
+    prerequisite = ControllerInput(0.0, 0.1, 0.9, 0.1, 30, critical, True, True)
+    assert decide_adaptation(prerequisite).adaptation_path == "prerequisite_review"
+    uncertain = ControllerInput(0.0, 1.0, 0.9, 0.1, 30, critical, True, True)
+    assert decide_adaptation(uncertain).adaptation_path == "diagnostic_assessment"
