@@ -2,12 +2,12 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
+from app.core.config import Settings
 from app.curriculum.graph import build_graph, descendants, prerequisite_ids
 from app.curriculum.loader import load_concepts
 from app.curriculum.prerequisites import prerequisite_status
 from app.misconceptions.detector import InteractionEvidence, detect_misconceptions
 from app.misconceptions.rules import MisconceptionRule, load_rules
-from app.core.config import Settings
 
 
 def test_prerequisite_graph_helpers_and_mastery_gate() -> None:
@@ -53,7 +53,9 @@ def _rule(**overrides: object) -> MisconceptionRule:
 def _errors(count: int, concept_id: str = "fraction_addition") -> list[InteractionEvidence]:
     now = datetime.now(UTC)
     return [
-        InteractionEvidence(concept_id, False, ["adds_denominators"], now - timedelta(minutes=index))
+        InteractionEvidence(
+            concept_id, False, ["adds_denominators"], now - timedelta(minutes=index)
+        )
         for index in range(count)
     ]
 

@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from app.core.config import Settings
 from app.learner_model.response_predictor import (
     FEATURE_COLUMNS,
     evaluate_predictor,
@@ -9,7 +10,6 @@ from app.learner_model.response_predictor import (
     predict_correctness,
     train_predictor,
 )
-from app.core.config import Settings
 from app.ml_runtime.model_registry import ResponsePredictorRegistry
 from app.ml_runtime.schemas import ResponsePredictionFeatures
 
@@ -30,7 +30,10 @@ def test_response_predictor_trains_and_has_safe_missing_model_fallback(tmp_path:
 
 
 def test_runtime_registry_validates_and_caches_a_trained_artifact(tmp_path: Path) -> None:
-    records = [{**{feature: float(index) for feature in FEATURE_COLUMNS}, "correct": index % 2} for index in range(20)]
+    records = [
+        {**{feature: float(index) for feature in FEATURE_COLUMNS}, "correct": index % 2}
+        for index in range(20)
+    ]
     from app.learner_model.response_predictor import save_predictor
 
     path = tmp_path / "predictor.joblib"

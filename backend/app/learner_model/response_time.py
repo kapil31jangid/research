@@ -10,10 +10,10 @@ def update_response_time_statistics(
 ) -> None:
     """Update running mean and sample variation using Welford's algorithm."""
     seconds = response_time_ms / 1000
-    count = state.response_time_count + 1
+    count = (state.response_time_count or 0) + 1
     delta = seconds - (state.average_response_time or 0.0)
     mean = (state.average_response_time or 0.0) + delta / count
-    state.response_time_m2 += delta * (seconds - mean)
+    state.response_time_m2 = (state.response_time_m2 or 0.0) + delta * (seconds - mean)
     state.response_time_count = count
     state.average_response_time = mean
     standard_deviation = sqrt(state.response_time_m2 / (count - 1)) if count > 1 else 0.0
