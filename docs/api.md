@@ -16,7 +16,8 @@ All endpoints return JSON. The service has no authentication in this local resea
 
 `GET /learners` lists local profiles. `GET /learners/{learner_id}` returns one profile.
 
+`GET /learners/{learner_id}/state` creates missing per-concept state entries on first use and returns current mastery, dynamic retained mastery, uncertainty, evidence, and forgetting parameters. `GET /learners/{learner_id}/progress` returns the same state list with aggregate progress. These endpoints do not yet accept learner interactions; BKT state updates arrive in the adaptive interaction milestone.
+
 ## Curriculum and questions
 
 `GET /concepts`, `GET /concepts/{concept_id}`, and `GET /curriculum/graph` expose the seeded fractions curriculum. `GET /questions?concept_id=fraction_addition&limit=10` lists safe question data; correct answers are never sent by this read API. `GET /questions/{question_id}` returns one question.
-

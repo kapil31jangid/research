@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./rapid_learn.db"
     log_level: str = "INFO"
     cors_origins: str = "http://localhost:5173"
+    default_forgetting_rate: float = 0.03
+    default_initial_mastery: float = 0.2
 
     @property
     def cors_origin_list(self) -> list[str]:

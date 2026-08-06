@@ -4,6 +4,7 @@ import json
 
 from sqlalchemy.orm import Session
 
+import app.models  # noqa: F401  # Register every SQLAlchemy model before create_all().
 from app.curriculum.graph import build_graph
 from app.curriculum.loader import load_concepts, load_questions
 from app.database.base import Base
