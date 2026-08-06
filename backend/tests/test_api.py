@@ -102,3 +102,28 @@ def test_interaction_runs_adaptive_loop_and_persists_recommendation(client):
     assert body["explanation"]
     assert client("GET", f"/interactions/{learner['id']}").json()[0]["correct"] is True
     assert len(client("GET", f"/recommendations/{learner['id']}").json()) == 1
+
+
+def test_repeated_matching_errors_trigger_persisted_misconception_remediation(client):
+    learner = client(
+        "POST", "/learners", json={"name": "Nia", "age_group": "10-12", "grade": 5}
+    ).json()
+    payload = {
+        "learner_id": learner["id"],
+        "question_id": "fraction_addition_01",
+        "submitted_answer": "3/8",
+        "response_time_ms": 1000,
+        "device_resource_state": {
+            "available_memory_mb": 800,
+            "total_memory_mb": 1000,
+            "cpu_percent": 10,
+            "battery_percent": 90,
+            "network_available": True,
+        },
+    }
+    assert (
+        client("POST", "/interactions", json=payload).json()["misconception"]["detected"] is False
+    )
+    response = client("POST", "/interactions", json=payload).json()
+    assert response["misconception"]["id"] == "adds_denominators"
+    assert response["decision"]["adaptation_path"] == "misconception_remediation"

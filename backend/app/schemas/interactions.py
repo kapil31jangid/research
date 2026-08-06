@@ -9,6 +9,12 @@ from app.schemas.resources import ResourceSimulationRequest, ResourceStateRead
 from app.schemas.state import LearnerConceptStateRead
 
 
+class OfflineContentRequest(BaseModel):
+    cached_activity_ids: list[str] = []
+    cached_concept_ids: list[str] = []
+    app_shell_available: bool = False
+
+
 class InteractionCreate(BaseModel):
     learner_id: str
     question_id: str
@@ -17,6 +23,7 @@ class InteractionCreate(BaseModel):
     hints_used: int = Field(default=0, ge=0, le=20)
     offline: bool = False
     device_resource_state: ResourceSimulationRequest | None = None
+    offline_content: OfflineContentRequest | None = None
 
 
 class InteractionRead(BaseModel):

@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from math import sqrt
 from time import perf_counter_ns
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.assessment.answer_evaluator import answers_equivalent
@@ -16,10 +17,13 @@ from app.curriculum.prerequisites import prerequisite_mastery
 from app.learner_model.bkt import update_mastery
 from app.learner_model.state import parameters_for_concept
 from app.learner_model.uncertainty import calculate_uncertainty
+from app.misconceptions.detector import InteractionEvidence, detect_misconceptions
+from app.misconceptions.rules import load_rules
 from app.models.interaction import Interaction
 from app.models.learner_state import MasteryHistory
 from app.models.question import Question
-from app.recommendation.recommender import generate_recommendation
+from app.models.recommendation import Recommendation
+from app.recommendation.recommender import generate_recommendation, serialise_recommendation
 from app.resources.monitor import current_resources
 from app.resources.scoring import ResourceSnapshot, snapshot_from_measurements
 from app.schemas.interactions import InteractionCreate, InteractionRead, MisconceptionRead
@@ -128,16 +132,54 @@ def process_interaction(
             )
         )
         db.flush()
+        recent = list(
+            db.scalars(
+                select(Interaction)
+                .where(Interaction.learner_id == payload.learner_id)
+                .order_by(Interaction.created_at.desc())
+                .limit(8)
+            )
+        )
+        patterns = {
+            item.id: json.loads(item.misconception_patterns)
+            for item in db.scalars(
+                select(Question).where(Question.id.in_([item.question_id for item in recent]))
+            )
+        }
+        detections = detect_misconceptions(
+            [
+                InteractionEvidence(
+                    item.concept_id,
+                    item.correct,
+                    patterns.get(item.question_id, []),
+                item.created_at if item.created_at.tzinfo else item.created_at.replace(tzinfo=UTC),
+                )
+                for item in recent
+            ],
+            load_rules(),
+        )
+        misconception = detections[0] if detections else None
+        state.suspected_misconception = misconception.id if misconception else None
+        state.misconception_confidence = misconception.confidence if misconception else 0.0
         controller_started = perf_counter_ns()
         mastery = {item.concept_id: item.mastery_probability for item in states}
+        cached = payload.offline_content
+        relevant_cache = bool(
+            cached
+            and cached.app_shell_available
+            and (
+                question.concept_id in cached.cached_concept_ids
+                or bool(set(cached.cached_activity_ids))
+            )
+        )
         controller_input = ControllerInput(
-            0.0,
+            state.misconception_confidence,
             prerequisite_mastery(build_graph(load_concepts()), question.concept_id, mastery),
             state.uncertainty,
             serialise_state(state).retained_mastery,
             sum(item.attempts for item in states),
             resource,
-            offline_cache_available=False,
+            offline_cache_available=relevant_cache,
         )
         decision = decide_adaptation(controller_input)
         controller_latency = (perf_counter_ns() - controller_started) / 1_000_000
@@ -151,8 +193,6 @@ def process_interaction(
             db,
             commit=False,
         )
-        from app.models.recommendation import Recommendation
-
         record = db.get(Recommendation, recommendation.id)
         record.measured_controller_latency_ms = controller_latency
         record.measured_recommendation_latency_ms = (
@@ -162,15 +202,18 @@ def process_interaction(
         db.commit()
         db.refresh(interaction)
         db.refresh(record)
-        recommendation = generate_recommendation if False else record
         return (
             _read(interaction),
             serialise_state(state),
-            MisconceptionRead(detected=False),
+            MisconceptionRead(
+                detected=misconception is not None,
+                id=misconception.id if misconception else None,
+                confidence=misconception.confidence if misconception else 0.0,
+                explanation=misconception.explanation if misconception else None,
+                remediation_activity=misconception.remediation_activity if misconception else None,
+            ),
             ResourceStateRead(**resource.__dict__),
-            __import__(
-                "app.recommendation.recommender", fromlist=["serialise_recommendation"]
-            ).serialise_recommendation(record),
+            serialise_recommendation(record),
         )
     except Exception:
         db.rollback()
