@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     model_artifact_path: str = "data/models/response_predictor.joblib"
     supported_model_version: str = "0.1.0"
     controller_mode: str = "deterministic"
+    misconception_evidence_window: int = Field(default=8, ge=2)
+    misconception_minimum_evidence: int = Field(default=2, ge=2)
+    misconception_default_threshold: float = Field(default=0.7, ge=0.0, le=1.0)
 
     @model_validator(mode="after")
     def validate_resource_thresholds(self) -> "Settings":
@@ -36,6 +39,8 @@ class Settings(BaseSettings):
             <= self.resource_moderate_threshold
         ):
             raise ValueError("Resource thresholds must be ordered: critical <= low <= moderate")
+        if self.misconception_minimum_evidence > self.misconception_evidence_window:
+            raise ValueError("Misconception evidence count cannot exceed its window")
         return self
 
     @property

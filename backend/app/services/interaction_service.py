@@ -135,9 +135,12 @@ def process_interaction(
         recent = list(
             db.scalars(
                 select(Interaction)
-                .where(Interaction.learner_id == payload.learner_id)
+                .where(
+                    Interaction.learner_id == payload.learner_id,
+                    Interaction.concept_id == question.concept_id,
+                )
                 .order_by(Interaction.created_at.desc())
-                .limit(8)
+                .limit(get_settings().misconception_evidence_window)
             )
         )
         patterns = {
@@ -152,7 +155,9 @@ def process_interaction(
                     item.concept_id,
                     item.correct,
                     patterns.get(item.question_id, []),
-                item.created_at if item.created_at.tzinfo else item.created_at.replace(tzinfo=UTC),
+                    item.created_at
+                    if item.created_at.tzinfo
+                    else item.created_at.replace(tzinfo=UTC),
                 )
                 for item in recent
             ],
