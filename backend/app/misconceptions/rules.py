@@ -2,17 +2,30 @@
 
 from pathlib import Path
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class MisconceptionRule(BaseModel):
     id: str
     concept_ids: list[str] = Field(min_length=1)
-    minimum_evidence: int = Field(ge=2)
-    recent_window: int = Field(ge=2)
+    # Rules may tune these values, otherwise the experiment configuration supplies
+    # one consistent default across the curriculum.
+    minimum_evidence: int | None = Field(default=None, ge=2)
+    confidence_threshold: float | None = Field(default=None, ge=0.0, le=1.0)
+    recent_window: int | None = Field(default=None, ge=2)
     pattern_labels: list[str] = Field(min_length=1)
     explanation: str
     remediation_activity: str
+
+    @model_validator(mode="after")
+    def validate_evidence_override(self) -> "MisconceptionRule":
+        if (
+            self.minimum_evidence is not None
+            and self.recent_window is not None
+            and self.minimum_evidence > self.recent_window
+        ):
+            raise ValueError("Rule minimum evidence cannot exceed its recent window")
+        return self
 
 
 def load_rules() -> list[MisconceptionRule]:

@@ -162,6 +162,7 @@ def process_interaction(
                 for item in recent
             ],
             load_rules(),
+            get_settings(),
         )
         misconception = detections[0] if detections else None
         state.suspected_misconception = misconception.id if misconception else None

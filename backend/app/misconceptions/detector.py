@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
+from app.core.config import Settings, get_settings
 from app.misconceptions.rules import MisconceptionRule
 
 
@@ -24,23 +25,29 @@ class MisconceptionDetection:
 
 
 def detect_misconceptions(
-    interactions: list[InteractionEvidence], rules: list[MisconceptionRule]
+    interactions: list[InteractionEvidence],
+    rules: list[MisconceptionRule],
+    settings: Settings | None = None,
 ) -> list[MisconceptionDetection]:
-    """Detect only rules supported by at least two matching recent errors."""
+    """Return rule detections supported by recent, concept-relevant error evidence."""
+    settings = settings or get_settings()
     detections: list[MisconceptionDetection] = []
     for rule in rules:
+        recent_window = rule.recent_window or settings.misconception_evidence_window
+        minimum_evidence = rule.minimum_evidence or settings.misconception_minimum_evidence
+        confidence_threshold = rule.confidence_threshold or settings.misconception_default_threshold
         relevant = [
             interaction
-            for interaction in sorted(interactions, key=lambda item: item.timestamp, reverse=True)[
-                : rule.recent_window
-            ]
+            for interaction in sorted(interactions, key=lambda item: item.timestamp, reverse=True)
             if interaction.concept_id in rule.concept_ids
             and not interaction.correct
             and set(interaction.pattern_labels).intersection(rule.pattern_labels)
-        ]
+        ][:recent_window]
         count = len(relevant)
-        if count >= rule.minimum_evidence:
-            confidence = min(1.0, 0.55 + 0.15 * (count - rule.minimum_evidence + 1))
+        if count >= minimum_evidence:
+            confidence = min(1.0, 0.55 + 0.15 * (count - minimum_evidence + 1))
+            if confidence < confidence_threshold:
+                continue
             detections.append(
                 MisconceptionDetection(
                     id=rule.id,
