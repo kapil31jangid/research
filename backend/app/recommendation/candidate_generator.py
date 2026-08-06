@@ -26,6 +26,7 @@ def generate_candidates(
     focus_concept_id: str,
     adaptation_path: str,
     recent_activity_ids: set[str],
+    allowed_activity_ids: set[str] | None = None,
 ) -> list[ActivityCandidate]:
     """Rank source concepts by need and expose their distinct available activities."""
     ordered_states = sorted(
@@ -44,6 +45,8 @@ def generate_candidates(
             continue
         concept = concepts[state.concept_id]
         for activity_id in json.loads(concept.activity_ids):
+            if allowed_activity_ids is not None and activity_id not in allowed_activity_ids:
+                continue
             if activity_id in recent_activity_ids:
                 continue
             candidates.append(

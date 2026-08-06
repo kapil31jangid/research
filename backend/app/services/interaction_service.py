@@ -254,6 +254,11 @@ def process_interaction(
             predicted_correctness_probability=probability,
             fallback_used=fallback_used,
             fallback_reason=fallback_reason,
+            allowed_activity_ids=(
+                set(availability.matching_activity_ids)
+                if decision.adaptation_path == "cached_offline_recommendation"
+                else None
+            ),
         )
         record = db.get(Recommendation, recommendation.id)
         record.measured_controller_latency_ms = controller_latency
