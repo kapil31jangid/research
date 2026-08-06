@@ -2,19 +2,23 @@
 
 import json
 from dataclasses import replace
+from datetime import UTC, datetime
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.controller.explanation import explain_decision
 from app.controller.policy import ControllerDecision, ControllerInput
+from app.curriculum.graph import build_graph
+from app.curriculum.loader import load_concepts
+from app.curriculum.prerequisites import prerequisite_mastery
 from app.ml_runtime.model_registry import get_response_predictor_registry
-from app.ml_runtime.schemas import ResponsePredictionFeatures
 from app.models.activity import LearningActivity
 from app.models.concept import Concept
 from app.models.learner_state import LearnerConceptState
 from app.models.recommendation import Recommendation
 from app.recommendation.candidate_generator import generate_candidates
+from app.recommendation.ml_features import build_candidate_prediction_features
 from app.recommendation.scorer import score_candidate
 from app.schemas.recommendations import RecommendationAlternativeRead, RecommendationRead
 
@@ -109,25 +113,24 @@ def generate_recommendation(
     if decision.adaptation_path == "lightweight_ml_recommendation" and not candidate_probabilities:
         registry = get_response_predictor_registry()
         state_by_concept = {state.concept_id: state for state in states}
+        activities_by_id = {activity.id: activity for activity in activities}
+        mastery_by_concept = {state.concept_id: state.mastery_probability for state in states}
+        graph = build_graph(load_concepts())
+        now = datetime.now(UTC)
         for candidate in candidates:
             state = state_by_concept[candidate.concept_id]
+            activity = activities_by_id[candidate.activity_id]
             candidate_probabilities[candidate.activity_id] = registry.predict_probability(
-                ResponsePredictionFeatures(
-                    mastery=state.mastery_probability,
-                    retained_mastery=state.mastery_probability,
-                    uncertainty=state.uncertainty,
-                    question_difficulty=float(candidate.expected_learning_gain),
-                    concept_difficulty=float(candidate.expected_learning_gain),
-                    recent_correctness=0.0,
-                    average_response_time=state.average_response_time or 0.0,
-                    response_time_variation=state.response_time_variation,
-                    hint_usage_rate=state.hint_usage_rate,
-                    attempts=float(state.attempts),
-                    correct_attempts=float(state.correct_attempts),
-                    prerequisite_mastery=candidate.prerequisite_relevance,
-                    days_since_practice=0.0,
-                    misconception_confidence=state.misconception_confidence,
+                build_candidate_prediction_features(
+                    candidate=candidate,
+                    activity=activity,
+                    concept=concepts[candidate.concept_id],
+                    learner_state=state,
+                    prerequisite_mastery=prerequisite_mastery(
+                        graph, candidate.concept_id, mastery_by_concept
+                    ),
                     resource_score=controller_input.resource.score,
+                    now=now,
                 )
             )
     candidates = [

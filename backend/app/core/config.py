@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     high_uncertainty_threshold: float = Field(default=0.65, ge=0.0, le=1.0)
     retained_mastery_threshold: float = Field(default=0.65, ge=0.0, le=1.0)
     ml_minimum_interactions: int = Field(default=30, ge=1)
+    ml_target_success_probability: float = Field(default=0.70, ge=0.0, le=1.0)
+    ml_learning_zone_weight: float = Field(default=0.10, ge=0.0, le=1.0)
     response_time_variation_reference_seconds: float = Field(default=5.0, gt=0.0)
     model_artifact_path: str = "data/models/response_predictor.joblib"
     supported_model_version: str = "0.1.0"

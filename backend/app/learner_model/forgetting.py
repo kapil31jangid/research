@@ -7,7 +7,10 @@ from app.learner_model.bkt import clamp_probability
 
 
 def retained_mastery(
-    mastery: float, last_practised_at: datetime | None, forgetting_rate: float
+    mastery: float,
+    last_practised_at: datetime | None,
+    forgetting_rate: float,
+    now: datetime | None = None,
 ) -> float:
     """Estimate retained mastery using exponential decay at read time only."""
     if forgetting_rate < 0:
@@ -17,7 +20,10 @@ def retained_mastery(
     practice_time = last_practised_at
     if practice_time.tzinfo is None:
         practice_time = practice_time.replace(tzinfo=UTC)
-    days = max(0.0, (datetime.now(UTC) - practice_time).total_seconds() / 86_400)
+    current_time = now or datetime.now(UTC)
+    if current_time.tzinfo is None:
+        current_time = current_time.replace(tzinfo=UTC)
+    days = max(0.0, (current_time - practice_time).total_seconds() / 86_400)
     return clamp_probability(mastery * math.exp(-forgetting_rate * days))
 
 
