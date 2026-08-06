@@ -36,6 +36,7 @@ class RecommendationRead(BaseModel):
     rejected_paths: list[str]
     offline_content_available: bool
     matching_offline_activity_ids: list[str]
+    offline_content_reason: str | None
     score: float
     explanation: list[str]
     alternatives: list[RecommendationAlternativeRead]

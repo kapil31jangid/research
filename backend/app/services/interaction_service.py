@@ -243,6 +243,8 @@ def process_interaction(
                     if decision.adaptation_path == "misconception_remediation" and misconception
                     else None
                 ),
+                matching_offline_activity_ids=availability.matching_activity_ids,
+                offline_content_reason=availability.reason,
             )
 
         try:

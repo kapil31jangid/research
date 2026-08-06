@@ -43,6 +43,7 @@ def serialise_recommendation(item: Recommendation) -> RecommendationRead:
         rejected_paths=json.loads(item.rejected_paths),
         offline_content_available=item.offline_content_available,
         matching_offline_activity_ids=json.loads(item.matching_offline_activity_ids),
+        offline_content_reason=item.offline_content_reason,
         score=item.score,
         explanation=json.loads(item.explanation),
         alternatives=json.loads(item.alternatives),
@@ -67,6 +68,8 @@ def generate_recommendation(
     candidate_probabilities: dict[str, float] | None = None,
     allowed_activity_ids: set[str] | None = None,
     preferred_activity_id: str | None = None,
+    matching_offline_activity_ids: list[str] | None = None,
+    offline_content_reason: str | None = None,
 ) -> RecommendationRead:
     """Score candidates, retain at least three alternatives when available, and persist."""
     concepts = {concept.id: concept for concept in db.scalars(select(Concept))}
@@ -177,6 +180,8 @@ def generate_recommendation(
         triggered_rules=json.dumps(decision.triggered_rules),
         rejected_paths=json.dumps(decision.rejected_paths),
         offline_content_available=controller_input.offline_cache_available,
+        matching_offline_activity_ids=json.dumps(matching_offline_activity_ids or []),
+        offline_content_reason=offline_content_reason,
         expected_learning_gain=selected.expected_learning_gain,
         computational_cost_ms=decision.estimated_computational_cost_ms,
         score=score,

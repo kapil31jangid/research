@@ -14,6 +14,7 @@ export type Recommendation = {
   model_version?: string | null;
   predicted_correctness_probability?: number | null;
   matching_offline_activity_ids?: string[];
+  offline_content_reason?: string | null;
   measured_total_adaptive_latency_ms?: number;
 };
 export type Resource = { score: number; level: string; offline: boolean; cpu_percent: number; available_memory_mb: number };

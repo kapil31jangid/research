@@ -31,6 +31,7 @@ class Recommendation(Base):
     rejected_paths: Mapped[str] = mapped_column(Text, default="[]", nullable=False)
     offline_content_available: Mapped[bool] = mapped_column(default=False, nullable=False)
     matching_offline_activity_ids: Mapped[str] = mapped_column(Text, default="[]", nullable=False)
+    offline_content_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     expected_learning_gain: Mapped[float] = mapped_column(Float, nullable=False)
     computational_cost_ms: Mapped[float] = mapped_column(Float, nullable=False)
     measured_controller_latency_ms: Mapped[float] = mapped_column(

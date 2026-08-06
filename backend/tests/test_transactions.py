@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from sqlalchemy import select
 
@@ -47,6 +49,8 @@ def test_interaction_persists_atomically_in_a_fresh_session(client) -> None:
         )
         assert state is not None and state.attempts >= 1
         assert recommendation is not None and recommendation.measured_total_adaptive_latency_ms >= 0
+        assert json.loads(recommendation.matching_offline_activity_ids) == []
+        assert recommendation.offline_content_reason == "No offline metadata was supplied"
 
 
 def test_late_recommendation_failure_rolls_back_everything(client, monkeypatch) -> None:
