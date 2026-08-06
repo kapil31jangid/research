@@ -38,6 +38,8 @@ def resolve_offline_availability(
     cached_ids = set(request.cached_activity_ids)
     matching = []
     for activity in activities:
+        if activity.is_active is False or activity.deprecated_at is not None:
+            continue
         paths = set(json.loads(activity.adaptation_paths))
         misconceptions = set(json.loads(activity.misconception_ids))
         explicitly_cached = activity.id in cached_ids

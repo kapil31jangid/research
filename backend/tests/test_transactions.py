@@ -111,6 +111,8 @@ def test_ml_prediction_failure_falls_back_and_commits(client, monkeypatch) -> No
             select(Recommendation).where(Recommendation.learner_id == learner["id"])
         )
         assert persisted is not None and persisted.fallback_used is True
+        assert persisted.selected_candidate_predicted_probability is None
+        assert json.loads(persisted.candidate_prediction_summary) == []
 
 
 def test_prerequisite_review_targets_the_weakest_direct_prerequisite(client, monkeypatch) -> None:
