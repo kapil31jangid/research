@@ -3,7 +3,6 @@
 import json
 from dataclasses import replace
 from datetime import UTC, datetime
-from math import sqrt
 from time import perf_counter_ns
 
 from sqlalchemy import select
@@ -16,6 +15,7 @@ from app.curriculum.graph import build_graph
 from app.curriculum.loader import load_concepts
 from app.curriculum.prerequisites import prerequisite_mastery
 from app.learner_model.bkt import update_mastery
+from app.learner_model.response_time import update_response_time_statistics
 from app.learner_model.state import parameters_for_concept
 from app.learner_model.uncertainty import calculate_uncertainty
 from app.misconceptions.detector import InteractionEvidence, detect_misconceptions
@@ -104,18 +104,10 @@ def process_interaction(
         state.correct_attempts += int(correct)
         correctness = (json.loads(state.recent_correctness) + [correct])[-8:]
         state.recent_correctness = json.dumps(correctness)
-        seconds = payload.response_time_ms / 1000
-        count = state.response_time_count + 1
-        mean = state.average_response_time or 0.0
-        delta = seconds - mean
-        mean += delta / count
-        state.response_time_m2 += delta * (seconds - mean)
-        state.response_time_count = count
-        state.average_response_time = mean
-        state.response_time_variation = min(
-            sqrt(state.response_time_m2 / (count - 1) if count > 1 else 0.0)
-            / get_settings().response_time_variation_reference_seconds,
-            1.0,
+        update_response_time_statistics(
+            state,
+            payload.response_time_ms,
+            get_settings().response_time_variation_reference_seconds,
         )
         state.hint_usage_rate = (
             state.hint_usage_rate * previous + int(payload.hints_used > 0)
