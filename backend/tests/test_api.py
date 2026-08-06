@@ -40,3 +40,34 @@ def test_learner_state_and_progress_initialise_all_concepts(client):
     assert progress.status_code == 200
     assert progress.json()["concept_count"] == 12
     assert progress.json()["average_uncertainty"] == 1.0
+
+
+def test_learning_plan_and_diagnostic_question_respect_prerequisites(client):
+    learner = client(
+        "POST", "/learners", json={"name": "Meera", "age_group": "10-12", "grade": 5}
+    ).json()
+    plan = client("GET", f"/learners/{learner['id']}/learning-plan")
+    assert plan.status_code == 200
+    assert plan.json()["ready_concept_ids"] == ["whole_numbers"]
+    assert "fraction_addition" in plan.json()["blocked_concept_ids"]
+    next_question = client("GET", f"/questions/next?learner_id={learner['id']}")
+    assert next_question.status_code == 200
+    assert next_question.json()["selection_type"] == "diagnostic_assessment"
+    assert next_question.json()["concept_id"] == "whole_numbers"
+
+
+def test_resource_simulation_returns_explainable_resource_level(client):
+    response = client(
+        "POST",
+        "/resources/simulate",
+        json={
+            "available_memory_mb": 50,
+            "total_memory_mb": 1_000,
+            "cpu_percent": 95,
+            "battery_percent": 5,
+            "network_available": False,
+        },
+    )
+    assert response.status_code == 200
+    assert response.json()["offline"] is True
+    assert response.json()["level"] == "critical"

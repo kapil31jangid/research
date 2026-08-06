@@ -2,6 +2,7 @@
 
 from functools import lru_cache
 
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -14,6 +15,24 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:5173"
     default_forgetting_rate: float = 0.03
     default_initial_mastery: float = 0.2
+    resource_critical_threshold: float = Field(default=0.25, ge=0.0, le=1.0)
+    resource_low_threshold: float = Field(default=0.50, ge=0.0, le=1.0)
+    resource_moderate_threshold: float = Field(default=0.75, ge=0.0, le=1.0)
+    high_misconception_threshold: float = Field(default=0.70, ge=0.0, le=1.0)
+    prerequisite_mastery_threshold: float = Field(default=0.75, ge=0.0, le=1.0)
+    high_uncertainty_threshold: float = Field(default=0.65, ge=0.0, le=1.0)
+    retained_mastery_threshold: float = Field(default=0.65, ge=0.0, le=1.0)
+    ml_minimum_interactions: int = Field(default=30, ge=1)
+
+    @model_validator(mode="after")
+    def validate_resource_thresholds(self) -> "Settings":
+        if not (
+            self.resource_critical_threshold
+            <= self.resource_low_threshold
+            <= self.resource_moderate_threshold
+        ):
+            raise ValueError("Resource thresholds must be ordered: critical <= low <= moderate")
+        return self
 
     @property
     def cors_origin_list(self) -> list[str]:

@@ -1,32 +1,22 @@
 """Question read endpoints; answers are deliberately excluded from responses."""
 
-import json
-
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
+from app.models.learner import Learner
 from app.models.question import Question
+from app.schemas.learning import LearningSelectionRead
 from app.schemas.question import QuestionRead
+from app.services.learning_service import select_next_question
+from app.services.question_service import serialise_question
 
 router = APIRouter(prefix="/questions", tags=["questions"])
 
 
 def serialise(question: Question) -> dict[str, object]:
-    return {
-        "id": question.id,
-        "concept_id": question.concept_id,
-        "text": question.text,
-        "answer_type": question.answer_type,
-        "options": json.loads(question.options),
-        "difficulty": question.difficulty,
-        "explanation": question.explanation,
-        "diagnostic_value": question.diagnostic_value,
-        "estimated_cost_ms": question.estimated_cost_ms,
-        "misconception_patterns": json.loads(question.misconception_patterns),
-        "template_id": question.template_id,
-    }
+    return serialise_question(question)
 
 
 @router.get("", response_model=list[QuestionRead])
@@ -44,6 +34,16 @@ async def list_questions(
             .limit(limit)
         )
     return [serialise(question) for question in db.scalars(query)]
+
+
+@router.get("/next", response_model=LearningSelectionRead)
+async def next_question(learner_id: str, db: Session = Depends(get_db)) -> LearningSelectionRead:
+    if db.get(Learner, learner_id) is None:
+        raise HTTPException(status_code=404, detail="Learner not found")
+    selection = select_next_question(learner_id, db)
+    if selection is None:
+        raise HTTPException(status_code=404, detail="No eligible question available")
+    return selection
 
 
 @router.get("/{question_id}", response_model=QuestionRead)

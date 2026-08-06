@@ -9,8 +9,10 @@ from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.models.learner import Learner
 from app.schemas.learner import LearnerCreate, LearnerRead
+from app.schemas.learning import LearningPlanRead
 from app.schemas.state import LearnerConceptStateRead, LearnerProgressRead
 from app.services.learner_service import ensure_learner_states, learner_progress, serialise_state
+from app.services.learning_service import learning_plan
 
 router = APIRouter(prefix="/learners", tags=["learners"])
 
@@ -56,3 +58,10 @@ async def get_learner_progress(
     if db.get(Learner, learner_id) is None:
         raise HTTPException(status_code=404, detail="Learner not found")
     return learner_progress(learner_id, db)
+
+
+@router.get("/{learner_id}/learning-plan", response_model=LearningPlanRead)
+async def get_learning_plan(learner_id: str, db: Session = Depends(get_db)) -> LearningPlanRead:
+    if db.get(Learner, learner_id) is None:
+        raise HTTPException(status_code=404, detail="Learner not found")
+    return learning_plan(learner_id, db)

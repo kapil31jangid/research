@@ -18,6 +18,12 @@ All endpoints return JSON. The service has no authentication in this local resea
 
 `GET /learners/{learner_id}/state` creates missing per-concept state entries on first use and returns current mastery, dynamic retained mastery, uncertainty, evidence, and forgetting parameters. `GET /learners/{learner_id}/progress` returns the same state list with aggregate progress. These endpoints do not yet accept learner interactions; BKT state updates arrive in the adaptive interaction milestone.
 
+`GET /learners/{learner_id}/learning-plan` returns currently eligible concepts, concepts requiring spaced review, and concepts blocked by prerequisites. `GET /questions/next?learner_id={learner_id}` returns a learner-safe diagnostic or spaced-review question; no correct answer is exposed.
+
+## Resources
+
+`GET /resources/current` reports local host resource measurements with safe battery and network fallbacks. `POST /resources/simulate` evaluates a supplied resource profile for reproducible research scenarios. For example, provide memory, CPU, battery, and network fields to receive normalised score, resource level, and offline status.
+
 ## Curriculum and questions
 
 `GET /concepts`, `GET /concepts/{concept_id}`, and `GET /curriculum/graph` expose the seeded fractions curriculum. `GET /questions?concept_id=fraction_addition&limit=10` lists safe question data; correct answers are never sent by this read API. `GET /questions/{question_id}` returns one question.

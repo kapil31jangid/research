@@ -1,0 +1,74 @@
+[
+  {
+    "id": "adds_denominators",
+    "concept_ids": ["fraction_addition"],
+    "minimum_evidence": 2,
+    "recent_window": 8,
+    "pattern_labels": ["adds_denominators"],
+    "explanation": "The learner appears to add denominators as well as numerators. Denominators describe the size of parts and must stay consistent.",
+    "remediation_activity": "visual_common_denominator_demo"
+  },
+  {
+    "id": "subtracts_denominators",
+    "concept_ids": ["fraction_subtraction"],
+    "minimum_evidence": 2,
+    "recent_window": 8,
+    "pattern_labels": ["subtracts_denominators"],
+    "explanation": "The learner appears to subtract denominators. Use fraction bars to preserve the part size.",
+    "remediation_activity": "fraction_bar_subtract"
+  },
+  {
+    "id": "larger_denominator_larger_fraction",
+    "concept_ids": ["comparing_fractions"],
+    "minimum_evidence": 2,
+    "recent_window": 8,
+    "pattern_labels": ["larger_denominator_larger_fraction"],
+    "explanation": "The learner may assume a larger denominator means a larger fraction. With the same numerator, more parts make each part smaller.",
+    "remediation_activity": "fraction_number_line"
+  },
+  {
+    "id": "fails_equivalence",
+    "concept_ids": ["equivalent_fractions"],
+    "minimum_evidence": 2,
+    "recent_window": 8,
+    "pattern_labels": ["fails_equivalence"],
+    "explanation": "The learner is not yet consistently recognising equivalent fractions. Match visual fraction strips before using multiplication.",
+    "remediation_activity": "equivalence_strip"
+  },
+  {
+    "id": "incorrect_common_denominator",
+    "concept_ids": ["common_denominators", "fraction_addition", "fraction_subtraction"],
+    "minimum_evidence": 2,
+    "recent_window": 8,
+    "pattern_labels": ["incorrect_common_denominator"],
+    "explanation": "The learner may be changing only one part of a fraction when finding a common denominator.",
+    "remediation_activity": "denominator_ladder"
+  },
+  {
+    "id": "confuses_numerator_denominator",
+    "concept_ids": ["numerator_denominator"],
+    "minimum_evidence": 2,
+    "recent_window": 8,
+    "pattern_labels": ["confuses_numerator_denominator"],
+    "explanation": "The learner may be swapping the numerator and denominator. Label top and bottom numbers with a fraction card.",
+    "remediation_activity": "label_fraction_parts"
+  },
+  {
+    "id": "mixed_improper_conversion",
+    "concept_ids": ["mixed_numbers", "improper_fractions"],
+    "minimum_evidence": 2,
+    "recent_window": 8,
+    "pattern_labels": ["mixed_improper_conversion"],
+    "explanation": "The learner may be converting mixed and improper fractions without multiplying whole numbers by the denominator.",
+    "remediation_activity": "conversion_steps"
+  },
+  {
+    "id": "incorrect_cancelling",
+    "concept_ids": ["equivalent_fractions", "simplifying_fractions"],
+    "minimum_evidence": 2,
+    "recent_window": 8,
+    "pattern_labels": ["incorrect_cancelling"],
+    "explanation": "The learner may be cancelling digits instead of dividing numerator and denominator by the same factor.",
+    "remediation_activity": "simplify_with_tiles"
+  }
+]
