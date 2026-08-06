@@ -3,8 +3,15 @@
 from app.recommendation.candidate_generator import ActivityCandidate
 
 
-def score_candidate(candidate: ActivityCandidate, resource_score: float) -> tuple[float, str]:
+def score_candidate(
+    candidate: ActivityCandidate, resource_score: float, target_success_probability: float = 0.7
+) -> tuple[float, str]:
     """Apply the configured initial scoring formula and describe the result."""
+    learning_zone_score = (
+        1.0 - abs(candidate.predicted_correctness_probability - target_success_probability)
+        if candidate.predicted_correctness_probability is not None
+        else 0.0
+    )
     score = (
         0.30 * candidate.expected_learning_gain
         + 0.20 * candidate.prerequisite_relevance
@@ -12,6 +19,7 @@ def score_candidate(candidate: ActivityCandidate, resource_score: float) -> tupl
         + 0.15 * candidate.information_gain
         + 0.10 * candidate.misconception_relevance
         - 0.05 * candidate.computational_cost * (1.0 + (1.0 - resource_score))
+        + 0.10 * learning_zone_score
     )
     explanation = (
         f"gain={candidate.expected_learning_gain:.2f}, "

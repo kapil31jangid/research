@@ -17,6 +17,7 @@ class ActivityCandidate:
     information_gain: float
     misconception_relevance: float
     computational_cost: float
+    predicted_correctness_probability: float | None = None
 
 
 def generate_candidates(

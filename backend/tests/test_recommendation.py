@@ -10,6 +10,12 @@ def test_candidate_score_rewards_need_and_penalises_cost() -> None:
     assert score_candidate(high_need, 0.5)[0] > score_candidate(low_need, 0.5)[0]
 
 
+def test_candidate_prediction_rewards_the_learning_zone() -> None:
+    zone = ActivityCandidate("a", "zone", 0.5, 0.5, 0.5, 0.5, 0.0, 0.2, 0.7)
+    outside = ActivityCandidate("a", "outside", 0.5, 0.5, 0.5, 0.5, 0.0, 0.2, 0.1)
+    assert score_candidate(zone, 1.0)[0] > score_candidate(outside, 1.0)[0]
+
+
 def test_remediation_and_cached_paths_do_not_offer_other_concepts() -> None:
     concepts = {
         "focus": Concept(
