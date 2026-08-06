@@ -25,3 +25,7 @@ The curriculum graph exposes direct and transitive prerequisite queries. A conce
 ## Resource-aware controller
 
 The monitor reads memory, CPU, storage, battery (when available), and bounded network reachability. Missing battery data receives a neutral score rather than failing the system. Resource score combines memory (0.35), CPU availability (0.25), battery (0.20), and network (0.20), then classifies the result with configurable thresholds. The controller applies its documented priority order and returns the triggered rule, rejected matching alternatives, computational cost estimate, and confidence.
+
+## Interaction and recommendation loop
+
+`POST /interactions` persists an answer event, updates BKT mastery and independent uncertainty, appends mastery history, reads resource state, evaluates misconceptions and prerequisites, invokes the controller, scores available activities, stores the selected recommendation, and returns its explanation. Candidate score weights are learning gain (0.30), prerequisite relevance (0.20), retention need (0.20), information gain (0.15), misconception relevance (0.10), less resource-adjusted computational cost (0.05). Recent selected activities are excluded when alternatives exist.

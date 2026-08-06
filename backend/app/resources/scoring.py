@@ -60,3 +60,39 @@ class ResourceSnapshot:
     inference_latency_ms: float
     score: float
     level: ResourceLevel
+
+
+def snapshot_from_measurements(
+    available_memory_mb: float,
+    total_memory_mb: float,
+    cpu_percent: float,
+    battery_percent: float | None,
+    battery_charging: bool | None,
+    network_available: bool,
+    network_quality: float | None,
+    storage_available_mb: float,
+    inference_latency_ms: float,
+) -> ResourceSnapshot:
+    """Create a scored snapshot from observed or simulated measurements."""
+    score = calculate_resource_score(
+        available_memory_mb,
+        total_memory_mb,
+        cpu_percent,
+        battery_percent,
+        network_available,
+        network_quality,
+    )
+    return ResourceSnapshot(
+        available_memory_mb,
+        total_memory_mb,
+        cpu_percent,
+        battery_percent,
+        battery_charging,
+        network_available,
+        network_quality,
+        not network_available,
+        storage_available_mb,
+        inference_latency_ms,
+        score,
+        classify_resource_level(score),
+    )

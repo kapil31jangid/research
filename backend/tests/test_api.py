@@ -71,3 +71,34 @@ def test_resource_simulation_returns_explainable_resource_level(client):
     assert response.status_code == 200
     assert response.json()["offline"] is True
     assert response.json()["level"] == "critical"
+
+
+def test_interaction_runs_adaptive_loop_and_persists_recommendation(client):
+    learner = client(
+        "POST", "/learners", json={"name": "Ira", "age_group": "10-12", "grade": 5}
+    ).json()
+    response = client(
+        "POST",
+        "/interactions",
+        json={
+            "learner_id": learner["id"],
+            "question_id": "whole_numbers_01",
+            "submitted_answer": "19",
+            "response_time_ms": 2_000,
+            "device_resource_state": {
+                "available_memory_mb": 600,
+                "total_memory_mb": 1_000,
+                "cpu_percent": 20,
+                "battery_percent": 70,
+                "network_available": True,
+            },
+        },
+    )
+    assert response.status_code == 201
+    body = response.json()
+    assert body["interaction_result"]["correct"] is True
+    assert body["learner_state"]["attempts"] == 1
+    assert body["decision"]["selected_activity_id"]
+    assert body["explanation"]
+    assert client("GET", f"/interactions/{learner['id']}").json()[0]["correct"] is True
+    assert len(client("GET", f"/recommendations/{learner['id']}").json()) == 1

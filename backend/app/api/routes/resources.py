@@ -5,8 +5,7 @@ from fastapi import APIRouter
 from app.resources.monitor import current_resources
 from app.resources.scoring import (
     ResourceSnapshot,
-    calculate_resource_score,
-    classify_resource_level,
+    snapshot_from_measurements,
 )
 from app.schemas.resources import ResourceSimulationRequest, ResourceStateRead
 
@@ -24,16 +23,8 @@ async def get_current_resources() -> ResourceStateRead:
 
 @router.post("/simulate", response_model=ResourceStateRead)
 async def simulate_resources(payload: ResourceSimulationRequest) -> ResourceStateRead:
-    score = calculate_resource_score(
-        available_memory_mb=payload.available_memory_mb,
-        total_memory_mb=payload.total_memory_mb,
-        cpu_percent=payload.cpu_percent,
-        battery_percent=payload.battery_percent,
-        network_available=payload.network_available,
-        network_quality=payload.network_quality,
-    )
     return serialise(
-        ResourceSnapshot(
+        snapshot_from_measurements(
             available_memory_mb=payload.available_memory_mb,
             total_memory_mb=payload.total_memory_mb,
             cpu_percent=payload.cpu_percent,
@@ -41,10 +32,7 @@ async def simulate_resources(payload: ResourceSimulationRequest) -> ResourceStat
             battery_charging=payload.battery_charging,
             network_available=payload.network_available,
             network_quality=payload.network_quality,
-            offline=not payload.network_available,
             storage_available_mb=payload.storage_available_mb,
             inference_latency_ms=payload.inference_latency_ms,
-            score=score,
-            level=classify_resource_level(score),
         )
     )

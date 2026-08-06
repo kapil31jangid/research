@@ -24,6 +24,10 @@ All endpoints return JSON. The service has no authentication in this local resea
 
 `GET /resources/current` reports local host resource measurements with safe battery and network fallbacks. `POST /resources/simulate` evaluates a supplied resource profile for reproducible research scenarios. For example, provide memory, CPU, battery, and network fields to receive normalised score, resource level, and offline status.
 
+## Adaptive loop and recommendations
+
+`POST /interactions` accepts a learner ID, question ID, answer, response time, hints, offline flag, and optional simulated device state. It validates correctness, updates BKT state and uncertainty, records mastery history, detects repeated misconception evidence, selects an adaptation path, stores a recommendation, and returns the explainable decision. `GET /interactions/{learner_id}` returns stored interaction summaries. `POST /recommendations/generate` creates a fresh ranked recommendation; `GET /recommendations/{learner_id}` returns recommendation history.
+
 ## Curriculum and questions
 
 `GET /concepts`, `GET /concepts/{concept_id}`, and `GET /curriculum/graph` expose the seeded fractions curriculum. `GET /questions?concept_id=fraction_addition&limit=10` lists safe question data; correct answers are never sent by this read API. `GET /questions/{question_id}` returns one question.

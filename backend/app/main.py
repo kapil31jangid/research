@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import concepts, learners, questions, resources
+from app.api.routes import concepts, interactions, learners, questions, recommendations, resources
 from app.core.config import get_settings
 from app.core.logging import configure_logging
 from app.database.seed import initialise_database
@@ -31,6 +31,8 @@ app.include_router(learners.router)
 app.include_router(concepts.router)
 app.include_router(questions.router)
 app.include_router(resources.router)
+app.include_router(interactions.router)
+app.include_router(recommendations.router)
 
 
 @app.get("/health", tags=["system"])

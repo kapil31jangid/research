@@ -4,7 +4,7 @@ RAPID-Learn (Resource-Aware, Personalised and Intelligent Dynamic Learning) is a
 
 ## Current status
 
-Milestones 1–4 are implemented: a FastAPI and SQLite foundation, learner modelling, educational intelligence, device-resource monitoring/simulation, and an explainable resource-aware adaptation controller. Interaction-driven learner-state updates, recommendation ranking, synchronisation, the frontend, ML, and experiments are intentionally future milestones.
+Milestones 1–6 are implemented: a FastAPI and SQLite foundation, learner modelling, educational intelligence, resource-aware adaptation, explainable recommendation ranking/history, and the persisted interaction-to-recommendation loop. Synchronisation, the frontend, ML, experiments, and production hardening are intentionally future milestones.
 
 No educational outcomes or device-performance claims have been validated with real learners. Seed content is prototype content for research development.
 
