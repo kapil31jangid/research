@@ -29,3 +29,18 @@ The monitor reads memory, CPU, storage, battery (when available), and bounded ne
 ## Interaction and recommendation loop
 
 `POST /interactions` persists an answer event, updates BKT mastery and independent uncertainty, appends mastery history, reads resource state, evaluates misconceptions and prerequisites, invokes the controller, scores available activities, stores the selected recommendation, and returns its explanation. Candidate score weights are learning gain (0.30), prerequisite relevance (0.20), retention need (0.20), information gain (0.15), misconception relevance (0.10), less resource-adjusted computational cost (0.05). Recent selected activities are excluded when alternatives exist.
+
+```mermaid
+sequenceDiagram
+  participant L as Learner PWA
+  participant A as FastAPI
+  participant M as Learner model
+  participant C as Controller
+  participant R as Recommender
+  L->>A: Submit interaction (or queue offline)
+  A->>M: BKT, uncertainty, forgetting, misconceptions
+  M-->>C: Learner state + resource snapshot
+  C-->>R: Explainable adaptation path
+  R-->>A: Ranked activity + alternatives
+  A-->>L: Feedback and next recommendation
+```

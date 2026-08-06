@@ -1,16 +1,16 @@
 .PHONY: backend frontend test lint seed
 
 backend:
-	uvicorn app.main:app --app-dir backend --reload
+	.venv/bin/python -m uvicorn app.main:app --app-dir backend --reload
 
 frontend:
 	npm --prefix frontend run dev
 
 test:
-	pytest
+	.venv/bin/python -m pytest
 
 lint:
-	ruff check backend
+	.venv/bin/python -m ruff check backend
 
 seed:
-	python -m app.database.seed
+	.venv/bin/python -m app.database.seed

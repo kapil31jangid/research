@@ -25,6 +25,11 @@ backend/app/curriculum/prerequisites.py
 backend/app/database/base.py
 backend/app/database/seed.py
 backend/app/database/session.py
+backend/app/evaluation/__init__.py
+backend/app/evaluation/ablation.py
+backend/app/evaluation/educational_metrics.py
+backend/app/evaluation/resource_metrics.py
+backend/app/evaluation/system_metrics.py
 backend/app/learner_model/__init__.py
 backend/app/learner_model/bkt.py
 backend/app/learner_model/forgetting.py
@@ -75,3 +80,4 @@ backend/tests/test_educational_intelligence.py
 backend/tests/test_learner_model.py
 backend/tests/test_recommendation.py
 backend/tests/test_resources_and_controller.py
+backend/tests/test_response_predictor.py
