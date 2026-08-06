@@ -3,7 +3,7 @@
 import json
 from dataclasses import dataclass
 
-from app.models.concept import Concept
+from app.models.activity import LearningActivity
 from app.schemas.interactions import OfflineContentRequest
 
 
@@ -13,47 +13,63 @@ class OfflineAvailability:
     matching_activity_ids: list[str]
     reason: str
     app_shell_available: bool
+    adaptation_path: str
+    misconception_id: str | None
 
 
 def resolve_offline_availability(
     request: OfflineContentRequest | None,
-    concepts: list[Concept],
+    activities: list[LearningActivity],
     target_concept_id: str,
     adaptation_path: str = "cached_offline_recommendation",
     misconception_id: str | None = None,
 ) -> OfflineAvailability:
-    """Validate cached IDs against the seeded curriculum, not merely their presence."""
+    """Validate cached educational content against activity metadata."""
     app_shell_available = request.app_shell_available if request else False
     if request is None:
         return OfflineAvailability(
-            False, [], "No offline metadata was supplied", app_shell_available
+            False,
+            [],
+            "No offline metadata was supplied",
+            app_shell_available,
+            adaptation_path,
+            misconception_id,
         )
-    concept_by_activity = {
-        activity_id: concept.id
-        for concept in concepts
-        for activity_id in json.loads(concept.activity_ids)
-    }
-    matching = [
-        activity_id
-        for activity_id in request.cached_activity_ids
-        if concept_by_activity.get(activity_id) == target_concept_id
-    ]
+    cached_ids = set(request.cached_activity_ids)
+    matching = []
+    for activity in activities:
+        paths = set(json.loads(activity.adaptation_paths))
+        misconceptions = set(json.loads(activity.misconception_ids))
+        explicitly_cached = activity.id in cached_ids
+        concept_cached_and_bundled = (
+            activity.concept_id in request.cached_concept_ids and activity.bundled_locally
+        )
+        if not (explicitly_cached or concept_cached_and_bundled):
+            continue
+        if not (activity.concept_id == target_concept_id and activity.available_offline):
+            continue
+        if adaptation_path not in paths and "cached_offline_recommendation" not in paths:
+            continue
+        if (
+            adaptation_path == "misconception_remediation"
+            and misconception_id not in misconceptions
+        ):
+            continue
+        matching.append(activity.id)
     if matching:
         return OfflineAvailability(
-            True, matching, "Relevant cached activity is available", app_shell_available
+            True,
+            matching,
+            "Relevant cached activity is available",
+            app_shell_available,
+            adaptation_path,
+            misconception_id,
         )
-    if target_concept_id in request.cached_concept_ids:
-        concept = next((item for item in concepts if item.id == target_concept_id), None)
-        if concept and json.loads(concept.activity_ids):
-            return OfflineAvailability(
-                True,
-                json.loads(concept.activity_ids),
-                "Bundled content is available for the cached concept",
-                app_shell_available,
-            )
     reason = (
         "App shell is cached but no educational content matches"
         if app_shell_available
         else "No relevant cached educational content"
     )
-    return OfflineAvailability(False, [], reason, app_shell_available)
+    return OfflineAvailability(
+        False, [], reason, app_shell_available, adaptation_path, misconception_id
+    )

@@ -23,7 +23,7 @@ from app.misconceptions.rules import load_rules
 from app.ml_runtime.exceptions import ResponsePredictionError
 from app.ml_runtime.model_registry import get_response_predictor_registry
 from app.ml_runtime.schemas import ResponsePredictionFeatures
-from app.models.concept import Concept
+from app.models.activity import LearningActivity
 from app.models.interaction import Interaction
 from app.models.learner_state import MasteryHistory
 from app.models.question import Question
@@ -169,8 +169,10 @@ def process_interaction(
         mastery = {item.concept_id: item.mastery_probability for item in states}
         availability = resolve_offline_availability(
             payload.offline_content,
-            list(db.scalars(select(Concept))),
+            list(db.scalars(select(LearningActivity))),
             question.concept_id,
+            "misconception_remediation" if misconception else "cached_offline_recommendation",
+            misconception.id if misconception else None,
         )
         model_registry = get_response_predictor_registry()
         controller_input = ControllerInput(
