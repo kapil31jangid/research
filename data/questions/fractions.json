@@ -1,0 +1,2026 @@
+[
+  {
+    "id": "whole_numbers_01",
+    "concept_id": "whole_numbers",
+    "text": "Which whole number comes after 18?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "19",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "19",
+    "difficulty": 1,
+    "explanation": "The correct answer is 19. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "whole_numbers_core_v1"
+  },
+  {
+    "id": "whole_numbers_02",
+    "concept_id": "whole_numbers",
+    "text": "Which whole number comes before 50?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "49",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "49",
+    "difficulty": 1,
+    "explanation": "The correct answer is 49. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "whole_numbers_core_v1"
+  },
+  {
+    "id": "whole_numbers_03",
+    "concept_id": "whole_numbers",
+    "text": "What is the value of 7 in 472?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "7",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "7",
+    "difficulty": 1,
+    "explanation": "The correct answer is 7. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "whole_numbers_core_v1"
+  },
+  {
+    "id": "whole_numbers_04",
+    "concept_id": "whole_numbers",
+    "text": "Which is the greatest whole number: 34, 43, or 40?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "43",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "43",
+    "difficulty": 1,
+    "explanation": "The correct answer is 43. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "whole_numbers_core_v1"
+  },
+  {
+    "id": "whole_numbers_05",
+    "concept_id": "whole_numbers",
+    "text": "How many ones are in 206?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "6",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "6",
+    "difficulty": 1,
+    "explanation": "The correct answer is 6. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "whole_numbers_core_v1"
+  },
+  {
+    "id": "whole_numbers_06",
+    "concept_id": "whole_numbers",
+    "text": "Which number is even?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "27",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "27",
+    "difficulty": 1,
+    "explanation": "The correct answer is 27. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "whole_numbers_core_v1"
+  },
+  {
+    "id": "whole_numbers_07",
+    "concept_id": "whole_numbers",
+    "text": "Write forty-two as a numeral.",
+    "answer_type": "multiple_choice",
+    "options": [
+      "42",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "42",
+    "difficulty": 1,
+    "explanation": "The correct answer is 42. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "whole_numbers_core_v1"
+  },
+  {
+    "id": "whole_numbers_08",
+    "concept_id": "whole_numbers",
+    "text": "What is 35 + 5?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "40",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "40",
+    "difficulty": 1,
+    "explanation": "The correct answer is 40. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "whole_numbers_core_v1"
+  },
+  {
+    "id": "fraction_meaning_01",
+    "concept_id": "fraction_meaning",
+    "text": "A pizza is split into 4 equal parts. One part is",
+    "answer_type": "multiple_choice",
+    "options": [
+      "1/4",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "1/4",
+    "difficulty": 1,
+    "explanation": "The correct answer is 1/4. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "fraction_meaning_core_v1"
+  },
+  {
+    "id": "fraction_meaning_02",
+    "concept_id": "fraction_meaning",
+    "text": "In 3/5, the fraction represents",
+    "answer_type": "multiple_choice",
+    "options": [
+      "3 of 5 equal parts",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "3 of 5 equal parts",
+    "difficulty": 1,
+    "explanation": "The correct answer is 3 of 5 equal parts. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "fraction_meaning_core_v1"
+  },
+  {
+    "id": "fraction_meaning_03",
+    "concept_id": "fraction_meaning",
+    "text": "Which picture idea matches 1/2?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "1 of 2 equal parts",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "1 of 2 equal parts",
+    "difficulty": 1,
+    "explanation": "The correct answer is 1 of 2 equal parts. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "fraction_meaning_core_v1"
+  },
+  {
+    "id": "fraction_meaning_04",
+    "concept_id": "fraction_meaning",
+    "text": "A whole is divided into 8 equal pieces. Three pieces are shaded:",
+    "answer_type": "multiple_choice",
+    "options": [
+      "3/8",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "3/8",
+    "difficulty": 1,
+    "explanation": "The correct answer is 3/8. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "fraction_meaning_core_v1"
+  },
+  {
+    "id": "fraction_meaning_05",
+    "concept_id": "fraction_meaning",
+    "text": "Which fraction means no parts shaded?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "0/5",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "0/5",
+    "difficulty": 1,
+    "explanation": "The correct answer is 0/5. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "fraction_meaning_core_v1"
+  },
+  {
+    "id": "fraction_meaning_06",
+    "concept_id": "fraction_meaning",
+    "text": "Which fraction represents a whole split into 3 equal parts with all shaded?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "3/3",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "3/3",
+    "difficulty": 1,
+    "explanation": "The correct answer is 3/3. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "fraction_meaning_core_v1"
+  },
+  {
+    "id": "fraction_meaning_07",
+    "concept_id": "fraction_meaning",
+    "text": "Why must fraction parts be equal?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "Unequal parts do not represent equal shares",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "Unequal parts do not represent equal shares",
+    "difficulty": 1,
+    "explanation": "The correct answer is Unequal parts do not represent equal shares. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "fraction_meaning_core_v1"
+  },
+  {
+    "id": "fraction_meaning_08",
+    "concept_id": "fraction_meaning",
+    "text": "Two of six equal counters are red. What fraction are red?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "2/6",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "2/6",
+    "difficulty": 1,
+    "explanation": "The correct answer is 2/6. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "fraction_meaning_core_v1"
+  },
+  {
+    "id": "numerator_denominator_01",
+    "concept_id": "numerator_denominator",
+    "text": "In 3/7, what is the numerator?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "3",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "3",
+    "difficulty": 1,
+    "explanation": "The correct answer is 3. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "confuses_numerator_denominator"
+    ],
+    "template_id": "numerator_denominator_core_v1"
+  },
+  {
+    "id": "numerator_denominator_02",
+    "concept_id": "numerator_denominator",
+    "text": "In 3/7, what is the denominator?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "7",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "7",
+    "difficulty": 1,
+    "explanation": "The correct answer is 7. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "confuses_numerator_denominator"
+    ],
+    "template_id": "numerator_denominator_core_v1"
+  },
+  {
+    "id": "numerator_denominator_03",
+    "concept_id": "numerator_denominator",
+    "text": "The denominator tells",
+    "answer_type": "multiple_choice",
+    "options": [
+      "the total equal parts",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "the total equal parts",
+    "difficulty": 1,
+    "explanation": "The correct answer is the total equal parts. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "confuses_numerator_denominator"
+    ],
+    "template_id": "numerator_denominator_core_v1"
+  },
+  {
+    "id": "numerator_denominator_04",
+    "concept_id": "numerator_denominator",
+    "text": "The numerator tells",
+    "answer_type": "multiple_choice",
+    "options": [
+      "the selected equal parts",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "the selected equal parts",
+    "difficulty": 1,
+    "explanation": "The correct answer is the selected equal parts. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "confuses_numerator_denominator"
+    ],
+    "template_id": "numerator_denominator_core_v1"
+  },
+  {
+    "id": "numerator_denominator_05",
+    "concept_id": "numerator_denominator",
+    "text": "In 9/10, which number is on top?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "9",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "9",
+    "difficulty": 1,
+    "explanation": "The correct answer is 9. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "confuses_numerator_denominator"
+    ],
+    "template_id": "numerator_denominator_core_v1"
+  },
+  {
+    "id": "numerator_denominator_06",
+    "concept_id": "numerator_denominator",
+    "text": "In 5/8, which number names the size of each part?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "8",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "8",
+    "difficulty": 1,
+    "explanation": "The correct answer is 8. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "confuses_numerator_denominator"
+    ],
+    "template_id": "numerator_denominator_core_v1"
+  },
+  {
+    "id": "numerator_denominator_07",
+    "concept_id": "numerator_denominator",
+    "text": "Which fraction has numerator 4 and denominator 9?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "4/9",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "4/9",
+    "difficulty": 1,
+    "explanation": "The correct answer is 4/9. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "confuses_numerator_denominator"
+    ],
+    "template_id": "numerator_denominator_core_v1"
+  },
+  {
+    "id": "numerator_denominator_08",
+    "concept_id": "numerator_denominator",
+    "text": "In 1/6, what does 6 mean?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "one whole has six equal parts",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "one whole has six equal parts",
+    "difficulty": 1,
+    "explanation": "The correct answer is one whole has six equal parts. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "confuses_numerator_denominator"
+    ],
+    "template_id": "numerator_denominator_core_v1"
+  },
+  {
+    "id": "equivalent_fractions_01",
+    "concept_id": "equivalent_fractions",
+    "text": "Which fraction is equivalent to 1/2?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "2/4",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "2/4",
+    "difficulty": 2,
+    "explanation": "The correct answer is 2/4. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "fails_equivalence"
+    ],
+    "template_id": "equivalent_fractions_core_v1"
+  },
+  {
+    "id": "equivalent_fractions_02",
+    "concept_id": "equivalent_fractions",
+    "text": "Which fraction is equivalent to 3/4?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "6/8",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "6/8",
+    "difficulty": 2,
+    "explanation": "The correct answer is 6/8. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "fails_equivalence"
+    ],
+    "template_id": "equivalent_fractions_core_v1"
+  },
+  {
+    "id": "equivalent_fractions_03",
+    "concept_id": "equivalent_fractions",
+    "text": "Complete: 2/3 = ?/6",
+    "answer_type": "multiple_choice",
+    "options": [
+      "4",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "4",
+    "difficulty": 2,
+    "explanation": "The correct answer is 4. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "fails_equivalence"
+    ],
+    "template_id": "equivalent_fractions_core_v1"
+  },
+  {
+    "id": "equivalent_fractions_04",
+    "concept_id": "equivalent_fractions",
+    "text": "Are 4/6 and 2/3 equivalent?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "Yes",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "Yes",
+    "difficulty": 2,
+    "explanation": "The correct answer is Yes. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "fails_equivalence"
+    ],
+    "template_id": "equivalent_fractions_core_v1"
+  },
+  {
+    "id": "equivalent_fractions_05",
+    "concept_id": "equivalent_fractions",
+    "text": "Which operation makes 1/5 into 3/15?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "multiply top and bottom by 3",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "multiply top and bottom by 3",
+    "difficulty": 2,
+    "explanation": "The correct answer is multiply top and bottom by 3. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "fails_equivalence"
+    ],
+    "template_id": "equivalent_fractions_core_v1"
+  },
+  {
+    "id": "equivalent_fractions_06",
+    "concept_id": "equivalent_fractions",
+    "text": "Complete: 5/8 = 10/?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "16",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "16",
+    "difficulty": 2,
+    "explanation": "The correct answer is 16. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "fails_equivalence"
+    ],
+    "template_id": "equivalent_fractions_core_v1"
+  },
+  {
+    "id": "equivalent_fractions_07",
+    "concept_id": "equivalent_fractions",
+    "text": "Which is not equivalent to 1/3?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "2/3",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "2/3",
+    "difficulty": 2,
+    "explanation": "The correct answer is 2/3. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "fails_equivalence"
+    ],
+    "template_id": "equivalent_fractions_core_v1"
+  },
+  {
+    "id": "equivalent_fractions_08",
+    "concept_id": "equivalent_fractions",
+    "text": "Why are 2/4 and 1/2 equal?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "both name the same amount",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "both name the same amount",
+    "difficulty": 2,
+    "explanation": "The correct answer is both name the same amount. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "fails_equivalence"
+    ],
+    "template_id": "equivalent_fractions_core_v1"
+  },
+  {
+    "id": "simplifying_fractions_01",
+    "concept_id": "simplifying_fractions",
+    "text": "Simplify 2/4.",
+    "answer_type": "multiple_choice",
+    "options": [
+      "1/2",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "1/2",
+    "difficulty": 2,
+    "explanation": "The correct answer is 1/2. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "incorrect_cancelling"
+    ],
+    "template_id": "simplifying_fractions_core_v1"
+  },
+  {
+    "id": "simplifying_fractions_02",
+    "concept_id": "simplifying_fractions",
+    "text": "Simplify 6/8.",
+    "answer_type": "multiple_choice",
+    "options": [
+      "3/4",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "3/4",
+    "difficulty": 2,
+    "explanation": "The correct answer is 3/4. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "incorrect_cancelling"
+    ],
+    "template_id": "simplifying_fractions_core_v1"
+  },
+  {
+    "id": "simplifying_fractions_03",
+    "concept_id": "simplifying_fractions",
+    "text": "Simplify 9/12.",
+    "answer_type": "multiple_choice",
+    "options": [
+      "3/4",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "3/4",
+    "difficulty": 2,
+    "explanation": "The correct answer is 3/4. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "incorrect_cancelling"
+    ],
+    "template_id": "simplifying_fractions_core_v1"
+  },
+  {
+    "id": "simplifying_fractions_04",
+    "concept_id": "simplifying_fractions",
+    "text": "Simplify 10/15.",
+    "answer_type": "multiple_choice",
+    "options": [
+      "2/3",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "2/3",
+    "difficulty": 2,
+    "explanation": "The correct answer is 2/3. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "incorrect_cancelling"
+    ],
+    "template_id": "simplifying_fractions_core_v1"
+  },
+  {
+    "id": "simplifying_fractions_05",
+    "concept_id": "simplifying_fractions",
+    "text": "What common factor simplifies 8/12 first?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "4",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "4",
+    "difficulty": 2,
+    "explanation": "The correct answer is 4. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "incorrect_cancelling"
+    ],
+    "template_id": "simplifying_fractions_core_v1"
+  },
+  {
+    "id": "simplifying_fractions_06",
+    "concept_id": "simplifying_fractions",
+    "text": "Simplify 3/9.",
+    "answer_type": "multiple_choice",
+    "options": [
+      "1/3",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "1/3",
+    "difficulty": 2,
+    "explanation": "The correct answer is 1/3. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "incorrect_cancelling"
+    ],
+    "template_id": "simplifying_fractions_core_v1"
+  },
+  {
+    "id": "simplifying_fractions_07",
+    "concept_id": "simplifying_fractions",
+    "text": "Can 5/7 be simplified?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "No",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "No",
+    "difficulty": 2,
+    "explanation": "The correct answer is No. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "incorrect_cancelling"
+    ],
+    "template_id": "simplifying_fractions_core_v1"
+  },
+  {
+    "id": "simplifying_fractions_08",
+    "concept_id": "simplifying_fractions",
+    "text": "Simplify 12/16.",
+    "answer_type": "multiple_choice",
+    "options": [
+      "3/4",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "3/4",
+    "difficulty": 2,
+    "explanation": "The correct answer is 3/4. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "incorrect_cancelling"
+    ],
+    "template_id": "simplifying_fractions_core_v1"
+  },
+  {
+    "id": "comparing_fractions_01",
+    "concept_id": "comparing_fractions",
+    "text": "Which is greater: 1/2 or 1/3?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "1/2",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "1/2",
+    "difficulty": 2,
+    "explanation": "The correct answer is 1/2. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "larger_denominator_larger_fraction"
+    ],
+    "template_id": "comparing_fractions_core_v1"
+  },
+  {
+    "id": "comparing_fractions_02",
+    "concept_id": "comparing_fractions",
+    "text": "Which is smaller: 3/4 or 2/4?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "2/4",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "2/4",
+    "difficulty": 2,
+    "explanation": "The correct answer is 2/4. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "larger_denominator_larger_fraction"
+    ],
+    "template_id": "comparing_fractions_core_v1"
+  },
+  {
+    "id": "comparing_fractions_03",
+    "concept_id": "comparing_fractions",
+    "text": "Compare 2/5 and 3/5.",
+    "answer_type": "multiple_choice",
+    "options": [
+      "3/5",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "3/5",
+    "difficulty": 2,
+    "explanation": "The correct answer is 3/5. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "larger_denominator_larger_fraction"
+    ],
+    "template_id": "comparing_fractions_core_v1"
+  },
+  {
+    "id": "comparing_fractions_04",
+    "concept_id": "comparing_fractions",
+    "text": "Which is greater: 5/8 or 4/8?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "5/8",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "5/8",
+    "difficulty": 2,
+    "explanation": "The correct answer is 5/8. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "larger_denominator_larger_fraction"
+    ],
+    "template_id": "comparing_fractions_core_v1"
+  },
+  {
+    "id": "comparing_fractions_05",
+    "concept_id": "comparing_fractions",
+    "text": "Which is closer to one: 7/8 or 5/8?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "7/8",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "7/8",
+    "difficulty": 2,
+    "explanation": "The correct answer is 7/8. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "larger_denominator_larger_fraction"
+    ],
+    "template_id": "comparing_fractions_core_v1"
+  },
+  {
+    "id": "comparing_fractions_06",
+    "concept_id": "comparing_fractions",
+    "text": "Compare 1/4 and 1/6.",
+    "answer_type": "multiple_choice",
+    "options": [
+      "1/4",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "1/4",
+    "difficulty": 2,
+    "explanation": "The correct answer is 1/4. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "larger_denominator_larger_fraction"
+    ],
+    "template_id": "comparing_fractions_core_v1"
+  },
+  {
+    "id": "comparing_fractions_07",
+    "concept_id": "comparing_fractions",
+    "text": "Which is greatest: 2/3, 3/5, 1/2?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "2/3",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "2/3",
+    "difficulty": 2,
+    "explanation": "The correct answer is 2/3. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "larger_denominator_larger_fraction"
+    ],
+    "template_id": "comparing_fractions_core_v1"
+  },
+  {
+    "id": "comparing_fractions_08",
+    "concept_id": "comparing_fractions",
+    "text": "Is 4/7 greater than 1/2?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "Yes",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "Yes",
+    "difficulty": 2,
+    "explanation": "The correct answer is Yes. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "larger_denominator_larger_fraction"
+    ],
+    "template_id": "comparing_fractions_core_v1"
+  },
+  {
+    "id": "common_denominators_01",
+    "concept_id": "common_denominators",
+    "text": "A common denominator for 1/2 and 1/3 is",
+    "answer_type": "multiple_choice",
+    "options": [
+      "6",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "6",
+    "difficulty": 2,
+    "explanation": "The correct answer is 6. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "incorrect_common_denominator"
+    ],
+    "template_id": "common_denominators_core_v1"
+  },
+  {
+    "id": "common_denominators_02",
+    "concept_id": "common_denominators",
+    "text": "Rewrite 1/2 with denominator 6.",
+    "answer_type": "multiple_choice",
+    "options": [
+      "3/6",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "3/6",
+    "difficulty": 2,
+    "explanation": "The correct answer is 3/6. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "incorrect_common_denominator"
+    ],
+    "template_id": "common_denominators_core_v1"
+  },
+  {
+    "id": "common_denominators_03",
+    "concept_id": "common_denominators",
+    "text": "Rewrite 2/3 with denominator 12.",
+    "answer_type": "multiple_choice",
+    "options": [
+      "8/12",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "8/12",
+    "difficulty": 2,
+    "explanation": "The correct answer is 8/12. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "incorrect_common_denominator"
+    ],
+    "template_id": "common_denominators_core_v1"
+  },
+  {
+    "id": "common_denominators_04",
+    "concept_id": "common_denominators",
+    "text": "What is the least common denominator of 1/4 and 1/6?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "12",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "12",
+    "difficulty": 2,
+    "explanation": "The correct answer is 12. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "incorrect_common_denominator"
+    ],
+    "template_id": "common_denominators_core_v1"
+  },
+  {
+    "id": "common_denominators_05",
+    "concept_id": "common_denominators",
+    "text": "To change 3/5 to tenths, multiply by",
+    "answer_type": "multiple_choice",
+    "options": [
+      "2",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "2",
+    "difficulty": 2,
+    "explanation": "The correct answer is 2. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "incorrect_common_denominator"
+    ],
+    "template_id": "common_denominators_core_v1"
+  },
+  {
+    "id": "common_denominators_06",
+    "concept_id": "common_denominators",
+    "text": "Which pair has a common denominator of 8?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "1/2 and 3/8",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "1/2 and 3/8",
+    "difficulty": 2,
+    "explanation": "The correct answer is 1/2 and 3/8. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "incorrect_common_denominator"
+    ],
+    "template_id": "common_denominators_core_v1"
+  },
+  {
+    "id": "common_denominators_07",
+    "concept_id": "common_denominators",
+    "text": "Rewrite 1/4 with denominator 12.",
+    "answer_type": "multiple_choice",
+    "options": [
+      "3/12",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "3/12",
+    "difficulty": 2,
+    "explanation": "The correct answer is 3/12. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "incorrect_common_denominator"
+    ],
+    "template_id": "common_denominators_core_v1"
+  },
+  {
+    "id": "common_denominators_08",
+    "concept_id": "common_denominators",
+    "text": "Why use common denominators?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "to name parts of the same size",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "to name parts of the same size",
+    "difficulty": 2,
+    "explanation": "The correct answer is to name parts of the same size. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "incorrect_common_denominator"
+    ],
+    "template_id": "common_denominators_core_v1"
+  },
+  {
+    "id": "fraction_addition_01",
+    "concept_id": "fraction_addition",
+    "text": "What is 1/4 + 2/4?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "3/4",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "3/4",
+    "difficulty": 3,
+    "explanation": "The correct answer is 3/4. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "adds_denominators"
+    ],
+    "template_id": "fraction_addition_core_v1"
+  },
+  {
+    "id": "fraction_addition_02",
+    "concept_id": "fraction_addition",
+    "text": "What is 2/5 + 1/5?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "3/5",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "3/5",
+    "difficulty": 3,
+    "explanation": "The correct answer is 3/5. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "adds_denominators"
+    ],
+    "template_id": "fraction_addition_core_v1"
+  },
+  {
+    "id": "fraction_addition_03",
+    "concept_id": "fraction_addition",
+    "text": "What is 1/2 + 1/4?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "3/4",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "3/4",
+    "difficulty": 3,
+    "explanation": "The correct answer is 3/4. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "adds_denominators"
+    ],
+    "template_id": "fraction_addition_core_v1"
+  },
+  {
+    "id": "fraction_addition_04",
+    "concept_id": "fraction_addition",
+    "text": "What is 1/3 + 1/6?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "1/2",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "1/2",
+    "difficulty": 3,
+    "explanation": "The correct answer is 1/2. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "adds_denominators"
+    ],
+    "template_id": "fraction_addition_core_v1"
+  },
+  {
+    "id": "fraction_addition_05",
+    "concept_id": "fraction_addition",
+    "text": "Before adding 1/4 + 1/3, find",
+    "answer_type": "multiple_choice",
+    "options": [
+      "a common denominator",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "a common denominator",
+    "difficulty": 3,
+    "explanation": "The correct answer is a common denominator. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "adds_denominators"
+    ],
+    "template_id": "fraction_addition_core_v1"
+  },
+  {
+    "id": "fraction_addition_06",
+    "concept_id": "fraction_addition",
+    "text": "What is 3/8 + 2/8?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "5/8",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "5/8",
+    "difficulty": 3,
+    "explanation": "The correct answer is 5/8. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "adds_denominators"
+    ],
+    "template_id": "fraction_addition_core_v1"
+  },
+  {
+    "id": "fraction_addition_07",
+    "concept_id": "fraction_addition",
+    "text": "What is 2/3 + 1/6?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "5/6",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "5/6",
+    "difficulty": 3,
+    "explanation": "The correct answer is 5/6. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "adds_denominators"
+    ],
+    "template_id": "fraction_addition_core_v1"
+  },
+  {
+    "id": "fraction_addition_08",
+    "concept_id": "fraction_addition",
+    "text": "Why do we not add denominators?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "the part size must stay consistent",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "the part size must stay consistent",
+    "difficulty": 3,
+    "explanation": "The correct answer is the part size must stay consistent. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "adds_denominators"
+    ],
+    "template_id": "fraction_addition_core_v1"
+  },
+  {
+    "id": "fraction_subtraction_01",
+    "concept_id": "fraction_subtraction",
+    "text": "What is 3/4 - 1/4?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "1/2",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "1/2",
+    "difficulty": 3,
+    "explanation": "The correct answer is 1/2. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "subtracts_denominators"
+    ],
+    "template_id": "fraction_subtraction_core_v1"
+  },
+  {
+    "id": "fraction_subtraction_02",
+    "concept_id": "fraction_subtraction",
+    "text": "What is 4/5 - 2/5?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "2/5",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "2/5",
+    "difficulty": 3,
+    "explanation": "The correct answer is 2/5. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "subtracts_denominators"
+    ],
+    "template_id": "fraction_subtraction_core_v1"
+  },
+  {
+    "id": "fraction_subtraction_03",
+    "concept_id": "fraction_subtraction",
+    "text": "What is 3/4 - 1/2?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "1/4",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "1/4",
+    "difficulty": 3,
+    "explanation": "The correct answer is 1/4. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "subtracts_denominators"
+    ],
+    "template_id": "fraction_subtraction_core_v1"
+  },
+  {
+    "id": "fraction_subtraction_04",
+    "concept_id": "fraction_subtraction",
+    "text": "What is 5/6 - 1/3?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "1/2",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "1/2",
+    "difficulty": 3,
+    "explanation": "The correct answer is 1/2. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "subtracts_denominators"
+    ],
+    "template_id": "fraction_subtraction_core_v1"
+  },
+  {
+    "id": "fraction_subtraction_05",
+    "concept_id": "fraction_subtraction",
+    "text": "Before subtracting 1/2 from 3/4, rewrite 1/2 as",
+    "answer_type": "multiple_choice",
+    "options": [
+      "2/4",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "2/4",
+    "difficulty": 3,
+    "explanation": "The correct answer is 2/4. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "subtracts_denominators"
+    ],
+    "template_id": "fraction_subtraction_core_v1"
+  },
+  {
+    "id": "fraction_subtraction_06",
+    "concept_id": "fraction_subtraction",
+    "text": "What is 7/8 - 3/8?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "1/2",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "1/2",
+    "difficulty": 3,
+    "explanation": "The correct answer is 1/2. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "subtracts_denominators"
+    ],
+    "template_id": "fraction_subtraction_core_v1"
+  },
+  {
+    "id": "fraction_subtraction_07",
+    "concept_id": "fraction_subtraction",
+    "text": "What is 5/6 - 1/6?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "2/3",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "2/3",
+    "difficulty": 3,
+    "explanation": "The correct answer is 2/3. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "subtracts_denominators"
+    ],
+    "template_id": "fraction_subtraction_core_v1"
+  },
+  {
+    "id": "fraction_subtraction_08",
+    "concept_id": "fraction_subtraction",
+    "text": "Why do we not subtract denominators?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "the size of each part does not change",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "the size of each part does not change",
+    "difficulty": 3,
+    "explanation": "The correct answer is the size of each part does not change. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "subtracts_denominators"
+    ],
+    "template_id": "fraction_subtraction_core_v1"
+  },
+  {
+    "id": "improper_fractions_01",
+    "concept_id": "improper_fractions",
+    "text": "Which is an improper fraction?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "7/4",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "7/4",
+    "difficulty": 2,
+    "explanation": "The correct answer is 7/4. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "mixed_improper_conversion"
+    ],
+    "template_id": "improper_fractions_core_v1"
+  },
+  {
+    "id": "improper_fractions_02",
+    "concept_id": "improper_fractions",
+    "text": "Is 5/5 an improper fraction?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "Yes",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "Yes",
+    "difficulty": 2,
+    "explanation": "The correct answer is Yes. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "mixed_improper_conversion"
+    ],
+    "template_id": "improper_fractions_core_v1"
+  },
+  {
+    "id": "improper_fractions_03",
+    "concept_id": "improper_fractions",
+    "text": "Which improper fraction equals one whole?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "6/6",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "6/6",
+    "difficulty": 2,
+    "explanation": "The correct answer is 6/6. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "mixed_improper_conversion"
+    ],
+    "template_id": "improper_fractions_core_v1"
+  },
+  {
+    "id": "improper_fractions_04",
+    "concept_id": "improper_fractions",
+    "text": "What does 9/4 mean?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "nine one-fourths",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "nine one-fourths",
+    "difficulty": 2,
+    "explanation": "The correct answer is nine one-fourths. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "mixed_improper_conversion"
+    ],
+    "template_id": "improper_fractions_core_v1"
+  },
+  {
+    "id": "improper_fractions_05",
+    "concept_id": "improper_fractions",
+    "text": "Which is greater than one?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "8/7",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "8/7",
+    "difficulty": 2,
+    "explanation": "The correct answer is 8/7. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "mixed_improper_conversion"
+    ],
+    "template_id": "improper_fractions_core_v1"
+  },
+  {
+    "id": "improper_fractions_06",
+    "concept_id": "improper_fractions",
+    "text": "How many whole parts are in 7/3?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "2",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "2",
+    "difficulty": 2,
+    "explanation": "The correct answer is 2. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "mixed_improper_conversion"
+    ],
+    "template_id": "improper_fractions_core_v1"
+  },
+  {
+    "id": "improper_fractions_07",
+    "concept_id": "improper_fractions",
+    "text": "Which fraction has numerator larger than denominator?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "11/8",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "11/8",
+    "difficulty": 2,
+    "explanation": "The correct answer is 11/8. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "mixed_improper_conversion"
+    ],
+    "template_id": "improper_fractions_core_v1"
+  },
+  {
+    "id": "improper_fractions_08",
+    "concept_id": "improper_fractions",
+    "text": "Is 3/8 improper?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "No",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "No",
+    "difficulty": 2,
+    "explanation": "The correct answer is No. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "mixed_improper_conversion"
+    ],
+    "template_id": "improper_fractions_core_v1"
+  },
+  {
+    "id": "mixed_numbers_01",
+    "concept_id": "mixed_numbers",
+    "text": "Write 7/3 as a mixed number.",
+    "answer_type": "multiple_choice",
+    "options": [
+      "2 1/3",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "2 1/3",
+    "difficulty": 3,
+    "explanation": "The correct answer is 2 1/3. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "mixed_improper_conversion"
+    ],
+    "template_id": "mixed_numbers_core_v1"
+  },
+  {
+    "id": "mixed_numbers_02",
+    "concept_id": "mixed_numbers",
+    "text": "Write 1 1/2 as an improper fraction.",
+    "answer_type": "multiple_choice",
+    "options": [
+      "3/2",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "3/2",
+    "difficulty": 3,
+    "explanation": "The correct answer is 3/2. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "mixed_improper_conversion"
+    ],
+    "template_id": "mixed_numbers_core_v1"
+  },
+  {
+    "id": "mixed_numbers_03",
+    "concept_id": "mixed_numbers",
+    "text": "Write 9/4 as a mixed number.",
+    "answer_type": "multiple_choice",
+    "options": [
+      "2 1/4",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "2 1/4",
+    "difficulty": 3,
+    "explanation": "The correct answer is 2 1/4. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "mixed_improper_conversion"
+    ],
+    "template_id": "mixed_numbers_core_v1"
+  },
+  {
+    "id": "mixed_numbers_04",
+    "concept_id": "mixed_numbers",
+    "text": "Write 2 2/5 as an improper fraction.",
+    "answer_type": "multiple_choice",
+    "options": [
+      "12/5",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "12/5",
+    "difficulty": 3,
+    "explanation": "The correct answer is 12/5. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "mixed_improper_conversion"
+    ],
+    "template_id": "mixed_numbers_core_v1"
+  },
+  {
+    "id": "mixed_numbers_05",
+    "concept_id": "mixed_numbers",
+    "text": "How many fifths are in 3 wholes?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "15/5",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "15/5",
+    "difficulty": 3,
+    "explanation": "The correct answer is 15/5. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "mixed_improper_conversion"
+    ],
+    "template_id": "mixed_numbers_core_v1"
+  },
+  {
+    "id": "mixed_numbers_06",
+    "concept_id": "mixed_numbers",
+    "text": "Write 11/6 as a mixed number.",
+    "answer_type": "multiple_choice",
+    "options": [
+      "1 5/6",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "1 5/6",
+    "difficulty": 3,
+    "explanation": "The correct answer is 1 5/6. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "mixed_improper_conversion"
+    ],
+    "template_id": "mixed_numbers_core_v1"
+  },
+  {
+    "id": "mixed_numbers_07",
+    "concept_id": "mixed_numbers",
+    "text": "Write 4 1/3 as an improper fraction.",
+    "answer_type": "multiple_choice",
+    "options": [
+      "13/3",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "13/3",
+    "difficulty": 3,
+    "explanation": "The correct answer is 13/3. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "mixed_improper_conversion"
+    ],
+    "template_id": "mixed_numbers_core_v1"
+  },
+  {
+    "id": "mixed_numbers_08",
+    "concept_id": "mixed_numbers",
+    "text": "When converting 2 3/4, multiply 2 by",
+    "answer_type": "multiple_choice",
+    "options": [
+      "4",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "4",
+    "difficulty": 3,
+    "explanation": "The correct answer is 4. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [
+      "mixed_improper_conversion"
+    ],
+    "template_id": "mixed_numbers_core_v1"
+  },
+  {
+    "id": "fraction_word_problems_01",
+    "concept_id": "fraction_word_problems",
+    "text": "Maya eats 1/4 of a cake and Leo eats 2/4. How much is eaten?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "3/4",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "3/4",
+    "difficulty": 3,
+    "explanation": "The correct answer is 3/4. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "fraction_word_problems_core_v1"
+  },
+  {
+    "id": "fraction_word_problems_02",
+    "concept_id": "fraction_word_problems",
+    "text": "A jug is 3/4 full and 1/4 is poured out. How full is it?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "1/2",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "1/2",
+    "difficulty": 3,
+    "explanation": "The correct answer is 1/2. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "fraction_word_problems_core_v1"
+  },
+  {
+    "id": "fraction_word_problems_03",
+    "concept_id": "fraction_word_problems",
+    "text": "A ribbon is 1/2 m plus 1/4 m. What is the total?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "3/4 m",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "3/4 m",
+    "difficulty": 3,
+    "explanation": "The correct answer is 3/4 m. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "fraction_word_problems_core_v1"
+  },
+  {
+    "id": "fraction_word_problems_04",
+    "concept_id": "fraction_word_problems",
+    "text": "Sam walks 2/3 km then 1/6 km. How far?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "5/6 km",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "5/6 km",
+    "difficulty": 3,
+    "explanation": "The correct answer is 5/6 km. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "fraction_word_problems_core_v1"
+  },
+  {
+    "id": "fraction_word_problems_05",
+    "concept_id": "fraction_word_problems",
+    "text": "A recipe needs 3/4 cup; 1/4 cup is added. How much remains?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "1/2 cup",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "1/2 cup",
+    "difficulty": 3,
+    "explanation": "The correct answer is 1/2 cup. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "fraction_word_problems_core_v1"
+  },
+  {
+    "id": "fraction_word_problems_06",
+    "concept_id": "fraction_word_problems",
+    "text": "Two of 8 equal garden plots have flowers. What fraction?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "2/8",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "2/8",
+    "difficulty": 3,
+    "explanation": "The correct answer is 2/8. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "fraction_word_problems_core_v1"
+  },
+  {
+    "id": "fraction_word_problems_07",
+    "concept_id": "fraction_word_problems",
+    "text": "A class reads 5/6 of a book then 1/6 more. How much?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "1 whole",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "1 whole",
+    "difficulty": 3,
+    "explanation": "The correct answer is 1 whole. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "fraction_word_problems_core_v1"
+  },
+  {
+    "id": "fraction_word_problems_08",
+    "concept_id": "fraction_word_problems",
+    "text": "A tank is 7/8 full and loses 2/8. How full now?",
+    "answer_type": "multiple_choice",
+    "options": [
+      "5/8",
+      "Not enough information",
+      "0",
+      "1"
+    ],
+    "correct_answer": "5/8",
+    "difficulty": 3,
+    "explanation": "The correct answer is 5/8. Review the fraction representation and solve one step at a time.",
+    "diagnostic_value": 0.65,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "fraction_word_problems_core_v1"
+  },
+  {
+    "id": "fraction_word_problems_09",
+    "concept_id": "fraction_word_problems",
+    "text": "A farmer plants vegetables in 3/8 of a field and flowers in 2/8. What fraction is planted?",
+    "answer_type": "multiple_choice",
+    "options": ["5/8", "5/16", "1/8", "6/8"],
+    "correct_answer": "5/8",
+    "difficulty": 3,
+    "explanation": "The parts have the same denominator, so add 3 + 2 and keep 8.",
+    "diagnostic_value": 0.7,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": ["adds_denominators"],
+    "template_id": "fraction_word_problems_core_v1"
+  },
+  {
+    "id": "fraction_word_problems_10",
+    "concept_id": "fraction_word_problems",
+    "text": "Nina uses 2/3 litre of paint and has 1/6 litre left from a litre. How much paint did she use?",
+    "answer_type": "multiple_choice",
+    "options": ["5/6 litre", "1/2 litre", "1/3 litre", "4/9 litre"],
+    "correct_answer": "5/6 litre",
+    "difficulty": 3,
+    "explanation": "One litre is 6/6. Subtract 1/6 to get 5/6.",
+    "diagnostic_value": 0.7,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": ["incorrect_common_denominator"],
+    "template_id": "fraction_word_problems_core_v1"
+  },
+  {
+    "id": "fraction_word_problems_11",
+    "concept_id": "fraction_word_problems",
+    "text": "A trail is 2 1/2 km long. A group walks 1 km. How far remains?",
+    "answer_type": "multiple_choice",
+    "options": ["1 1/2 km", "1/2 km", "2 km", "3 1/2 km"],
+    "correct_answer": "1 1/2 km",
+    "difficulty": 3,
+    "explanation": "Subtract one whole from two and one half.",
+    "diagnostic_value": 0.6,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": ["mixed_improper_conversion"],
+    "template_id": "fraction_word_problems_core_v1"
+  },
+  {
+    "id": "fraction_word_problems_12",
+    "concept_id": "fraction_word_problems",
+    "text": "Four friends share 3 pizzas equally. How many pizzas does each friend receive?",
+    "answer_type": "multiple_choice",
+    "options": ["3/4 pizza", "1/4 pizza", "4/3 pizzas", "3 pizzas"],
+    "correct_answer": "3/4 pizza",
+    "difficulty": 3,
+    "explanation": "Sharing 3 wholes among 4 equal groups gives three fourths each.",
+    "diagnostic_value": 0.6,
+    "estimated_cost_ms": 1,
+    "misconception_patterns": [],
+    "template_id": "fraction_word_problems_core_v1"
+  }
+]

@@ -1,0 +1,201 @@
+[
+  {
+    "id": "whole_numbers",
+    "name": "Whole Numbers",
+    "description": "Understand whole numbers and their place in basic arithmetic.",
+    "difficulty": 1,
+    "mastery_threshold": 0.75,
+    "prerequisite_ids": [],
+    "activity_ids": [
+      "number_line_walk",
+      "place_value_cards"
+    ],
+    "misconception_ids": []
+  },
+  {
+    "id": "fraction_meaning",
+    "name": "Meaning of Fractions",
+    "description": "Interpret a fraction as equal parts of one whole or a collection.",
+    "difficulty": 1,
+    "mastery_threshold": 0.75,
+    "prerequisite_ids": [
+      "whole_numbers"
+    ],
+    "activity_ids": [
+      "fraction_picture_sort",
+      "shade_the_whole"
+    ],
+    "misconception_ids": []
+  },
+  {
+    "id": "numerator_denominator",
+    "name": "Numerator and Denominator",
+    "description": "Identify the top and bottom numbers in a fraction and their meanings.",
+    "difficulty": 1,
+    "mastery_threshold": 0.75,
+    "prerequisite_ids": [
+      "fraction_meaning"
+    ],
+    "activity_ids": [
+      "label_fraction_parts",
+      "fraction_card_match"
+    ],
+    "misconception_ids": [
+      "confuses_numerator_denominator"
+    ]
+  },
+  {
+    "id": "equivalent_fractions",
+    "name": "Equivalent Fractions",
+    "description": "Recognise and generate fractions with the same value.",
+    "difficulty": 2,
+    "mastery_threshold": 0.75,
+    "prerequisite_ids": [
+      "numerator_denominator"
+    ],
+    "activity_ids": [
+      "equivalence_strip",
+      "multiply_divide_fractions"
+    ],
+    "misconception_ids": [
+      "fails_equivalence",
+      "incorrect_cancelling"
+    ]
+  },
+  {
+    "id": "simplifying_fractions",
+    "name": "Simplifying Fractions",
+    "description": "Reduce fractions using a common factor.",
+    "difficulty": 2,
+    "mastery_threshold": 0.75,
+    "prerequisite_ids": [
+      "equivalent_fractions"
+    ],
+    "activity_ids": [
+      "simplify_with_tiles",
+      "greatest_common_factor_review"
+    ],
+    "misconception_ids": [
+      "incorrect_cancelling"
+    ]
+  },
+  {
+    "id": "comparing_fractions",
+    "name": "Comparing Fractions",
+    "description": "Compare fractions using visual models, common denominators, or benchmarks.",
+    "difficulty": 2,
+    "mastery_threshold": 0.75,
+    "prerequisite_ids": [
+      "equivalent_fractions"
+    ],
+    "activity_ids": [
+      "fraction_number_line",
+      "benchmark_fraction_sort"
+    ],
+    "misconception_ids": [
+      "larger_denominator_larger_fraction"
+    ]
+  },
+  {
+    "id": "common_denominators",
+    "name": "Common Denominators",
+    "description": "Find equivalent fractions with a shared denominator.",
+    "difficulty": 2,
+    "mastery_threshold": 0.75,
+    "prerequisite_ids": [
+      "equivalent_fractions"
+    ],
+    "activity_ids": [
+      "denominator_ladder",
+      "common_multiple_grid"
+    ],
+    "misconception_ids": [
+      "incorrect_common_denominator"
+    ]
+  },
+  {
+    "id": "fraction_addition",
+    "name": "Fraction Addition",
+    "description": "Add fractions with like and unlike denominators.",
+    "difficulty": 3,
+    "mastery_threshold": 0.75,
+    "prerequisite_ids": [
+      "common_denominators"
+    ],
+    "activity_ids": [
+      "visual_common_denominator_demo",
+      "addition_steps"
+    ],
+    "misconception_ids": [
+      "adds_denominators"
+    ]
+  },
+  {
+    "id": "fraction_subtraction",
+    "name": "Fraction Subtraction",
+    "description": "Subtract fractions with like and unlike denominators.",
+    "difficulty": 3,
+    "mastery_threshold": 0.75,
+    "prerequisite_ids": [
+      "common_denominators"
+    ],
+    "activity_ids": [
+      "subtraction_steps",
+      "fraction_bar_subtract"
+    ],
+    "misconception_ids": [
+      "subtracts_denominators"
+    ]
+  },
+  {
+    "id": "improper_fractions",
+    "name": "Improper Fractions",
+    "description": "Interpret fractions whose numerator is at least the denominator.",
+    "difficulty": 2,
+    "mastery_threshold": 0.75,
+    "prerequisite_ids": [
+      "numerator_denominator"
+    ],
+    "activity_ids": [
+      "improper_fraction_tiles",
+      "improper_number_line"
+    ],
+    "misconception_ids": [
+      "mixed_improper_conversion"
+    ]
+  },
+  {
+    "id": "mixed_numbers",
+    "name": "Mixed Numbers",
+    "description": "Convert between mixed numbers and improper fractions.",
+    "difficulty": 3,
+    "mastery_threshold": 0.75,
+    "prerequisite_ids": [
+      "improper_fractions"
+    ],
+    "activity_ids": [
+      "mixed_number_blocks",
+      "conversion_steps"
+    ],
+    "misconception_ids": [
+      "mixed_improper_conversion"
+    ]
+  },
+  {
+    "id": "fraction_word_problems",
+    "name": "Fraction Word Problems",
+    "description": "Model and solve everyday fraction situations.",
+    "difficulty": 3,
+    "mastery_threshold": 0.75,
+    "prerequisite_ids": [
+      "fraction_addition",
+      "fraction_subtraction",
+      "mixed_numbers"
+    ],
+    "activity_ids": [
+      "read_draw_solve",
+      "word_problem_worked_example"
+    ],
+    "misconception_ids": []
+  }
+]

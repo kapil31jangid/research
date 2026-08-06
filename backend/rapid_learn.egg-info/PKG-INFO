@@ -1,0 +1,17 @@
+Metadata-Version: 2.4
+Name: rapid-learn
+Version: 0.1.0
+Summary: Resource-Aware, Personalised and Intelligent Dynamic Learning Framework
+Requires-Python: >=3.12
+License-File: LICENSE
+Requires-Dist: fastapi<1.0,>=0.115
+Requires-Dist: uvicorn[standard]<1.0,>=0.30
+Requires-Dist: pydantic-settings<3.0,>=2.6
+Requires-Dist: sqlalchemy<3.0,>=2.0
+Requires-Dist: networkx<4.0,>=3.3
+Provides-Extra: dev
+Requires-Dist: httpx<1.0,>=0.28; extra == "dev"
+Requires-Dist: pytest<9.0,>=8.3; extra == "dev"
+Requires-Dist: pytest-cov<7.0,>=6.0; extra == "dev"
+Requires-Dist: ruff<1.0,>=0.8; extra == "dev"
+Dynamic: license-file
