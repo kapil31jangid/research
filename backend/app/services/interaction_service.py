@@ -1,6 +1,7 @@
 """Transactional learner interaction processing and adaptive decision orchestration."""
 
 import json
+from dataclasses import replace
 from datetime import UTC, datetime
 from math import sqrt
 from time import perf_counter_ns
@@ -19,6 +20,9 @@ from app.learner_model.state import parameters_for_concept
 from app.learner_model.uncertainty import calculate_uncertainty
 from app.misconceptions.detector import InteractionEvidence, detect_misconceptions
 from app.misconceptions.rules import load_rules
+from app.ml_runtime.exceptions import ResponsePredictionError
+from app.ml_runtime.model_registry import get_response_predictor_registry
+from app.ml_runtime.schemas import ResponsePredictionFeatures
 from app.models.concept import Concept
 from app.models.interaction import Interaction
 from app.models.learner_state import MasteryHistory
@@ -176,6 +180,7 @@ def process_interaction(
             list(db.scalars(select(Concept))),
             question.concept_id,
         )
+        model_registry = get_response_predictor_registry()
         controller_input = ControllerInput(
             state.misconception_confidence,
             prerequisite_mastery(build_graph(load_concepts()), question.concept_id, mastery),
@@ -184,10 +189,46 @@ def process_interaction(
             sum(item.attempts for item in states),
             resource,
             offline_cache_available=availability.available,
+            ml_model_available=model_registry.is_available(),
         )
         decision = decide_adaptation(controller_input)
         controller_latency = (perf_counter_ns() - controller_started) / 1_000_000
         recommendation_started = perf_counter_ns()
+        requested_path = decision.adaptation_path
+        model_version = None
+        probability = None
+        fallback_used = False
+        fallback_reason = None
+        if requested_path == "lightweight_ml_recommendation":
+            try:
+                probability = model_registry.predict_probability(
+                    ResponsePredictionFeatures(
+                        mastery=state.mastery_probability,
+                        retained_mastery=serialise_state(state).retained_mastery,
+                        uncertainty=state.uncertainty,
+                        question_difficulty=float(question.difficulty),
+                        concept_difficulty=float(question.difficulty),
+                        recent_correctness=sum(correctness) / len(correctness),
+                        average_response_time=state.average_response_time,
+                        response_time_variation=state.response_time_variation,
+                        hint_usage_rate=state.hint_usage_rate,
+                        attempts=float(state.attempts),
+                        correct_attempts=float(state.correct_attempts),
+                        prerequisite_mastery=controller_input.prerequisite_mastery,
+                        days_since_practice=0.0,
+                        misconception_confidence=state.misconception_confidence,
+                        resource_score=resource.score,
+                    )
+                )
+                model_version = model_registry.get_model_version()
+            except ResponsePredictionError as error:
+                fallback_used = True
+                fallback_reason = str(error)
+                decision = replace(
+                    decision,
+                    adaptation_path="bkt_based_recommendation",
+                    reason="ML inference failed; BKT recommendation used safely",
+                )
         recommendation = generate_recommendation(
             payload.learner_id,
             states,
@@ -196,6 +237,12 @@ def process_interaction(
             decision,
             db,
             commit=False,
+            requested_adaptation_path=requested_path,
+            ml_model_available=controller_input.ml_model_available,
+            model_version=model_version,
+            predicted_correctness_probability=probability,
+            fallback_used=fallback_used,
+            fallback_reason=fallback_reason,
         )
         record = db.get(Recommendation, recommendation.id)
         record.measured_controller_latency_ms = controller_latency

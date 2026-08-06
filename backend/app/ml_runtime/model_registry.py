@@ -67,3 +67,13 @@ class ResponsePredictorRegistry:
         if not np.isfinite(probability) or not 0.0 <= probability <= 1.0:
             raise ResponsePredictionError("Response prediction is outside [0, 1]")
         return probability
+
+
+_registry: ResponsePredictorRegistry | None = None
+
+
+def get_response_predictor_registry() -> ResponsePredictorRegistry:
+    global _registry
+    if _registry is None:
+        _registry = ResponsePredictorRegistry()
+    return _registry

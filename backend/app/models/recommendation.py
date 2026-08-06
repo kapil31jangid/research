@@ -17,6 +17,12 @@ class Recommendation(Base):
     selected_concept_id: Mapped[str] = mapped_column(ForeignKey("concepts.id"), index=True)
     selected_activity_id: Mapped[str] = mapped_column(String(120), nullable=False)
     adaptation_path: Mapped[str] = mapped_column(String(60), nullable=False)
+    requested_adaptation_path: Mapped[str] = mapped_column(String(60), default="", nullable=False)
+    fallback_used: Mapped[bool] = mapped_column(default=False, nullable=False)
+    fallback_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    ml_model_available: Mapped[bool] = mapped_column(default=False, nullable=False)
+    model_version: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    predicted_correctness_probability: Mapped[float | None] = mapped_column(Float, nullable=True)
     expected_learning_gain: Mapped[float] = mapped_column(Float, nullable=False)
     computational_cost_ms: Mapped[float] = mapped_column(Float, nullable=False)
     measured_controller_latency_ms: Mapped[float] = mapped_column(

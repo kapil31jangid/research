@@ -18,6 +18,12 @@ class RecommendationRead(BaseModel):
     selected_concept_id: str
     selected_activity_id: str
     adaptation_path: str
+    requested_adaptation_path: str
+    fallback_used: bool
+    fallback_reason: str | None
+    ml_model_available: bool
+    model_version: str | None
+    predicted_correctness_probability: float | None = Field(default=None, ge=0.0, le=1.0)
     expected_learning_gain: float = Field(ge=0.0, le=1.0)
     computational_cost_ms: float = Field(ge=0.0)
     score: float
