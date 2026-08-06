@@ -1,7 +1,7 @@
 """Transactional learner interaction processing and adaptive decision orchestration."""
 
 import json
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from time import perf_counter_ns
 
@@ -33,9 +33,19 @@ from app.recommendation.recommender import generate_recommendation, serialise_re
 from app.resources.monitor import current_resources
 from app.resources.scoring import ResourceSnapshot, snapshot_from_measurements
 from app.schemas.interactions import InteractionCreate, InteractionRead, MisconceptionRead
+from app.schemas.recommendations import RecommendationRead
 from app.schemas.resources import ResourceStateRead
 from app.schemas.state import LearnerConceptStateRead
 from app.services.learner_service import ensure_learner_states, serialise_state
+
+
+@dataclass(frozen=True)
+class ProcessedInteraction:
+    interaction: InteractionRead
+    learner_state: LearnerConceptStateRead
+    misconception: MisconceptionRead
+    resource_state: ResourceStateRead
+    recommendation: RecommendationRead
 
 
 def _resource_for(payload: InteractionCreate) -> ResourceSnapshot:
@@ -72,7 +82,7 @@ def _read(interaction: Interaction) -> InteractionRead:
 
 def process_interaction(
     payload: InteractionCreate, question: Question, db: Session
-) -> tuple[InteractionRead, LearnerConceptStateRead, MisconceptionRead, ResourceStateRead, object]:
+) -> ProcessedInteraction:
     """Run validation, BKT update, misconception detection, controller, and recommendation."""
     total_started = perf_counter_ns()
     try:
@@ -247,18 +257,18 @@ def process_interaction(
         db.commit()
         db.refresh(interaction)
         db.refresh(record)
-        return (
-            _read(interaction),
-            serialise_state(state),
-            MisconceptionRead(
+        return ProcessedInteraction(
+            interaction=_read(interaction),
+            learner_state=serialise_state(state),
+            misconception=MisconceptionRead(
                 detected=misconception is not None,
                 id=misconception.id if misconception else None,
                 confidence=misconception.confidence if misconception else 0.0,
                 explanation=misconception.explanation if misconception else None,
                 remediation_activity=misconception.remediation_activity if misconception else None,
             ),
-            ResourceStateRead(**resource.__dict__),
-            serialise_recommendation(record),
+            resource_state=ResourceStateRead(**resource.__dict__),
+            recommendation=serialise_recommendation(record),
         )
     except Exception:
         db.rollback()

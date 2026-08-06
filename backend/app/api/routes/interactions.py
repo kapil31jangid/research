@@ -22,17 +22,15 @@ async def submit_interaction(
     question = db.get(Question, payload.question_id)
     if question is None:
         raise HTTPException(status_code=404, detail="Question not found")
-    interaction, learner_state, misconception, resource, recommendation = process_interaction(
-        payload, question, db
-    )
+    result = process_interaction(payload, question, db)
     return AdaptiveInteractionResponse(
         learner_id=payload.learner_id,
-        interaction_result=interaction,
-        learner_state=learner_state,
-        misconception=misconception,
-        resource_state=resource,
-        decision=recommendation,
-        explanation=recommendation.explanation,
+        interaction_result=result.interaction,
+        learner_state=result.learner_state,
+        misconception=result.misconception,
+        resource_state=result.resource_state,
+        decision=result.recommendation,
+        explanation=result.recommendation.explanation,
     )
 
 
