@@ -37,6 +37,10 @@ def generate_candidates(
     )
     candidates: list[ActivityCandidate] = []
     for state in ordered_states:
+        if adaptation_path in {"misconception_remediation", "cached_offline_recommendation"} and (
+            state.concept_id != focus_concept_id
+        ):
+            continue
         concept = concepts[state.concept_id]
         for activity_id in json.loads(concept.activity_ids):
             if activity_id in recent_activity_ids:
