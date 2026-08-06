@@ -1,12 +1,15 @@
 """Persist ranked, explainable recommendations and alternatives."""
 
 import json
+from dataclasses import replace
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.controller.explanation import explain_decision
 from app.controller.policy import ControllerDecision, ControllerInput
+from app.ml_runtime.model_registry import get_response_predictor_registry
+from app.ml_runtime.schemas import ResponsePredictionFeatures
 from app.models.concept import Concept
 from app.models.learner_state import LearnerConceptState
 from app.models.recommendation import Recommendation
@@ -59,6 +62,7 @@ def generate_recommendation(
     predicted_correctness_probability: float | None = None,
     fallback_used: bool = False,
     fallback_reason: str | None = None,
+    candidate_probabilities: dict[str, float] | None = None,
 ) -> RecommendationRead:
     """Score candidates, retain at least three alternatives when available, and persist."""
     concepts = {concept.id: concept for concept in db.scalars(select(Concept))}
@@ -78,6 +82,38 @@ def generate_recommendation(
         candidates = generate_candidates(
             states, concepts, focus_concept_id, decision.adaptation_path, set()
         )
+    candidate_probabilities = candidate_probabilities or {}
+    if decision.adaptation_path == "lightweight_ml_recommendation" and not candidate_probabilities:
+        registry = get_response_predictor_registry()
+        state_by_concept = {state.concept_id: state for state in states}
+        for candidate in candidates:
+            state = state_by_concept[candidate.concept_id]
+            candidate_probabilities[candidate.activity_id] = registry.predict_probability(
+                ResponsePredictionFeatures(
+                    mastery=state.mastery_probability,
+                    retained_mastery=state.mastery_probability,
+                    uncertainty=state.uncertainty,
+                    question_difficulty=float(candidate.expected_learning_gain),
+                    concept_difficulty=float(candidate.expected_learning_gain),
+                    recent_correctness=0.0,
+                    average_response_time=state.average_response_time or 0.0,
+                    response_time_variation=state.response_time_variation,
+                    hint_usage_rate=state.hint_usage_rate,
+                    attempts=float(state.attempts),
+                    correct_attempts=float(state.correct_attempts),
+                    prerequisite_mastery=candidate.prerequisite_relevance,
+                    days_since_practice=0.0,
+                    misconception_confidence=state.misconception_confidence,
+                    resource_score=controller_input.resource.score,
+                )
+            )
+    candidates = [
+        replace(
+            candidate,
+            predicted_correctness_probability=candidate_probabilities.get(candidate.activity_id),
+        )
+        for candidate in candidates
+    ]
     ranked = sorted(
         (
             (*score_candidate(candidate, controller_input.resource.score), candidate)
