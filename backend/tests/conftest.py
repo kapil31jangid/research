@@ -42,6 +42,7 @@ def client() -> Generator[Callable[..., httpx.Response], None, None]:
 
         return asyncio.run(send())
 
+    request.session_factory = factory  # type: ignore[attr-defined]
     yield request
     app.dependency_overrides.clear()
     Base.metadata.drop_all(engine)
