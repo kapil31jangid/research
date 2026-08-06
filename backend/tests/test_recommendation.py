@@ -36,3 +36,20 @@ def test_remediation_and_cached_paths_do_not_offer_other_concepts() -> None:
     for path in ("misconception_remediation", "cached_offline_recommendation"):
         candidates = generate_candidates(states, concepts, "focus", path, set())
         assert {candidate.concept_id for candidate in candidates} == {"focus"}
+
+
+def test_recent_activities_are_excluded_when_alternatives_exist() -> None:
+    concepts = {
+        "focus": Concept(
+            id="focus", name="Focus", description="", difficulty=1, activity_ids='["recent", "new"]'
+        )
+    }
+    states = [
+        LearnerConceptState(
+            learner_id="l", concept_id="focus", mastery_probability=0.5, uncertainty=1.0
+        )
+    ]
+    candidates = generate_candidates(
+        states, concepts, "focus", "bkt_based_recommendation", {"recent"}
+    )
+    assert [candidate.activity_id for candidate in candidates] == ["new"]
