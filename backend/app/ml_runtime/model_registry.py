@@ -16,39 +16,62 @@ class ResponsePredictorRegistry:
         self.settings = settings or get_settings()
         self._artifact: dict[str, object] | None = None
         self._attempted = False
+        self._last_error_code: str | None = None
+        self._last_error_message: str | None = None
 
     def reset(self) -> None:
         self._artifact = None
         self._attempted = False
+        self._last_error_code = None
+        self._last_error_message = None
+
+    def get_last_error_code(self) -> str | None:
+        return self._last_error_code
+
+    def get_last_error_message(self) -> str | None:
+        return self._last_error_message
+
+    def _fail(self, code: str, message: str) -> bool:
+        self._artifact = None
+        self._last_error_code = code
+        self._last_error_message = message
+        return False
 
     def validate(self) -> bool:
         if self._attempted:
             return self._artifact is not None
         self._attempted = True
+        path = Path(self.settings.model_artifact_path)
+        if not path.exists():
+            return self._fail("artifact_missing", "Configured model artifact is unavailable")
         try:
             import joblib
 
-            artifact = joblib.load(Path(self.settings.model_artifact_path))
-            if (
-                not isinstance(artifact, dict)
-                or artifact.get("version") != self.settings.supported_model_version
-            ):
-                return False
+            artifact = joblib.load(path)
+            if not isinstance(artifact, dict):
+                return self._fail(
+                    "invalid_artifact_type", "Model artifact has an unsupported shape"
+                )
+            if artifact.get("version") != self.settings.supported_model_version:
+                return self._fail("unsupported_version", "Model artifact version is unsupported")
             if artifact.get("features") != FEATURE_COLUMNS:
-                return False
+                return self._fail("feature_schema_mismatch", "Model feature schema does not match")
             model = artifact.get("model")
             if not hasattr(model, "predict_proba") or not hasattr(model, "named_steps"):
-                return False
+                return self._fail("pipeline_missing", "Model preprocessing pipeline is unavailable")
             if not {"imputer", "scaler", "model"} <= set(model.named_steps):
-                return False
+                return self._fail("pipeline_missing", "Model preprocessing pipeline is incomplete")
             self._artifact = artifact
             self.predict_probability(
                 ResponsePredictionFeatures(**dict.fromkeys(FEATURE_COLUMNS, 0.0))
             )
+            self._last_error_code = None
+            self._last_error_message = None
             return True
+        except ResponsePredictionError as error:
+            return self._fail("validation_inference_failed", str(error))
         except Exception:
-            self._artifact = None
-            return False
+            return self._fail("artifact_load_failed", "Model artifact could not be loaded")
 
     def is_available(self) -> bool:
         return self.validate()

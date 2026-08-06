@@ -46,3 +46,14 @@ def test_runtime_registry_validates_and_caches_a_trained_artifact(tmp_path: Path
     assert registry.is_available()  # successful validation is cached
     registry.reset()
     assert not registry.is_available()
+
+
+def test_runtime_registry_reports_missing_artifact_reason(tmp_path: Path) -> None:
+    registry = ResponsePredictorRegistry(
+        Settings(model_artifact_path=str(tmp_path / "missing.joblib"))
+    )
+    assert not registry.is_available()
+    assert registry.get_last_error_code() == "artifact_missing"
+    assert registry.get_last_error_message() == "Configured model artifact is unavailable"
+    registry.reset()
+    assert registry.get_last_error_code() is None
