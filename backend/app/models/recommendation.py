@@ -23,6 +23,10 @@ class Recommendation(Base):
     ml_model_available: Mapped[bool] = mapped_column(default=False, nullable=False)
     model_version: Mapped[str | None] = mapped_column(String(40), nullable=True)
     predicted_correctness_probability: Mapped[float | None] = mapped_column(Float, nullable=True)
+    selected_candidate_predicted_probability: Mapped[float | None] = mapped_column(
+        Float, nullable=True
+    )
+    candidate_prediction_summary: Mapped[str] = mapped_column(Text, default="[]", nullable=False)
     triggered_rules: Mapped[str] = mapped_column(Text, default="[]", nullable=False)
     rejected_paths: Mapped[str] = mapped_column(Text, default="[]", nullable=False)
     offline_content_available: Mapped[bool] = mapped_column(default=False, nullable=False)

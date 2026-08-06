@@ -31,6 +31,8 @@ def serialise_recommendation(item: Recommendation) -> RecommendationRead:
         ml_model_available=item.ml_model_available,
         model_version=item.model_version,
         predicted_correctness_probability=item.predicted_correctness_probability,
+        selected_candidate_predicted_probability=item.selected_candidate_predicted_probability,
+        candidate_prediction_summary=json.loads(item.candidate_prediction_summary),
         expected_learning_gain=item.expected_learning_gain,
         computational_cost_ms=item.computational_cost_ms,
         measured_controller_latency_ms=item.measured_controller_latency_ms,
@@ -136,6 +138,14 @@ def generate_recommendation(
     if not ranked:
         raise ValueError("No available activities for recommendation")
     score, details, selected = ranked[0]
+    prediction_summary = [
+        {
+            "activity_id": candidate.activity_id,
+            "probability": candidate.predicted_correctness_probability,
+        }
+        for _, _, candidate in ranked[:4]
+        if candidate.predicted_correctness_probability is not None
+    ]
     alternatives = [
         RecommendationAlternativeRead(
             concept_id=candidate.concept_id,
@@ -159,6 +169,8 @@ def generate_recommendation(
         ml_model_available=ml_model_available,
         model_version=model_version,
         predicted_correctness_probability=predicted_correctness_probability,
+        selected_candidate_predicted_probability=selected.predicted_correctness_probability,
+        candidate_prediction_summary=json.dumps(prediction_summary),
         triggered_rules=json.dumps(decision.triggered_rules),
         rejected_paths=json.dumps(decision.rejected_paths),
         offline_content_available=controller_input.offline_cache_available,

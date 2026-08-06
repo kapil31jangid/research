@@ -24,6 +24,8 @@ class RecommendationRead(BaseModel):
     ml_model_available: bool
     model_version: str | None
     predicted_correctness_probability: float | None = Field(default=None, ge=0.0, le=1.0)
+    selected_candidate_predicted_probability: float | None = Field(default=None, ge=0.0, le=1.0)
+    candidate_prediction_summary: list[dict[str, float | str]]
     expected_learning_gain: float = Field(ge=0.0, le=1.0)
     computational_cost_ms: float = Field(ge=0.0)
     measured_controller_latency_ms: float = Field(ge=0.0)
