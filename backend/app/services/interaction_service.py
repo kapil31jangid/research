@@ -80,6 +80,23 @@ def _read(interaction: Interaction) -> InteractionRead:
     )
 
 
+def _create_interaction_record(
+    payload: InteractionCreate, question: Question, correct: bool, resource: ResourceSnapshot
+) -> Interaction:
+    """Build the pending interaction event without committing it."""
+    return Interaction(
+        learner_id=payload.learner_id,
+        question_id=question.id,
+        concept_id=question.concept_id,
+        submitted_answer=payload.submitted_answer,
+        correct=correct,
+        response_time_ms=payload.response_time_ms,
+        hints_used=payload.hints_used,
+        resource_state=json.dumps(resource.__dict__),
+        offline=payload.offline or resource.offline,
+    )
+
+
 def process_interaction(
     payload: InteractionCreate, question: Question, db: Session
 ) -> ProcessedInteraction:
@@ -92,17 +109,7 @@ def process_interaction(
             payload.submitted_answer, question.correct_answer, question.answer_type
         )
         resource = _resource_for(payload)
-        interaction = Interaction(
-            learner_id=payload.learner_id,
-            question_id=question.id,
-            concept_id=question.concept_id,
-            submitted_answer=payload.submitted_answer,
-            correct=correct,
-            response_time_ms=payload.response_time_ms,
-            hints_used=payload.hints_used,
-            resource_state=json.dumps(resource.__dict__),
-            offline=payload.offline or resource.offline,
-        )
+        interaction = _create_interaction_record(payload, question, correct, resource)
         db.add(interaction)
         previous = state.attempts
         state.mastery_probability = update_mastery(
