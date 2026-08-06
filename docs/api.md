@@ -1,5 +1,11 @@
 # API
 
+Recommendation metadata includes `matching_offline_activity_ids` and
+`offline_content_reason` for every decision. `selected_candidate_predicted_probability`
+is the canonical ML value; `candidate_prediction_summary` contains bounded candidate
+diagnostics. `predicted_correctness_probability` is a deprecated compatibility field
+and new candidate-scored recommendations return it as `null`.
+
 All endpoints return JSON. The service has no authentication in this local research-prototype phase.
 
 Interaction decisions expose requested and actual adaptation paths, controller rules, resource and offline availability, model/fallback metadata, and estimated plus measured latency fields. These additive audit fields support reproducible simulated experiments.

@@ -2,6 +2,20 @@
 
 RAPID-Learn (Resource-Aware, Personalised and Intelligent Dynamic Learning) is an offline-capable adaptive-learning research prototype for low-resource settings. It personalises fraction learning using learner knowledge, uncertainty, misconceptions, prerequisites, forgetting, and device constraints.
 
+`LearningActivity` is the recommendation source of truth: it carries activity type,
+difficulty, supported paths, offline/bundled state, estimated cost, and lifecycle
+state. Inactive or deprecated activities remain in historical records but are never
+recommended. Recommendations persist the offline resolver's matching IDs and reason,
+including explicit no-metadata and app-shell-only outcomes. Candidate ML scoring uses
+retained mastery, activity/concept difficulty, recent correctness, elapsed practice
+time, and candidate-specific prerequisites. The canonical ML output is
+`selected_candidate_predicted_probability`; the older interaction-level field is
+deprecated and new recommendations leave it null.
+
+This prototype uses SQLAlchemy table creation rather than a migration framework. For
+an existing local SQLite database, recreate it (or add the new columns manually)
+before using this refinement's new metadata fields.
+
 ## Current status
 
 All ten planned milestones are implemented as a research prototype: adaptive backend, learner modelling, educational intelligence, resource-aware control, recommendations, PWA interface, synthetic ML pipeline, simulated experiments, and documentation/test hardening.

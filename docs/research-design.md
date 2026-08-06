@@ -1,5 +1,11 @@
 # Research Design
 
+The canonical prediction metric is the selected candidate probability, accompanied by
+a compact candidate summary. The legacy interaction-level prediction is retained only
+for compatibility and is not populated by current candidate-level scoring. A candidate
+prediction failure aborts ML scoring for the entire recommendation and records a BKT
+fallback; partially predicted rankings are never reported.
+
 RAPID-Learn investigates whether adaptive learning can retain useful personalisation under constrained computational resources.
 
 ## Research questions and hypotheses

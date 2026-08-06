@@ -1,5 +1,12 @@
 # Architecture
 
+Activities are lifecycle-controlled (`is_active`, `deprecated_at`): historical
+recommendations remain readable, but inactive/deprecated activities are excluded from
+offline resolution and candidate generation. Each recommendation records the offline
+resolver reason and matching IDs. Candidate features use persisted learner state
+(retained mastery, response history, and last practice), activity difficulty, concept
+difficulty, and candidate-specific prerequisites.
+
 Milestone 1 separates HTTP routing, typed schemas, persistence models, and curriculum data. SQLite holds local learner profiles and curriculum content; JSON files are the versioned source for seed curriculum and questions. NetworkX validates the prerequisite graph before seeding.
 
 ```mermaid
