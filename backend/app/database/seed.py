@@ -6,9 +6,10 @@ from sqlalchemy.orm import Session
 
 import app.models  # noqa: F401  # Register every SQLAlchemy model before create_all().
 from app.curriculum.graph import build_graph
-from app.curriculum.loader import load_concepts, load_questions
+from app.curriculum.loader import load_activities, load_concepts, load_questions
 from app.database.base import Base
 from app.database.session import SessionLocal, engine
+from app.models.activity import LearningActivity
 from app.models.concept import Concept
 from app.models.question import Question
 
@@ -36,6 +37,17 @@ def seed_database(db: Session) -> None:
                         **item,
                         "options": json.dumps(item["options"]),
                         "misconception_patterns": json.dumps(item["misconception_patterns"]),
+                    }
+                )
+            )
+    for item in load_activities():
+        if db.get(LearningActivity, item["id"]) is None:
+            db.add(
+                LearningActivity(
+                    **{
+                        **item,
+                        "adaptation_paths": json.dumps(item["adaptation_paths"]),
+                        "misconception_ids": json.dumps(item["misconception_ids"]),
                     }
                 )
             )

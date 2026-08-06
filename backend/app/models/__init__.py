@@ -9,6 +9,7 @@ from app.models.recommendation import Recommendation
 
 __all__ = [
     "Concept",
+    "LearningActivity",
     "Interaction",
     "Learner",
     "LearnerConceptState",
@@ -16,3 +17,4 @@ __all__ = [
     "Question",
     "Recommendation",
 ]
+from app.models.activity import LearningActivity
