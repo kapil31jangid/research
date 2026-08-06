@@ -127,3 +127,4 @@ def test_repeated_matching_errors_trigger_persisted_misconception_remediation(cl
     response = client("POST", "/interactions", json=payload).json()
     assert response["misconception"]["id"] == "adds_denominators"
     assert response["decision"]["adaptation_path"] == "misconception_remediation"
+    assert response["decision"]["selected_activity_id"] == "visual_common_denominator_demo"

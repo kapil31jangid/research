@@ -66,6 +66,7 @@ def generate_recommendation(
     fallback_reason: str | None = None,
     candidate_probabilities: dict[str, float] | None = None,
     allowed_activity_ids: set[str] | None = None,
+    preferred_activity_id: str | None = None,
 ) -> RecommendationRead:
     """Score candidates, retain at least three alternatives when available, and persist."""
     concepts = {concept.id: concept for concept in db.scalars(select(Concept))}
@@ -85,6 +86,7 @@ def generate_recommendation(
         decision.adaptation_path,
         recent_activity_ids,
         allowed_activity_ids,
+        preferred_activity_id,
     )
     if not candidates:
         candidates = generate_candidates(
@@ -94,6 +96,7 @@ def generate_recommendation(
             decision.adaptation_path,
             set(),
             allowed_activity_ids,
+            preferred_activity_id,
         )
     candidate_probabilities = candidate_probabilities or {}
     if decision.adaptation_path == "lightweight_ml_recommendation" and not candidate_probabilities:

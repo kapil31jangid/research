@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from app.assessment.answer_evaluator import answers_equivalent
 from app.controller.policy import ControllerInput, decide_adaptation
 from app.core.config import get_settings
-from app.curriculum.graph import build_graph
+from app.curriculum.graph import build_graph, prerequisite_ids
 from app.curriculum.loader import load_concepts
 from app.curriculum.prerequisites import prerequisite_mastery
 from app.learner_model.bkt import update_mastery
@@ -22,7 +22,6 @@ from app.misconceptions.detector import InteractionEvidence, detect_misconceptio
 from app.misconceptions.rules import load_rules
 from app.ml_runtime.exceptions import ResponsePredictionError
 from app.ml_runtime.model_registry import get_response_predictor_registry
-from app.ml_runtime.schemas import ResponsePredictionFeatures
 from app.models.activity import LearningActivity
 from app.models.interaction import Interaction
 from app.models.learner_state import MasteryHistory
@@ -206,60 +205,59 @@ def process_interaction(
         controller_latency = (perf_counter_ns() - controller_started) / 1_000_000
         recommendation_started = perf_counter_ns()
         requested_path = decision.adaptation_path
-        model_version = None
-        probability = None
+        model_version = (
+            model_registry.get_model_version()
+            if requested_path == "lightweight_ml_recommendation"
+            else None
+        )
         fallback_used = False
         fallback_reason = None
-        if requested_path == "lightweight_ml_recommendation":
-            try:
-                probability = model_registry.predict_probability(
-                    ResponsePredictionFeatures(
-                        mastery=state.mastery_probability,
-                        retained_mastery=serialise_state(state).retained_mastery,
-                        uncertainty=state.uncertainty,
-                        question_difficulty=float(question.difficulty),
-                        concept_difficulty=float(question.difficulty),
-                        recent_correctness=sum(correctness) / len(correctness),
-                        average_response_time=state.average_response_time,
-                        response_time_variation=state.response_time_variation,
-                        hint_usage_rate=state.hint_usage_rate,
-                        attempts=float(state.attempts),
-                        correct_attempts=float(state.correct_attempts),
-                        prerequisite_mastery=controller_input.prerequisite_mastery,
-                        days_since_practice=0.0,
-                        misconception_confidence=state.misconception_confidence,
-                        resource_score=resource.score,
-                    )
-                )
-                model_version = model_registry.get_model_version()
-            except ResponsePredictionError as error:
-                fallback_used = True
-                fallback_reason = str(error)
-                decision = replace(
-                    decision,
-                    adaptation_path="bkt_based_recommendation",
-                    reason="ML inference failed; BKT recommendation used safely",
-                )
-        recommendation = generate_recommendation(
-            payload.learner_id,
-            states,
-            question.concept_id,
-            controller_input,
-            decision,
-            db,
-            commit=False,
-            requested_adaptation_path=requested_path,
-            ml_model_available=controller_input.ml_model_available,
-            model_version=model_version,
-            predicted_correctness_probability=probability,
-            fallback_used=fallback_used,
-            fallback_reason=fallback_reason,
-            allowed_activity_ids=(
-                set(availability.matching_activity_ids)
-                if decision.adaptation_path == "cached_offline_recommendation"
-                else None
-            ),
-        )
+        graph = build_graph(load_concepts())
+        recommendation_focus_id = question.concept_id
+        if decision.adaptation_path == "prerequisite_review":
+            required = prerequisite_ids(graph, question.concept_id)
+            if required:
+                recommendation_focus_id = min(required, key=lambda concept_id: mastery[concept_id])
+
+        def build_recommendation() -> RecommendationRead:
+            return generate_recommendation(
+                payload.learner_id,
+                states,
+                recommendation_focus_id,
+                controller_input,
+                decision,
+                db,
+                commit=False,
+                requested_adaptation_path=requested_path,
+                ml_model_available=controller_input.ml_model_available,
+                model_version=model_version,
+                fallback_used=fallback_used,
+                fallback_reason=fallback_reason,
+                allowed_activity_ids=(
+                    set(availability.matching_activity_ids)
+                    if decision.adaptation_path == "cached_offline_recommendation"
+                    else None
+                ),
+                preferred_activity_id=(
+                    misconception.remediation_activity
+                    if decision.adaptation_path == "misconception_remediation" and misconception
+                    else None
+                ),
+            )
+
+        try:
+            recommendation = build_recommendation()
+        except ResponsePredictionError as error:
+            if requested_path != "lightweight_ml_recommendation":
+                raise
+            fallback_used = True
+            fallback_reason = str(error)
+            decision = replace(
+                decision,
+                adaptation_path="bkt_based_recommendation",
+                reason="ML inference failed; BKT recommendation used safely",
+            )
+            recommendation = build_recommendation()
         record = db.get(Recommendation, recommendation.id)
         record.measured_controller_latency_ms = controller_latency
         record.measured_recommendation_latency_ms = (

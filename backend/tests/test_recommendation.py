@@ -53,3 +53,29 @@ def test_recent_activities_are_excluded_when_alternatives_exist() -> None:
         states, concepts, "focus", "bkt_based_recommendation", {"recent"}
     )
     assert [candidate.activity_id for candidate in candidates] == ["new"]
+
+
+def test_exact_remediation_activity_excludes_unrelated_practice() -> None:
+    concepts = {
+        "focus": Concept(
+            id="focus",
+            name="Focus",
+            description="",
+            difficulty=1,
+            activity_ids='["remediation", "unrelated"]',
+        )
+    }
+    states = [
+        LearnerConceptState(
+            learner_id="l", concept_id="focus", mastery_probability=0.5, uncertainty=1.0
+        )
+    ]
+    candidates = generate_candidates(
+        states,
+        concepts,
+        "focus",
+        "misconception_remediation",
+        set(),
+        preferred_activity_id="remediation",
+    )
+    assert [candidate.activity_id for candidate in candidates] == ["remediation"]

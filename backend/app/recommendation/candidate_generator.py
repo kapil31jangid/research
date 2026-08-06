@@ -27,6 +27,7 @@ def generate_candidates(
     adaptation_path: str,
     recent_activity_ids: set[str],
     allowed_activity_ids: set[str] | None = None,
+    preferred_activity_id: str | None = None,
 ) -> list[ActivityCandidate]:
     """Rank source concepts by need and expose their distinct available activities."""
     ordered_states = sorted(
@@ -45,6 +46,10 @@ def generate_candidates(
             continue
         concept = concepts[state.concept_id]
         for activity_id in json.loads(concept.activity_ids):
+            # A detected misconception has a rule-owned remediation activity.  Do
+            # not dilute that pedagogical intervention with unrelated practice.
+            if preferred_activity_id is not None and activity_id != preferred_activity_id:
+                continue
             if allowed_activity_ids is not None and activity_id not in allowed_activity_ids:
                 continue
             if activity_id in recent_activity_ids:
