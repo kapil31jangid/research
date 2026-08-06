@@ -10,6 +10,7 @@ from app.controller.explanation import explain_decision
 from app.controller.policy import ControllerDecision, ControllerInput
 from app.ml_runtime.model_registry import get_response_predictor_registry
 from app.ml_runtime.schemas import ResponsePredictionFeatures
+from app.models.activity import LearningActivity
 from app.models.concept import Concept
 from app.models.learner_state import LearnerConceptState
 from app.models.recommendation import Recommendation
@@ -73,6 +74,7 @@ def generate_recommendation(
 ) -> RecommendationRead:
     """Score candidates, retain at least three alternatives when available, and persist."""
     concepts = {concept.id: concept for concept in db.scalars(select(Concept))}
+    activities = list(db.scalars(select(LearningActivity)))
     previous = list(
         db.scalars(
             select(Recommendation)
@@ -90,6 +92,7 @@ def generate_recommendation(
         recent_activity_ids,
         allowed_activity_ids,
         preferred_activity_id,
+        activities,
     )
     if not candidates:
         candidates = generate_candidates(
@@ -100,6 +103,7 @@ def generate_recommendation(
             set(),
             allowed_activity_ids,
             preferred_activity_id,
+            activities,
         )
     candidate_probabilities = candidate_probabilities or {}
     if decision.adaptation_path == "lightweight_ml_recommendation" and not candidate_probabilities:

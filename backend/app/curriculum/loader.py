@@ -42,9 +42,13 @@ def load_activities() -> list[dict[str, Any]]:
         for activity_id in concept["activity_ids"]:
             misconception_id = remediation.get(activity_id)
             paths = [
+                "diagnostic_assessment",
+                "prerequisite_review",
+                "spaced_review",
                 "rule_based_recommendation",
                 "bkt_based_recommendation",
                 "lightweight_ml_recommendation",
+                "cached_offline_recommendation",
             ]
             activity_type = "practice_quiz"
             if misconception_id:
@@ -66,6 +70,9 @@ def load_activities() -> list[dict[str, Any]]:
                     "content_type": "lesson",
                     "estimated_size_kb": 64,
                     "estimated_computational_cost_ms": 1.0,
+                    "is_active": True,
+                    "deprecated_at": None,
+                    "deprecation_reason": None,
                 }
             )
     return activities

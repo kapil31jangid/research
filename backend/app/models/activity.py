@@ -27,6 +27,9 @@ class LearningActivity(Base):
     estimated_computational_cost_ms: Mapped[float] = mapped_column(
         Float, default=1.0, nullable=False
     )
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    deprecated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    deprecation_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(UTC)
     )

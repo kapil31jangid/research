@@ -1,3 +1,4 @@
+from app.models.activity import LearningActivity
 from app.models.concept import Concept
 from app.models.learner_state import LearnerConceptState
 from app.recommendation.candidate_generator import ActivityCandidate, generate_candidates
@@ -79,3 +80,49 @@ def test_exact_remediation_activity_excludes_unrelated_practice() -> None:
         preferred_activity_id="remediation",
     )
     assert [candidate.activity_id for candidate in candidates] == ["remediation"]
+
+
+def test_activity_metadata_controls_candidate_eligibility() -> None:
+    concepts = {
+        "focus": Concept(
+            id="focus", name="Focus", description="", difficulty=1, activity_ids='["legacy"]'
+        )
+    }
+    states = [
+        LearnerConceptState(
+            learner_id="l", concept_id="focus", mastery_probability=0.5, uncertainty=1.0
+        )
+    ]
+    active = LearningActivity(
+        id="active",
+        concept_id="focus",
+        title="Active",
+        description="",
+        activity_type="worked_example",
+        difficulty=3,
+        adaptation_paths='["bkt_based_recommendation"]',
+        misconception_ids="[]",
+        estimated_computational_cost_ms=7.0,
+    )
+    inactive = LearningActivity(
+        id="inactive",
+        concept_id="focus",
+        title="Inactive",
+        description="",
+        activity_type="worked_example",
+        difficulty=1,
+        adaptation_paths='["bkt_based_recommendation"]',
+        misconception_ids="[]",
+        is_active=False,
+    )
+    candidates = generate_candidates(
+        states,
+        concepts,
+        "focus",
+        "bkt_based_recommendation",
+        set(),
+        activities=[active, inactive],
+    )
+    assert [candidate.activity_id for candidate in candidates] == ["active"]
+    assert candidates[0].difficulty == 3.0
+    assert candidates[0].estimated_computational_cost_ms == 7.0

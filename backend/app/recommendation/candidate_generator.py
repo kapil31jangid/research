@@ -3,6 +3,7 @@
 import json
 from dataclasses import dataclass
 
+from app.models.activity import LearningActivity
 from app.models.concept import Concept
 from app.models.learner_state import LearnerConceptState
 
@@ -18,6 +19,12 @@ class ActivityCandidate:
     misconception_relevance: float
     computational_cost: float
     predicted_correctness_probability: float | None = None
+    activity_type: str = "practice_quiz"
+    difficulty: float = 1.0
+    estimated_computational_cost_ms: float = 1.0
+    available_offline: bool = False
+    adaptation_paths: tuple[str, ...] = ()
+    misconception_ids: tuple[str, ...] = ()
 
 
 def generate_candidates(
@@ -28,6 +35,7 @@ def generate_candidates(
     recent_activity_ids: set[str],
     allowed_activity_ids: set[str] | None = None,
     preferred_activity_id: str | None = None,
+    activities: list[LearningActivity] | None = None,
 ) -> list[ActivityCandidate]:
     """Rank source concepts by need and expose their distinct available activities."""
     ordered_states = sorted(
@@ -38,6 +46,9 @@ def generate_candidates(
             -state.uncertainty,
         ),
     )
+    activities_by_concept: dict[str, list[LearningActivity]] = {}
+    for activity in activities or []:
+        activities_by_concept.setdefault(activity.concept_id, []).append(activity)
     candidates: list[ActivityCandidate] = []
     for state in ordered_states:
         if adaptation_path in {"misconception_remediation", "cached_offline_recommendation"} and (
@@ -45,7 +56,33 @@ def generate_candidates(
         ):
             continue
         concept = concepts[state.concept_id]
-        for activity_id in json.loads(concept.activity_ids):
+        # A supplied activity collection is authoritative. The legacy concept
+        # list remains only as a compatibility fallback for isolated callers.
+        source = activities_by_concept.get(concept.id)
+        if source is None and activities is None:
+            source = [
+                LearningActivity(
+                    id=activity_id,
+                    concept_id=concept.id,
+                    title=activity_id,
+                    description="",
+                    activity_type="practice_quiz",
+                    difficulty=concept.difficulty,
+                    adaptation_paths=json.dumps([adaptation_path]),
+                    misconception_ids="[]",
+                )
+                for activity_id in json.loads(concept.activity_ids)
+            ]
+        if source is None:
+            continue
+        for activity in source:
+            paths = tuple(json.loads(activity.adaptation_paths))
+            misconceptions = tuple(json.loads(activity.misconception_ids))
+            if activity.is_active is False or activity.deprecated_at is not None:
+                continue
+            if adaptation_path not in paths:
+                continue
+            activity_id = activity.id
             # A detected misconception has a rule-owned remediation activity.  Do
             # not dilute that pedagogical intervention with unrelated practice.
             if preferred_activity_id is not None and activity_id != preferred_activity_id:
@@ -68,6 +105,12 @@ def generate_candidates(
                         else 0.0
                     ),
                     computational_cost=0.2 if "visual" not in activity_id else 0.5,
+                    activity_type=activity.activity_type,
+                    difficulty=float(activity.difficulty),
+                    estimated_computational_cost_ms=activity.estimated_computational_cost_ms,
+                    available_offline=activity.available_offline,
+                    adaptation_paths=paths,
+                    misconception_ids=misconceptions,
                 )
             )
     return candidates
