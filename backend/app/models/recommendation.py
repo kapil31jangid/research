@@ -22,6 +22,8 @@ class Recommendation(Base):
     fallback_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     ml_model_available: Mapped[bool] = mapped_column(default=False, nullable=False)
     model_version: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    # Deprecated legacy interaction-level value. New analysis uses the selected
+    # candidate probability and compact candidate summary below.
     predicted_correctness_probability: Mapped[float | None] = mapped_column(Float, nullable=True)
     selected_candidate_predicted_probability: Mapped[float | None] = mapped_column(
         Float, nullable=True

@@ -12,7 +12,10 @@ export type Recommendation = {
   fallback_reason?: string | null;
   ml_model_available?: boolean;
   model_version?: string | null;
+  /** Deprecated legacy interaction prediction; new analytics use the selected candidate field. */
   predicted_correctness_probability?: number | null;
+  selected_candidate_predicted_probability?: number | null;
+  candidate_prediction_summary?: { activity_id: string; probability: number }[];
   matching_offline_activity_ids?: string[];
   offline_content_reason?: string | null;
   measured_total_adaptive_latency_ms?: number;
