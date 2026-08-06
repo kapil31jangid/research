@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from app.models.activity import LearningActivity
 from app.models.concept import Concept
 from app.models.learner_state import LearnerConceptState
@@ -126,3 +128,27 @@ def test_activity_metadata_controls_candidate_eligibility() -> None:
     assert [candidate.activity_id for candidate in candidates] == ["active"]
     assert candidates[0].difficulty == 3.0
     assert candidates[0].estimated_computational_cost_ms == 7.0
+
+
+def test_deprecated_activity_is_not_eligible() -> None:
+    concept = Concept(
+        id="focus", name="Focus", description="", difficulty=1, activity_ids='["old"]'
+    )
+    state = LearnerConceptState(
+        learner_id="l", concept_id="focus", mastery_probability=0.5, uncertainty=1.0
+    )
+    old = LearningActivity(
+        id="old",
+        concept_id="focus",
+        title="Old",
+        description="",
+        activity_type="practice_quiz",
+        difficulty=1,
+        adaptation_paths='["bkt_based_recommendation"]',
+        misconception_ids="[]",
+        deprecated_at=datetime.now(UTC),
+    )
+    assert old.deprecated_at is not None and old.deprecated_at.tzinfo is not None
+    assert not generate_candidates(
+        [state], {"focus": concept}, "focus", "bkt_based_recommendation", set(), activities=[old]
+    )
