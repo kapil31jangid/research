@@ -14,6 +14,10 @@ flowchart LR
 
 The future adaptive decision loop will add learner-state estimation, misconception detection, resource monitoring, controller selection, recommendation scoring, and local synchronisation without moving the existing API/persistence boundary.
 
+## Reliability and optional adaptation
+
+Misconception evidence is scoped to the current learner and concept. Rule-specific windows, minimum evidence, and thresholds override validated global defaults. Offline cache metadata is checked against seeded target-concept activities; an app shell alone never counts as educational content. The optional ML registry validates its artefact version, feature order, preprocessing pipeline, and output before the controller can select it. Prediction failures retain the interaction and safely fall back to BKT. Interaction, learner-state, history, and recommendation persistence share one transaction. Measured controller, recommendation, and total adaptive latency are distinct from estimated cost and exclude commit time.
+
 ## Learner model
 
 Milestone 2 persists current concept state separately from append-only `mastery_history`. Bayesian Knowledge Tracing updates are numerically clamped and use difficulty defaults with concept-specific overrides. Mastery and uncertainty are distinct estimates: the default heuristic combines evidence, response consistency, and normalised response-time variation; entropy and combined modes are also available. Retained mastery is calculated dynamically at read time using exponential decay, so viewing progress never changes stored mastery.
