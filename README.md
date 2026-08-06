@@ -59,6 +59,12 @@ docker compose up --build
 docker compose down -v
 ```
 
+If ports `8000` or `5173` are busy, choose alternative host ports:
+
+```bash
+RAPID_LEARN_BACKEND_PORT=8001 RAPID_LEARN_FRONTEND_PORT=5174 docker compose up --build
+```
+
 ### Database seed
 
 ```bash

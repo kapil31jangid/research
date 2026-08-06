@@ -7,6 +7,7 @@ import httpx
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import StaticPool
 
 from app.database.base import Base
 from app.database.seed import seed_database
@@ -16,7 +17,9 @@ from app.main import app
 
 @pytest.fixture()
 def client() -> Generator[Callable[..., httpx.Response], None, None]:
-    engine = create_engine("sqlite://", connect_args={"check_same_thread": False})
+    engine = create_engine(
+        "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
+    )
     factory = sessionmaker(bind=engine, autoflush=False, autocommit=False)
     Base.metadata.create_all(engine)
     with factory() as db:

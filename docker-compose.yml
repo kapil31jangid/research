@@ -4,10 +4,10 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     ports:
-      - "8000:8000"
+      - "${RAPID_LEARN_BACKEND_PORT:-8000}:8000"
     environment:
       RAPID_LEARN_DATABASE_URL: sqlite:////app/data/rapid_learn.db
-      RAPID_LEARN_CORS_ORIGINS: http://localhost:5173
+      RAPID_LEARN_CORS_ORIGINS: ${RAPID_LEARN_CORS_ORIGINS:-http://localhost:5173}
     volumes:
       - rapid-learn-data:/app/data
   frontend:
@@ -15,7 +15,7 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
     ports:
-      - "5173:80"
+      - "${RAPID_LEARN_FRONTEND_PORT:-5173}:80"
     depends_on:
       - backend
 

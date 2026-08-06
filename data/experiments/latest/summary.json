@@ -1,0 +1,133 @@
+{
+  "simulated": true,
+  "configuration": {
+    "controller": "all",
+    "learners": 1000,
+    "interactions": 100,
+    "resource_profile": "low",
+    "seed": 42,
+    "output": "data/experiments/latest"
+  },
+  "results": [
+    {
+      "mode": "bkt_only",
+      "learner": 499.5,
+      "learning_gain": 0.06805351791432435,
+      "accuracy": 0.3663728930785051,
+      "latency_ms": 3.996148520404765,
+      "memory_mb": 14.546890296505714,
+      "cpu_percent": 37.61988286484225,
+      "bandwidth_kb": 0.0,
+      "resource_score": 0.45,
+      "personalisation_retention_ratio": 1.0
+    },
+    {
+      "mode": "hybrid_no_resource",
+      "learner": 499.5,
+      "learning_gain": 0.08877532640887141,
+      "accuracy": 0.3873405645864869,
+      "latency_ms": 5.006158634342546,
+      "memory_mb": 17.54632430563178,
+      "cpu_percent": 45.528268824727924,
+      "bandwidth_kb": 0.0,
+      "resource_score": 0.45,
+      "personalisation_retention_ratio": 1.0572304117037636
+    },
+    {
+      "mode": "ml_only",
+      "learner": 499.5,
+      "learning_gain": 0.05879162649121582,
+      "accuracy": 0.36376117160273713,
+      "latency_ms": 9.000715578394553,
+      "memory_mb": 29.51684684415568,
+      "cpu_percent": 77.56304798085685,
+      "bandwidth_kb": 0.0,
+      "resource_score": 0.45,
+      "personalisation_retention_ratio": 0.9928714118180999
+    },
+    {
+      "mode": "resource_aware_hybrid",
+      "learner": 499.5,
+      "learning_gain": 0.10873991658130824,
+      "accuracy": 0.40795494518422265,
+      "latency_ms": 3.998831810363632,
+      "memory_mb": 14.516145839781892,
+      "cpu_percent": 37.64318353933559,
+      "bandwidth_kb": 0.0,
+      "resource_score": 0.45,
+      "personalisation_retention_ratio": 1.1134965301507922
+    },
+    {
+      "mode": "resource_aware_no_forgetting",
+      "learner": 499.5,
+      "learning_gain": 0.07824782873746199,
+      "accuracy": 0.37996384315171683,
+      "latency_ms": 3.9950631698595287,
+      "memory_mb": 14.48891951221058,
+      "cpu_percent": 37.53987393174496,
+      "bandwidth_kb": 0.0,
+      "resource_score": 0.45,
+      "personalisation_retention_ratio": 1.037095948772333
+    },
+    {
+      "mode": "resource_aware_no_misconception",
+      "learner": 499.5,
+      "learning_gain": 0.07756341115208405,
+      "accuracy": 0.3818701449014663,
+      "latency_ms": 4.004039425377265,
+      "memory_mb": 14.494390779991686,
+      "cpu_percent": 37.62973615605551,
+      "bandwidth_kb": 0.0,
+      "resource_score": 0.45,
+      "personalisation_retention_ratio": 1.0422991223306481
+    },
+    {
+      "mode": "resource_aware_no_prerequisites",
+      "learner": 499.5,
+      "learning_gain": 0.06729867969424448,
+      "accuracy": 0.3716171334178132,
+      "latency_ms": 4.000694726732548,
+      "memory_mb": 14.502662128520143,
+      "cpu_percent": 37.52248883549791,
+      "bandwidth_kb": 0.0,
+      "resource_score": 0.45,
+      "personalisation_retention_ratio": 1.0143139419929312
+    },
+    {
+      "mode": "resource_aware_no_uncertainty",
+      "learner": 499.5,
+      "learning_gain": 0.07756533061856613,
+      "accuracy": 0.3717501098271961,
+      "latency_ms": 3.998333744629584,
+      "memory_mb": 14.486625817256419,
+      "cpu_percent": 37.55921471994317,
+      "bandwidth_kb": 0.0,
+      "resource_score": 0.45,
+      "personalisation_retention_ratio": 1.0146768957263952
+    },
+    {
+      "mode": "rule_based",
+      "learner": 499.5,
+      "learning_gain": 0.0483742134976202,
+      "accuracy": 0.3507092510908851,
+      "latency_ms": 2.001738459515794,
+      "memory_mb": 8.532630177918492,
+      "cpu_percent": 21.462132013231717,
+      "bandwidth_kb": 0.0,
+      "resource_score": 0.45,
+      "personalisation_retention_ratio": 0.9572467224417073
+    },
+    {
+      "mode": "static_curriculum",
+      "learner": 499.5,
+      "learning_gain": 0.016064581387488105,
+      "accuracy": 0.31870300030902776,
+      "latency_ms": 0.9923828730991755,
+      "memory_mb": 5.504065719151095,
+      "cpu_percent": 13.43621860963984,
+      "bandwidth_kb": 0.0,
+      "resource_score": 0.45,
+      "personalisation_retention_ratio": 0.8698869548756086
+    }
+  ]
+}

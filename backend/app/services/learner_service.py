@@ -12,7 +12,9 @@ from app.models.learner_state import LearnerConceptState, MasteryHistory
 from app.schemas.state import LearnerConceptStateRead, LearnerProgressRead
 
 
-def ensure_learner_states(learner_id: str, db: Session) -> list[LearnerConceptState]:
+def ensure_learner_states(
+    learner_id: str, db: Session, commit: bool = True
+) -> list[LearnerConceptState]:
     """Create initial state and history records for any uninitialised concepts."""
     concepts = list(db.scalars(select(Concept).order_by(Concept.id)))
     existing = {
@@ -40,7 +42,10 @@ def ensure_learner_states(learner_id: str, db: Session) -> list[LearnerConceptSt
                     uncertainty=state.uncertainty,
                 )
             )
-    db.commit()
+    if commit:
+        db.commit()
+    else:
+        db.flush()
     return list(
         db.scalars(
             select(LearnerConceptState)

@@ -38,6 +38,7 @@ def generate_recommendation(
     controller_input: ControllerInput,
     decision: ControllerDecision,
     db: Session,
+    commit: bool = True,
 ) -> RecommendationRead:
     """Score candidates, retain at least three alternatives when available, and persist."""
     concepts = {concept.id: concept for concept in db.scalars(select(Concept))}
@@ -93,6 +94,9 @@ def generate_recommendation(
         resource_state=json.dumps(controller_input.resource.__dict__),
     )
     db.add(record)
-    db.commit()
-    db.refresh(record)
+    if commit:
+        db.commit()
+        db.refresh(record)
+    else:
+        db.flush()
     return serialise_recommendation(record)

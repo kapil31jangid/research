@@ -26,6 +26,8 @@ class LearnerConceptState(Base):
     recent_correctness: Mapped[str] = mapped_column(Text, default="[]", nullable=False)
     average_response_time: Mapped[float | None] = mapped_column(Float, nullable=True)
     response_time_variation: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    response_time_m2: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    response_time_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     hint_usage_rate: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
     last_practised_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True

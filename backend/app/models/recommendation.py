@@ -19,6 +19,18 @@ class Recommendation(Base):
     adaptation_path: Mapped[str] = mapped_column(String(60), nullable=False)
     expected_learning_gain: Mapped[float] = mapped_column(Float, nullable=False)
     computational_cost_ms: Mapped[float] = mapped_column(Float, nullable=False)
+    measured_controller_latency_ms: Mapped[float] = mapped_column(
+        Float, default=0.0, nullable=False
+    )
+    measured_recommendation_latency_ms: Mapped[float] = mapped_column(
+        Float, default=0.0, nullable=False
+    )
+    measured_total_adaptive_latency_ms: Mapped[float] = mapped_column(
+        Float, default=0.0, nullable=False
+    )
+    controller_mode: Mapped[str] = mapped_column(
+        String(60), default="deterministic", nullable=False
+    )
     score: Mapped[float] = mapped_column(Float, nullable=False)
     explanation: Mapped[str] = mapped_column(Text, nullable=False)
     alternatives: Mapped[str] = mapped_column(Text, default="[]", nullable=False)
