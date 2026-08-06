@@ -1,0 +1,1 @@
+export function MasteryBar({ value }: { value: number }) { return <div className="h-2 rounded bg-slate-200"><div className="h-2 rounded bg-indigo-600" style={{ width: `${Math.round(value * 100)}%` }} /></div>; }

@@ -58,3 +58,8 @@ def test_controller_degrades_to_cached_content_under_critical_resources() -> Non
         offline_cache_available=True,
     )
     assert decide_adaptation(state).adaptation_path == "cached_offline_recommendation"
+
+
+def test_controller_falls_back_to_bkt_when_ml_artifact_is_unavailable() -> None:
+    state = ControllerInput(0.0, 1.0, 0.1, 1.0, 40, snapshot(0.9, "high"))
+    assert decide_adaptation(state).adaptation_path == "bkt_based_recommendation"

@@ -27,6 +27,7 @@ class ControllerInput:
     interaction_count: int
     resource: ResourceSnapshot
     offline_cache_available: bool = False
+    ml_model_available: bool = False
 
 
 @dataclass(frozen=True)
@@ -108,7 +109,8 @@ def decide_adaptation(
         ),
         (
             state.resource.level == "high"
-            and state.interaction_count >= configuration.ml_minimum_interactions,
+            and state.interaction_count >= configuration.ml_minimum_interactions
+            and state.ml_model_available,
             "lightweight_ml_recommendation",
             "high_resources_sufficient_history",
             "High resources and sufficient history permit lightweight ML.",

@@ -4,7 +4,11 @@ RAPID-Learn (Resource-Aware, Personalised and Intelligent Dynamic Learning) is a
 
 ## Current status
 
-Milestones 1–6 are implemented: a FastAPI and SQLite foundation, learner modelling, educational intelligence, resource-aware adaptation, explainable recommendation ranking/history, and the persisted interaction-to-recommendation loop. Synchronisation, the frontend, ML, experiments, and production hardening are intentionally future milestones.
+Milestones 1–8 are implemented: the adaptive backend, a responsive offline-capable React PWA, reproducible synthetic learner data, and an optional logistic-regression response predictor. Synchronisation, experiment baselines, and production hardening remain future milestones.
+
+## Frontend and ML
+
+Run the PWA with `make frontend`; it caches its app shell, displays offline and pending-sync status, and queues answer events in IndexedDB until connectivity returns. Generate simulated (not real learner) data with `python scripts/generate_synthetic_data.py`, then train the optional predictor with `python scripts/train_response_predictor.py`. The controller safely falls back to BKT when no model artifact is available.
 
 No educational outcomes or device-performance claims have been validated with real learners. Seed content is prototype content for research development.
 

@@ -10,4 +10,8 @@ backend/rapid_learn.db
 dist/
 build/
 node_modules/
-
+frontend/dist/
+data/models/
+*.tsbuildinfo
+frontend/vite.config.js
+frontend/vite.config.d.ts

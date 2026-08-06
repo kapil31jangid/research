@@ -1,0 +1,1 @@
+export function StatusBar({ offline, pending }: { offline: boolean; pending: number }) { return <div className="flex gap-3 text-sm" role="status"><span className={offline ? "text-amber-700" : "text-emerald-700"}>{offline ? "Offline" : "Online"}</span><span>{pending} pending sync</span></div>; }
