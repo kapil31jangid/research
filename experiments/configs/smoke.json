@@ -1,0 +1,1 @@
+{"experiment_name":"smoke","random_seed":42,"learner_count":2,"interactions_per_learner":3,"condition":"full","learner_profile_distribution":{"mixed":1.0},"output_dir":"artifacts/experiments"}
