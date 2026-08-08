@@ -6,7 +6,7 @@ import type { ActivityContentResponse } from "../types";
 import { greeting, humanize, percent } from "../utils/format";
 
 export function Dashboard({ onLearn }: { onLearn: () => void }) {
-  const { learner, states, recommendations, resource, loading, loadActivity } = useLearning();
+  const { learner, states, recommendations, resource, pending, loading, loadActivity } = useLearning();
   const [activity, setActivity] = useState<ActivityContentResponse>();
   const recommendation = recommendations[0];
 
@@ -38,11 +38,28 @@ export function Dashboard({ onLearn }: { onLearn: () => void }) {
         <div>
           <p className="eyebrow">Your learning home</p>
           <h1>{greeting()}, {learner.name}</h1>
-          <p>Here’s what RAPID-Learn recommends next.</p>
+          <p>{pending > 0 ? "Your latest answer is saved and waiting to sync." : "Here’s what RAPID-Learn recommends next."}</p>
         </div>
       </header>
 
-      {recommendation ? (
+      {pending > 0 ? (
+        <Card className="pending-adaptive-card" >
+          <div>
+            <Badge tone="amber">Pending sync</Badge>
+            <p className="eyebrow mt-6">Pathway update pending</p>
+            <h2>{pending} answer{pending === 1 ? " is" : "s are"} waiting to sync</h2>
+            <p>Your next adaptive recommendation will be calculated after synchronization.</p>
+            {recommendation && (
+              <div className="previous-lesson">
+                <span>Previous saved lesson</span>
+                <strong>{activity?.content.title ?? humanize(recommendation.selected_activity_id)}</strong>
+              </div>
+            )}
+            {recommendation && <button className="button-secondary" onClick={onLearn}>Review previous lesson</button>}
+          </div>
+          <div className="pending-visual" aria-hidden="true"><span>↻</span></div>
+        </Card>
+      ) : recommendation ? (
         <Card className="continue-card">
           <div className="continue-copy">
             <div className="flex flex-wrap gap-2">

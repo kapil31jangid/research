@@ -19,6 +19,6 @@ function RapidLearnApp() {
   const [view, setView] = useState<View>("dashboard");
   const [choosingLearner, setChoosingLearner] = useState(false);
   if (!learner || choosingLearner) return <Learners onReady={() => { setChoosingLearner(false); setView("dashboard"); }} />;
-  const page = error ? <ErrorState message={error} onRetry={() => void refresh()} /> : view === "dashboard" ? <Dashboard onLearn={() => setView("learn")} /> : view === "learn" ? <Learn /> : view === "progress" ? <Progress /> : view === "research" ? <Research /> : <Settings />;
+  const page = error ? <ErrorState message={error} onRetry={() => void refresh()} /> : view === "dashboard" ? <Dashboard onLearn={() => setView("learn")} /> : view === "learn" ? <Learn onReturnDashboard={() => setView("dashboard")} /> : view === "progress" ? <Progress /> : view === "research" ? <Research /> : <Settings />;
   return <ApplicationShell view={view} onNavigate={setView} learner={learner} learners={learners} onSwitchLearner={(selected) => void selectLearner(selected)} onChooseLearner={() => setChoosingLearner(true)} online={online} pending={pending}>{page}</ApplicationShell>;
 }
