@@ -504,3 +504,5 @@ def test_multi_seed_suite_writes_aggregate_statistics_plots_and_tables(tmp_path)
     assert summary["simulated_results"] is True
     assert summary["educational_effectiveness_validated"] is False
     assert summary["bootstrap_samples"] == 100
+    paired = pd.read_csv(directory / "paired_comparisons.csv")
+    assert "p95_latency" in set(paired.metric)

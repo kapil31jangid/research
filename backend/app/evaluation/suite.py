@@ -36,6 +36,7 @@ PAIRED_METRICS = (
     "mastery_threshold_success_rate",
     "misconception_resolution_rate",
     "mean_latency",
+    "p95_latency",
     "mean_estimated_compute_cost_ms",
 )
 
@@ -45,6 +46,47 @@ def _execute_run(job: tuple[dict[str, object], str, int]) -> str:
     config_data, condition, seed = job
     base = ExperimentConfig.model_validate(config_data | {"random_seed": seed})
     return str(run_experiment(condition_config(base, condition)))
+
+
+def paired_comparisons(
+    seed_metrics: pd.DataFrame,
+    config: ExperimentConfig,
+) -> pd.DataFrame:
+    """Build reproducible full-versus-ablation comparisons from seed summaries."""
+    rows: list[dict[str, object]] = []
+    full = seed_metrics.loc[seed_metrics.condition == "full"]
+    for condition in PAIRED_CONDITIONS:
+        other = seed_metrics.loc[seed_metrics.condition == condition]
+        paired = full.merge(other, on="random_seed", suffixes=("_reference", "_comparison"))
+        for metric in PAIRED_METRICS:
+            left = f"{metric}_reference"
+            right = f"{metric}_comparison"
+            if left not in paired or right not in paired:
+                continue
+            valid = paired[[left, right]].dropna()
+            if valid.empty:
+                continue
+            reference = valid[left].astype(float).tolist()
+            comparison = valid[right].astype(float).tolist()
+            difference, low, high = paired_bootstrap_difference(
+                reference,
+                comparison,
+                config.random_seed,
+                samples=config.bootstrap_samples,
+            )
+            rows.append(
+                {
+                    "metric": metric,
+                    "reference_condition": "full",
+                    "comparison_condition": condition,
+                    "mean_difference": difference,
+                    "ci_low": low,
+                    "ci_high": high,
+                    "effect_size": cohens_d(reference, comparison),
+                    "matched_seed_count": len(valid),
+                }
+            )
+    return pd.DataFrame(rows)
 
 
 def run_suite(
@@ -108,40 +150,7 @@ def run_suite(
             )
     aggregate = pd.DataFrame(aggregate_rows)
     aggregate.to_csv(directory / "aggregate_metrics.csv", index=False)
-    paired_rows: list[dict[str, object]] = []
-    full = seed_metrics.loc[seed_metrics.condition == "full"]
-    for condition in PAIRED_CONDITIONS:
-        other = seed_metrics.loc[seed_metrics.condition == condition]
-        paired = full.merge(other, on="random_seed", suffixes=("_reference", "_comparison"))
-        for metric in PAIRED_METRICS:
-            left = f"{metric}_reference"
-            right = f"{metric}_comparison"
-            if left not in paired or right not in paired:
-                continue
-            valid = paired[[left, right]].dropna()
-            if valid.empty:
-                continue
-            reference = valid[left].astype(float).tolist()
-            comparison = valid[right].astype(float).tolist()
-            difference, low, high = paired_bootstrap_difference(
-                reference,
-                comparison,
-                config.random_seed,
-                samples=config.bootstrap_samples,
-            )
-            paired_rows.append(
-                {
-                    "metric": metric,
-                    "reference_condition": "full",
-                    "comparison_condition": condition,
-                    "mean_difference": difference,
-                    "ci_low": low,
-                    "ci_high": high,
-                    "effect_size": cohens_d(reference, comparison),
-                    "matched_seed_count": len(valid),
-                }
-            )
-    paired_frame = pd.DataFrame(paired_rows)
+    paired_frame = paired_comparisons(seed_metrics, config)
     paired_frame.to_csv(directory / "paired_comparisons.csv", index=False)
     summary = {
         "simulated_results": True,
