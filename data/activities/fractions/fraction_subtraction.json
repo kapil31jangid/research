@@ -1,0 +1,108 @@
+[
+  {
+    "id": "subtraction_steps",
+    "concept_id": "fraction_subtraction",
+    "title": "Subtracting fractions",
+    "subtitle": "Explore the idea with a visual model.",
+    "content_type": "guided_practice",
+    "estimated_minutes": 7,
+    "learning_objective": "Subtract fractions after making the pieces the same size.",
+    "sections": [
+      {
+        "type": "explanation",
+        "heading": "Make sense of it",
+        "body": "To subtract fractions, use a common denominator. Then subtract the numerators and keep the shared denominator."
+      },
+      {
+        "type": "fraction_bar",
+        "heading": "Build a picture",
+        "numerator": 3,
+        "denominator": 4,
+        "comparison_numerator": 2,
+        "comparison_denominator": 4,
+        "caption": "Each row represents the same-sized whole."
+      },
+      {
+        "type": "worked_example",
+        "problem": "Find 3/4 − 1/2.",
+        "steps": [
+          "Rename 1/2 as 2/4.",
+          "Subtract equal-sized fourths: 3/4 − 2/4.",
+          "One fourth remains."
+        ],
+        "answer": "1/4",
+        "reasoning": "Each step keeps the meaning of the whole and its equal parts clear."
+      },
+      {
+        "type": "warning",
+        "heading": "Watch for this",
+        "body": "Keep the common denominator because the piece size stays the same."
+      },
+      {
+        "type": "checkpoint",
+        "heading": "Your turn",
+        "prompt": "What is 5/6 − 2/6?",
+        "options": [
+          "3/6",
+          "3/12",
+          "7/6"
+        ],
+        "hint": "Use the visual and the worked steps above before choosing."
+      }
+    ],
+    "offline_ready": true
+  },
+  {
+    "id": "fraction_bar_subtract",
+    "concept_id": "fraction_subtraction",
+    "title": "Subtracting fractions: guided practice",
+    "subtitle": "Use a worked example, then check your thinking.",
+    "content_type": "visual_lesson",
+    "estimated_minutes": 6,
+    "learning_objective": "Subtract fractions after making the pieces the same size.",
+    "sections": [
+      {
+        "type": "explanation",
+        "heading": "Make sense of it",
+        "body": "To subtract fractions, use a common denominator. Then subtract the numerators and keep the shared denominator."
+      },
+      {
+        "type": "fraction_bar",
+        "heading": "Build a picture",
+        "numerator": 3,
+        "denominator": 4,
+        "comparison_numerator": 2,
+        "comparison_denominator": 4,
+        "caption": "Each row represents the same-sized whole."
+      },
+      {
+        "type": "worked_example",
+        "problem": "Find 3/4 − 1/2.",
+        "steps": [
+          "Rename 1/2 as 2/4.",
+          "Subtract equal-sized fourths: 3/4 − 2/4.",
+          "One fourth remains."
+        ],
+        "answer": "1/4",
+        "reasoning": "Each step keeps the meaning of the whole and its equal parts clear."
+      },
+      {
+        "type": "tip",
+        "heading": "Helpful habit",
+        "body": "Keep the common denominator because the piece size stays the same. Draw or rename the parts when you are unsure."
+      },
+      {
+        "type": "checkpoint",
+        "heading": "Your turn",
+        "prompt": "What is 5/6 − 2/6?",
+        "options": [
+          "3/6",
+          "3/12",
+          "7/6"
+        ],
+        "hint": "Use the visual and the worked steps above before choosing."
+      }
+    ],
+    "offline_ready": true
+  }
+]

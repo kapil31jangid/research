@@ -41,3 +41,17 @@ Offline metadata is validated against seeded activity metadata rather than trust
 ## Curriculum and questions
 
 `GET /concepts`, `GET /concepts/{concept_id}`, and `GET /curriculum/graph` expose the seeded fractions curriculum. `GET /questions?concept_id=fraction_addition&limit=10` lists safe question data; correct answers are never sent by this read API. `GET /questions/{question_id}` returns one question.
+
+## Learner activity content
+
+`GET /activities/{activity_id}` returns learner-safe activity metadata together with
+a validated content document. Supported sections include explanations, worked
+examples, numbered steps, tips, warnings, formulas, fraction bars, number lines,
+practice prompts, checkpoints, and reflections. Internal adaptation-path and
+misconception-link metadata is deliberately excluded from this response.
+
+`GET /concepts/{concept_id}/activities` returns active, non-deprecated content for a
+concept in deterministic activity-ID order. Unknown or inactive activity content
+returns `404`. The PWA caches successful activity responses in IndexedDB and uses
+that exact response offline; it does not select or manufacture recommendations in
+the browser.

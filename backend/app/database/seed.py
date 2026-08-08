@@ -5,6 +5,7 @@ import json
 from sqlalchemy.orm import Session
 
 import app.models  # noqa: F401  # Register every SQLAlchemy model before create_all().
+from app.curriculum.content_loader import validate_activity_content
 from app.curriculum.graph import build_graph
 from app.curriculum.loader import load_activities, load_concepts, load_questions
 from app.database.base import Base
@@ -60,6 +61,7 @@ def validate_seed_data() -> None:
             )
         if "misconception_remediation" not in remediation["adaptation_paths"]:
             raise ValueError(f"Remediation activity {remediation['id']} lacks its remediation path")
+    validate_activity_content(activities=activities, concepts=concepts)
 
 
 def seed_database(db: Session) -> None:
@@ -90,16 +92,20 @@ def seed_database(db: Session) -> None:
                 )
             )
     for item in load_activities():
-        if db.get(LearningActivity, item["id"]) is None:
-            db.add(
-                LearningActivity(
-                    **{
-                        **item,
-                        "adaptation_paths": json.dumps(item["adaptation_paths"]),
-                        "misconception_ids": json.dumps(item["misconception_ids"]),
-                    }
-                )
-            )
+        persisted = db.get(LearningActivity, item["id"])
+        serialised = {
+            **item,
+            "adaptation_paths": json.dumps(item["adaptation_paths"]),
+            "misconception_ids": json.dumps(item["misconception_ids"]),
+        }
+        if persisted is None:
+            db.add(LearningActivity(**serialised))
+            continue
+        # Versioned seed metadata is authoritative, but lifecycle fields may have
+        # been changed deliberately to retire content without deleting history.
+        for field, value in serialised.items():
+            if field not in {"id", "is_active", "deprecated_at", "deprecation_reason"}:
+                setattr(persisted, field, value)
     db.commit()
 
 

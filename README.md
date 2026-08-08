@@ -1,150 +1,292 @@
 # RAPID-Learn
 
-RAPID-Learn (Resource-Aware, Personalised and Intelligent Dynamic Learning) is an offline-capable adaptive-learning research prototype for low-resource settings. It personalises fraction learning using learner knowledge, uncertainty, misconceptions, prerequisites, forgetting, and device constraints.
+RAPID-Learn (Resource-Aware, Personalised and Intelligent Dynamic Learning) is an
+offline-capable adaptive-learning research prototype for low-resource settings. It
+combines Bayesian Knowledge Tracing (BKT), learner uncertainty, retained mastery,
+prerequisites, misconception evidence, offline-content availability, and device
+resource signals in an explainable deterministic controller.
 
-`LearningActivity` is the recommendation source of truth: it carries activity type,
-difficulty, supported paths, offline/bundled state, estimated cost, and lifecycle
-state. Inactive or deprecated activities remain in historical records but are never
-recommended. Recommendations persist the offline resolver's matching IDs and reason,
-including explicit no-metadata and app-shell-only outcomes. Candidate ML scoring uses
-retained mastery, activity/concept difficulty, recent correctness, elapsed practice
-time, and candidate-specific prerequisites. The canonical ML output is
-`selected_candidate_predicted_probability`; the older interaction-level field is
-deprecated and new recommendations leave it null.
+The project includes:
 
-This prototype uses SQLAlchemy table creation rather than a migration framework.
-Startup and the seed command apply a small, idempotent set of additive SQLite
-compatibility updates for known prototype columns; they preserve existing rows.
+- a FastAPI and SQLite backend;
+- a React progressive web application with an IndexedDB interaction queue;
+- 24 concise, typed fraction lessons with visual models, worked examples, and
+  checkpoints;
+- explicit learning-activity metadata and lifecycle controls;
+- an optional validated response-prediction model with safe BKT fallback;
+- a deterministic synthetic learner and resource simulator;
+- multi-condition, multi-seed ablation experiments;
+- bootstrap statistics, CSV/Parquet exports, and publication-oriented plots and
+  tables.
 
-## Current status
+All current evaluation results are synthetic. They demonstrate software and
+controller behavior, not real-world educational effectiveness.
 
-All ten planned milestones are implemented as a research prototype: adaptive backend, learner modelling, educational intelligence, resource-aware control, recommendations, PWA interface, synthetic ML pipeline, simulated experiments, and documentation/test hardening.
+## Requirements
 
-The system is ready for local and simulated studies. It is not validated for classroom deployment or real learner outcomes.
+- Python 3.12 or newer
+- Node.js 22
+- npm
+- Docker with the Compose plugin, or Podman with a Compose provider
 
-## Reliability notes
+Run commands from the repository root.
 
-Misconception evidence is learner- and concept-scoped, with validated configurable evidence windows, minima, and thresholds. Cached recommendations require relevant seeded learning content; an app shell alone is insufficient. The optional ML artefact is validated lazily and prediction failures safely use BKT while retaining requested/actual-path metadata. Interactions persist atomically, and measured latency is hardware-dependent.
+## Local setup
 
-## Features
-
-- Fraction prerequisite graph with 12 concepts and 100 seeded questions
-- BKT mastery estimates, uncertainty, dynamic forgetting, and mastery history
-- Data-driven misconception detection and prerequisite-aware diagnostic selection
-- Resource monitoring/simulation with an explainable adaptation controller
-- Persisted interaction loop, ranked recommendations, alternatives, and history
-- Responsive React PWA with app-shell caching, offline indicator, and IndexedDB queue
-- Optional logistic-regression response predictor trained from reproducible synthetic data
-- Simulated controller baselines, ablations, metrics, CSV/JSON/Markdown exports, and charts
-
-## Frontend and ML
-
-Run the PWA with `make frontend`; it caches its app shell, displays offline and pending-sync status, and queues answer events in IndexedDB until connectivity returns. Generate simulated (not real learner) data with `python scripts/generate_synthetic_data.py`, then train the optional predictor with `python scripts/train_response_predictor.py`. The controller safely falls back to BKT when no model artifact is available.
-
-No educational outcomes or device-performance claims have been validated with real learners. Seed content is prototype content for research development.
-
-## Run commands
-
-### Synthetic experiment smoke test
-
-```bash
-.venv/bin/python -m app.evaluation.cli run --config experiments/configs/smoke.json
-```
-
-Artifacts contain provenance, configuration, synthetic interaction data, condition
-tables, and plots. They are not real learner outcomes.
-
-Run a multi-seed semantic ablation suite with:
-
-```bash
-.venv/bin/python -m app.evaluation.cli run-ablation-suite \
-  --config experiments/configs/smoke.json --seeds 11 22
-```
-
-The smoke config uses 200 bootstrap resamples. The serious synthetic study config
-uses 10,000 resamples, 500 learners, 40 interactions, and five seeds:
-
-```bash
-.venv/bin/python -m app.evaluation.cli run-ablation-suite \
-  --config experiments/configs/final_study.json \
-  --seeds 11 22 33 44 55 --allow-large-run
-```
-
-Runs keep system-estimate and simulator-latent mastery separate, save per-concept
-initial/final snapshots, align candidate predictions with later assessments, and
-produce bootstrap aggregates, paired comparisons, PNG/PDF plots, and portable tables.
-The non-interactive workload guard requires `--allow-large-run` for deliberately large
-runs. These artifacts are simulation evidence about software behaviour—not validated
-educational outcomes.
-
-### One-time setup
+Create the environment and install the backend and development dependencies:
 
 ```bash
 python -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
 .venv/bin/pip install -e '.[dev]'
-npm --prefix frontend install
+npm ci --prefix frontend
 ```
 
-### Backend API
+Runtime settings have safe defaults. To customize them, copy the example file:
 
 ```bash
-make backend
+cp .env.example .env
 ```
 
-The API is available at `http://localhost:8000`; OpenAPI docs are at `http://localhost:8000/docs`.
-If port 8000 is occupied, use `RAPID_LEARN_BACKEND_PORT=8001 make backend`.
-
-### Frontend PWA
-
-```bash
-make frontend
-```
-
-Vite serves the frontend at `http://localhost:5173`.
-If port 5173 is occupied, use `RAPID_LEARN_FRONTEND_PORT=5174 make frontend`.
-
-### Full Docker stack
-
-```bash
-docker compose up --build
-# Stop containers and remove the local Compose volume
-docker compose down -v
-```
-
-If ports `8000` or `5173` are busy, choose alternative host ports:
-
-```bash
-RAPID_LEARN_BACKEND_PORT=8001 RAPID_LEARN_FRONTEND_PORT=5174 docker compose up --build
-```
-
-### Database seed
+The database is created, compatibility-checked, and seeded automatically when the
+backend starts. It can also be initialized explicitly:
 
 ```bash
 .venv/bin/python -m app.database.seed
 ```
 
-### Backend tests, coverage, and lint
+## Run locally
+
+Start the API in one terminal:
 
 ```bash
-.venv/bin/python -m pytest
+make backend
+```
+
+Start the PWA in another terminal:
+
+```bash
+make frontend
+```
+
+Open:
+
+- PWA: <http://localhost:5173>
+- API: <http://localhost:8000>
+- OpenAPI documentation: <http://localhost:8000/docs>
+- Health check: <http://localhost:8000/health>
+
+Verify the API from a shell:
+
+```bash
+curl http://localhost:8000/health
+```
+
+### Alternative local ports
+
+If both ports must change, keep the frontend API URL and backend CORS origin aligned:
+
+```bash
+# Terminal 1
+RAPID_LEARN_BACKEND_PORT=8001 \
+RAPID_LEARN_CORS_ORIGINS=http://localhost:5174 \
+make backend
+
+# Terminal 2
+RAPID_LEARN_FRONTEND_PORT=5174 \
+VITE_API_URL=http://localhost:8001 \
+make frontend
+```
+
+## Run with containers
+
+Docker:
+
+```bash
+docker compose up --build
+```
+
+Podman:
+
+```bash
+podman compose up --build
+```
+
+The containerized application uses the same URLs: frontend on port 5173 and API on
+port 8000. Stop the stack while preserving the SQLite volume with:
+
+```bash
+docker compose down
+# or
+podman compose down
+```
+
+Delete the Compose volume and its local database only when a clean reset is intended:
+
+```bash
+docker compose down -v
+# or
+podman compose down -v
+```
+
+If only port 5173 is occupied, change the frontend host port and its allowed CORS
+origin together:
+
+```bash
+RAPID_LEARN_FRONTEND_PORT=5174 \
+RAPID_LEARN_CORS_ORIGINS=http://localhost:5174 \
+docker compose up --build
+```
+
+The production frontend is currently built with `http://localhost:8000` as its
+default API URL, so changing only the containerized backend host port is not
+supported. Check port ownership before starting the stack:
+
+```bash
+ss -ltnp | grep -E ':(8000|5173)\b'
+```
+
+On systems where `docker` is unavailable, install Docker with its Compose plugin or
+install Podman and a Podman Compose provider. A `podman-docker` compatibility package
+may also expose Podman through the `docker` command.
+
+## Validation commands
+
+Run the same core checks used by CI:
+
+```bash
+.venv/bin/python -m pytest --cov=backend/app --cov-report=term-missing
 .venv/bin/python -m ruff check backend
 .venv/bin/python -m ruff format --check backend
+npm ci --prefix frontend
+npm run build --prefix frontend
+docker compose build
 ```
 
-### Frontend production build
+With Podman, replace the final command with:
 
 ```bash
-npm --prefix frontend run build
+podman compose build
 ```
 
-### Synthetic data and optional ML model
+Convenience targets are also available:
 
 ```bash
-.venv/bin/python scripts/generate_synthetic_data.py --learners 1000 --interactions 50 --seed 42
-.venv/bin/python scripts/train_response_predictor.py
+make test
+make lint
+make seed
 ```
 
-### Simulated controller experiments
+## Reproducible experiment harness
+
+The evaluation harness uses isolated SQLite databases and the real interaction,
+controller, BKT, misconception, offline-resolution, and recommendation code. The CLI
+prints the generated artifact directory when a run completes.
+
+### Single smoke run
+
+```bash
+.venv/bin/python -m app.evaluation.cli run \
+  --config experiments/configs/smoke.json
+```
+
+### Multi-seed smoke ablation suite
+
+```bash
+.venv/bin/python -m app.evaluation.cli run-ablation-suite \
+  --config experiments/configs/smoke.json \
+  --seeds 11 22
+```
+
+The smoke configuration uses two learners, five interactions, and 200 bootstrap
+samples. It intentionally uses misconception-heavy synthetic profiles to exercise
+ID-level remediation behavior quickly.
+
+### Run one configured condition across several seeds
+
+```bash
+.venv/bin/python -m app.evaluation.cli run-suite \
+  --config experiments/configs/smoke.json \
+  --seeds 11 22
+```
+
+`run-suite` repeats only the condition named in the configuration. In contrast,
+`run-ablation-suite` runs the standard nine-condition matrix.
+
+### Final synthetic study
+
+The final configuration contains 500 learners, 40 interactions per learner, eight
+isolated suite workers, and 10,000 bootstrap samples. Across nine conditions and five
+seeds, the command simulates 900,000 interactions:
+
+```bash
+.venv/bin/python -m app.evaluation.cli run-ablation-suite \
+  --config experiments/configs/final_study.json \
+  --seeds 11 22 33 44 55 \
+  --allow-large-run
+```
+
+`--allow-large-run` is intentionally required because this workload exceeds the
+configuration's safety limit. Do not use it without reviewing learner, interaction,
+condition, seed, disk, and runtime requirements.
+
+### Read a run or suite summary
+
+Replace the placeholder with the path printed by the preceding command:
+
+```bash
+.venv/bin/python -m app.evaluation.cli summarize \
+  --experiment artifacts/experiments/<run-directory>
+
+.venv/bin/python -m app.evaluation.cli summarize \
+  --experiment artifacts/experiments/suites/<suite-directory>
+```
+
+Per-run artifacts include configuration and provenance JSON, interaction CSV and
+Parquet, learner metrics, concept outcomes, plots, and tables. Multi-seed suites add:
+
+- `seed_metrics.csv`;
+- `aggregate_metrics.csv` with bootstrap confidence intervals;
+- `paired_comparisons.csv` with matched-seed ablation comparisons;
+- combined `interactions.parquet`;
+- PNG/PDF figures;
+- CSV/Markdown/LaTeX tables.
+
+Synthetic misconception state is keyed by real misconception ID. Exports keep
+`synthetic_true_misconception_id` separate from
+`system_detected_misconception_id`, and remediation reduces intensity only for an
+exact activity-to-misconception match.
+
+## Synthetic data and optional ML model
+
+Generate the standalone synthetic training dataset:
+
+```bash
+.venv/bin/python scripts/generate_synthetic_data.py \
+  --learners 1000 \
+  --interactions 50 \
+  --seed 42 \
+  --output data/synthetic
+```
+
+Train and evaluate the optional logistic-regression predictor:
+
+```bash
+.venv/bin/python scripts/train_response_predictor.py \
+  --data data/synthetic/interactions.parquet \
+  --model data/models/response_predictor.joblib \
+  --metrics data/models/response_predictor_metrics.json
+```
+
+The runtime validates artifact type, version, preprocessing pipeline, feature order,
+and validation inference before enabling ML recommendations. A missing, corrupt, or
+incompatible artifact is non-fatal: requested ML recommendations fall back fully to
+BKT and persist the fallback reason. Synthetic training does not validate predictive
+quality for real learners.
+
+## Legacy controller experiment scripts
+
+The repository retains the earlier controller-focused simulator and exporter:
 
 ```bash
 .venv/bin/python scripts/run_experiments.py \
@@ -160,21 +302,68 @@ npm --prefix frontend run build
   --output data/experiments/latest/export.md
 ```
 
-All generated results are explicitly simulated. They are research-development artifacts, not evidence of learning impact or device performance.
+For current research evaluation, prefer `app.evaluation.cli`, which records stronger
+provenance, ID-level misconception state, multi-seed statistics, and publication
+artifacts.
 
-## Limitations
+## Architecture and correctness notes
 
-The prototype has not been validated with real learners or classroom deployments. Its local SQLite store is intentionally single-device; progressive multi-device synchronisation and authentication remain future work. Offline PWA caching covers the app shell and queued interactions, but does not replace formal service-worker background-sync support on every browser.
+- `LearningActivity` is the recommendation source of truth for activity type,
+  difficulty, supported paths, offline and bundled availability, computational cost,
+  misconception links, and lifecycle state.
+- Learner-facing lesson documents are separate, typed JSON content under
+  `data/activities/fractions/`. Startup validates that every active seeded activity
+  has matching content before serving requests.
+- The PWA uses the backend recommendation as the sole source for its next lesson.
+  Opened activity payloads are cached in IndexedDB by activity ID; when offline, the
+  same typed payload is rendered and answer submissions remain in the existing sync
+  queue.
+- Inactive or deprecated activities remain readable in historical recommendations
+  but cannot be recommended again.
+- Misconception evidence is scoped to learner and concept, with validated evidence
+  windows, minimum counts, and confidence thresholds.
+- App-shell availability alone never implies that educational content is cached.
+- Candidate-specific ML features use retained mastery, activity and concept
+  difficulty, recent correctness, elapsed practice time, candidate prerequisites,
+  learner history, and resource score.
+- `selected_candidate_predicted_probability` is the canonical ML probability. The
+  older interaction-level field remains only for compatibility and is not populated
+  by current recommendation logic.
+- Each interaction, learner-state update, mastery-history row, misconception update,
+  recommendation, fallback metadata, and latency measurement commits atomically or
+  rolls back together.
+- Estimated computational cost is distinct from measured controller,
+  recommendation, and total adaptive latency. Measured values vary by hardware.
+- Existing SQLite databases receive documented additive compatibility updates at
+  startup; no general migration framework is configured.
 
-## Key endpoints
+## Key API endpoints
 
 - `GET /health`
 - `POST /learners`, `GET /learners`, `GET /learners/{learner_id}`
 - `GET /learners/{learner_id}/state`, `/progress`, `/learning-plan`
 - `GET /concepts`, `GET /concepts/{concept_id}`, `GET /curriculum/graph`
 - `GET /questions`, `GET /questions/next`, `GET /questions/{question_id}`
+- `GET /activities/{activity_id}`, `GET /concepts/{concept_id}/activities`
 - `POST /interactions`, `GET /interactions/{learner_id}`
 - `POST /recommendations/generate`, `GET /recommendations/{learner_id}`
 - `GET /resources/current`, `POST /resources/simulate`
 
-See [docs/api.md](docs/api.md) and [docs/architecture.md](docs/architecture.md).
+See [API documentation](docs/api.md), [architecture](docs/architecture.md),
+[research design](docs/research-design.md), and
+[experiment methodology](docs/experiments.md).
+
+## Limitations
+
+- No classroom deployment or controlled learner study has been completed.
+- Synthetic mastery gain is a simulation proxy, not causal evidence of learning.
+- The optional model may be trained on synthetic data and requires validation on real
+  learner data before educational interpretation.
+- Activity and misconception metadata are prototype-curated.
+- Runtime measurements depend on hardware and concurrent load.
+- SQLite is intended for this single-device research prototype, not a production
+  multi-user deployment.
+- Offline PWA behavior depends on browser service-worker and storage support.
+
+RAPID-Learn should currently be interpreted as a reproducible research software
+prototype, not as a validated educational intervention.

@@ -1,0 +1,108 @@
+[
+  {
+    "id": "read_draw_solve",
+    "concept_id": "fraction_word_problems",
+    "title": "Fraction word problems",
+    "subtitle": "Explore the idea with a visual model.",
+    "content_type": "guided_practice",
+    "estimated_minutes": 7,
+    "learning_objective": "Choose and explain a fraction operation from a situation.",
+    "sections": [
+      {
+        "type": "explanation",
+        "heading": "Make sense of it",
+        "body": "Read for the whole, the equal parts, and what changes. A quick drawing helps you decide whether to add, subtract, compare, or find a fraction of a quantity."
+      },
+      {
+        "type": "fraction_bar",
+        "heading": "Build a picture",
+        "numerator": 1,
+        "denominator": 4,
+        "comparison_numerator": 2,
+        "comparison_denominator": 4,
+        "caption": "Each row represents the same-sized whole."
+      },
+      {
+        "type": "worked_example",
+        "problem": "Maya drank 1/4 litre in the morning and 2/4 litre later. How much did she drink?",
+        "steps": [
+          "Both amounts use fourths, so the pieces match.",
+          "Add the numerators: 1 + 2 = 3.",
+          "Keep the denominator 4 and include the unit."
+        ],
+        "answer": "3/4 litre",
+        "reasoning": "Each step keeps the meaning of the whole and its equal parts clear."
+      },
+      {
+        "type": "warning",
+        "heading": "Watch for this",
+        "body": "Answer the question with a number, fraction, and unit when one is given."
+      },
+      {
+        "type": "checkpoint",
+        "heading": "Your turn",
+        "prompt": "Sam used 2/6 metre of ribbon, then 1/6 metre. How much altogether?",
+        "options": [
+          "3/6 metre",
+          "3/12 metre",
+          "1/6 metre"
+        ],
+        "hint": "Use the visual and the worked steps above before choosing."
+      }
+    ],
+    "offline_ready": true
+  },
+  {
+    "id": "word_problem_worked_example",
+    "concept_id": "fraction_word_problems",
+    "title": "Fraction word problems: guided practice",
+    "subtitle": "Use a worked example, then check your thinking.",
+    "content_type": "guided_practice",
+    "estimated_minutes": 6,
+    "learning_objective": "Choose and explain a fraction operation from a situation.",
+    "sections": [
+      {
+        "type": "explanation",
+        "heading": "Make sense of it",
+        "body": "Read for the whole, the equal parts, and what changes. A quick drawing helps you decide whether to add, subtract, compare, or find a fraction of a quantity."
+      },
+      {
+        "type": "fraction_bar",
+        "heading": "Build a picture",
+        "numerator": 1,
+        "denominator": 4,
+        "comparison_numerator": 2,
+        "comparison_denominator": 4,
+        "caption": "Each row represents the same-sized whole."
+      },
+      {
+        "type": "worked_example",
+        "problem": "Maya drank 1/4 litre in the morning and 2/4 litre later. How much did she drink?",
+        "steps": [
+          "Both amounts use fourths, so the pieces match.",
+          "Add the numerators: 1 + 2 = 3.",
+          "Keep the denominator 4 and include the unit."
+        ],
+        "answer": "3/4 litre",
+        "reasoning": "Each step keeps the meaning of the whole and its equal parts clear."
+      },
+      {
+        "type": "tip",
+        "heading": "Helpful habit",
+        "body": "Answer the question with a number, fraction, and unit when one is given. Draw or rename the parts when you are unsure."
+      },
+      {
+        "type": "checkpoint",
+        "heading": "Your turn",
+        "prompt": "Sam used 2/6 metre of ribbon, then 1/6 metre. How much altogether?",
+        "options": [
+          "3/6 metre",
+          "3/12 metre",
+          "1/6 metre"
+        ],
+        "hint": "Use the visual and the worked steps above before choosing."
+      }
+    ],
+    "offline_ready": true
+  }
+]

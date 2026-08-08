@@ -1,0 +1,104 @@
+[
+  {
+    "id": "fraction_picture_sort",
+    "concept_id": "fraction_meaning",
+    "title": "What fractions mean",
+    "subtitle": "Explore the idea with a visual model.",
+    "content_type": "guided_practice",
+    "estimated_minutes": 7,
+    "learning_objective": "Connect a fraction to equal parts of one whole.",
+    "sections": [
+      {
+        "type": "explanation",
+        "heading": "Make sense of it",
+        "body": "A fraction names equal parts of one whole. The denominator tells how many equal parts make the whole; the numerator tells how many parts are selected."
+      },
+      {
+        "type": "fraction_bar",
+        "heading": "Build a picture",
+        "numerator": 3,
+        "denominator": 4,
+        "caption": "Each row represents the same-sized whole."
+      },
+      {
+        "type": "worked_example",
+        "problem": "A rectangle is split into 4 equal parts and 3 are shaded. Name the fraction.",
+        "steps": [
+          "Check that all four parts are equal.",
+          "Count all parts for the denominator: 4.",
+          "Count shaded parts for the numerator: 3."
+        ],
+        "answer": "3/4",
+        "reasoning": "Each step keeps the meaning of the whole and its equal parts clear."
+      },
+      {
+        "type": "warning",
+        "heading": "Watch for this",
+        "body": "Unequal pieces do not represent equal fractional parts."
+      },
+      {
+        "type": "checkpoint",
+        "heading": "Your turn",
+        "prompt": "A shape has 5 equal parts and 2 are shaded. What fraction is shaded?",
+        "options": [
+          "2/5",
+          "5/2",
+          "2/3"
+        ],
+        "hint": "Use the visual and the worked steps above before choosing."
+      }
+    ],
+    "offline_ready": true
+  },
+  {
+    "id": "shade_the_whole",
+    "concept_id": "fraction_meaning",
+    "title": "What fractions mean: guided practice",
+    "subtitle": "Use a worked example, then check your thinking.",
+    "content_type": "guided_practice",
+    "estimated_minutes": 6,
+    "learning_objective": "Connect a fraction to equal parts of one whole.",
+    "sections": [
+      {
+        "type": "explanation",
+        "heading": "Make sense of it",
+        "body": "A fraction names equal parts of one whole. The denominator tells how many equal parts make the whole; the numerator tells how many parts are selected."
+      },
+      {
+        "type": "fraction_bar",
+        "heading": "Build a picture",
+        "numerator": 3,
+        "denominator": 4,
+        "caption": "Each row represents the same-sized whole."
+      },
+      {
+        "type": "worked_example",
+        "problem": "A rectangle is split into 4 equal parts and 3 are shaded. Name the fraction.",
+        "steps": [
+          "Check that all four parts are equal.",
+          "Count all parts for the denominator: 4.",
+          "Count shaded parts for the numerator: 3."
+        ],
+        "answer": "3/4",
+        "reasoning": "Each step keeps the meaning of the whole and its equal parts clear."
+      },
+      {
+        "type": "tip",
+        "heading": "Helpful habit",
+        "body": "Unequal pieces do not represent equal fractional parts. Draw or rename the parts when you are unsure."
+      },
+      {
+        "type": "checkpoint",
+        "heading": "Your turn",
+        "prompt": "A shape has 5 equal parts and 2 are shaded. What fraction is shaded?",
+        "options": [
+          "2/5",
+          "5/2",
+          "2/3"
+        ],
+        "hint": "Use the visual and the worked steps above before choosing."
+      }
+    ],
+    "offline_ready": true
+  }
+]

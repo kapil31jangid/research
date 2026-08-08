@@ -1,0 +1,108 @@
+[
+  {
+    "id": "fraction_number_line",
+    "concept_id": "comparing_fractions",
+    "title": "Comparing fractions",
+    "subtitle": "Explore the idea with a visual model.",
+    "content_type": "visual_lesson",
+    "estimated_minutes": 7,
+    "learning_objective": "Compare fractions using number lines and benchmark values.",
+    "sections": [
+      {
+        "type": "explanation",
+        "heading": "Make sense of it",
+        "body": "Fractions farther to the right on a number line are greater. Benchmarks such as 0, 1/2, and 1 help you compare without guessing from denominator size."
+      },
+      {
+        "type": "number_line",
+        "heading": "See it on a number line",
+        "denominator": 3,
+        "points": [
+          2
+        ],
+        "caption": "The marked point helps connect position and value."
+      },
+      {
+        "type": "worked_example",
+        "problem": "Which is greater: 2/3 or 3/5?",
+        "steps": [
+          "Compare both with 1/2.",
+          "2/3 is about 0.67 and 3/5 is 0.60.",
+          "Because 0.67 is farther right, 2/3 is greater."
+        ],
+        "answer": "2/3",
+        "reasoning": "Each step keeps the meaning of the whole and its equal parts clear."
+      },
+      {
+        "type": "warning",
+        "heading": "Watch for this",
+        "body": "A larger denominator means smaller pieces when the whole is the same."
+      },
+      {
+        "type": "checkpoint",
+        "heading": "Your turn",
+        "prompt": "Which fraction is greater?",
+        "options": [
+          "3/4",
+          "2/3",
+          "They are equal"
+        ],
+        "hint": "Use the visual and the worked steps above before choosing."
+      }
+    ],
+    "offline_ready": true
+  },
+  {
+    "id": "benchmark_fraction_sort",
+    "concept_id": "comparing_fractions",
+    "title": "Comparing fractions: guided practice",
+    "subtitle": "Use a worked example, then check your thinking.",
+    "content_type": "guided_practice",
+    "estimated_minutes": 6,
+    "learning_objective": "Compare fractions using number lines and benchmark values.",
+    "sections": [
+      {
+        "type": "explanation",
+        "heading": "Make sense of it",
+        "body": "Fractions farther to the right on a number line are greater. Benchmarks such as 0, 1/2, and 1 help you compare without guessing from denominator size."
+      },
+      {
+        "type": "fraction_bar",
+        "heading": "Build a picture",
+        "numerator": 2,
+        "denominator": 3,
+        "comparison_numerator": 3,
+        "comparison_denominator": 5,
+        "caption": "Each row represents the same-sized whole."
+      },
+      {
+        "type": "worked_example",
+        "problem": "Which is greater: 2/3 or 3/5?",
+        "steps": [
+          "Compare both with 1/2.",
+          "2/3 is about 0.67 and 3/5 is 0.60.",
+          "Because 0.67 is farther right, 2/3 is greater."
+        ],
+        "answer": "2/3",
+        "reasoning": "Each step keeps the meaning of the whole and its equal parts clear."
+      },
+      {
+        "type": "tip",
+        "heading": "Helpful habit",
+        "body": "A larger denominator means smaller pieces when the whole is the same. Draw or rename the parts when you are unsure."
+      },
+      {
+        "type": "checkpoint",
+        "heading": "Your turn",
+        "prompt": "Which fraction is greater?",
+        "options": [
+          "3/4",
+          "2/3",
+          "They are equal"
+        ],
+        "hint": "Use the visual and the worked steps above before choosing."
+      }
+    ],
+    "offline_ready": true
+  }
+]

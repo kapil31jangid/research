@@ -7,19 +7,27 @@ resolver reason and matching IDs. Candidate features use persisted learner state
 (retained mastery, response history, and last practice), activity difficulty, concept
 difficulty, and candidate-specific prerequisites.
 
-Milestone 1 separates HTTP routing, typed schemas, persistence models, and curriculum data. SQLite holds local learner profiles and curriculum content; JSON files are the versioned source for seed curriculum and questions. NetworkX validates the prerequisite graph before seeding.
+HTTP routing, typed schemas, persistence models, and curriculum data remain separate.
+SQLite holds local learner profiles and compact curriculum metadata. JSON files are
+the versioned source for concepts, questions, and typed learner-facing activity
+documents. NetworkX validates the prerequisite graph, and content integrity checks
+validate every active activity before seeding.
 
 ```mermaid
 flowchart LR
   Client --> API[FastAPI routes]
   API --> Schemas[Pydantic schemas]
   API --> DB[(SQLite)]
-  Seed[JSON curriculum/questions] --> Loader
+  Seed[JSON curriculum, questions, and lessons] --> Loader
   Loader --> Graph[NetworkX validation]
   Graph --> DB
 ```
 
-The future adaptive decision loop will add learner-state estimation, misconception detection, resource monitoring, controller selection, recommendation scoring, and local synchronisation without moving the existing API/persistence boundary.
+The React PWA renders the activity ID selected by the existing recommendation loop.
+Successful content responses are cached in IndexedDB alongside—not inside—the
+interaction queue. When connectivity is lost, content is read by activity ID from
+that cache and submissions remain queued until the browser reconnects. The app shell
+cache is informational and remains distinct from educational-content availability.
 
 ## Reliability and optional adaptation
 

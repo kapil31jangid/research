@@ -1,0 +1,104 @@
+[
+  {
+    "id": "mixed_number_blocks",
+    "concept_id": "mixed_numbers",
+    "title": "Mixed numbers",
+    "subtitle": "Explore the idea with a visual model.",
+    "content_type": "visual_lesson",
+    "estimated_minutes": 7,
+    "learning_objective": "Convert between mixed numbers and improper fractions.",
+    "sections": [
+      {
+        "type": "explanation",
+        "heading": "Make sense of it",
+        "body": "A mixed number combines wholes and a fraction. To convert it, multiply wholes by the denominator, add the numerator, and keep the denominator."
+      },
+      {
+        "type": "fraction_bar",
+        "heading": "Build a picture",
+        "numerator": 7,
+        "denominator": 3,
+        "caption": "Each row represents the same-sized whole."
+      },
+      {
+        "type": "worked_example",
+        "problem": "Convert 2 1/3 to an improper fraction.",
+        "steps": [
+          "Two wholes contain 2 × 3 = 6 thirds.",
+          "Add the extra 1 third: 6 + 1 = 7.",
+          "Keep the denominator 3."
+        ],
+        "answer": "7/3",
+        "reasoning": "Each step keeps the meaning of the whole and its equal parts clear."
+      },
+      {
+        "type": "warning",
+        "heading": "Watch for this",
+        "body": "Do not add the whole number directly to the numerator before making equal parts."
+      },
+      {
+        "type": "checkpoint",
+        "heading": "Your turn",
+        "prompt": "What is 1 2/5 as an improper fraction?",
+        "options": [
+          "7/5",
+          "3/5",
+          "6/5"
+        ],
+        "hint": "Use the visual and the worked steps above before choosing."
+      }
+    ],
+    "offline_ready": true
+  },
+  {
+    "id": "conversion_steps",
+    "concept_id": "mixed_numbers",
+    "title": "Mixed numbers: guided practice",
+    "subtitle": "Use a worked example, then check your thinking.",
+    "content_type": "guided_practice",
+    "estimated_minutes": 6,
+    "learning_objective": "Convert between mixed numbers and improper fractions.",
+    "sections": [
+      {
+        "type": "explanation",
+        "heading": "Make sense of it",
+        "body": "A mixed number combines wholes and a fraction. To convert it, multiply wholes by the denominator, add the numerator, and keep the denominator."
+      },
+      {
+        "type": "fraction_bar",
+        "heading": "Build a picture",
+        "numerator": 7,
+        "denominator": 3,
+        "caption": "Each row represents the same-sized whole."
+      },
+      {
+        "type": "worked_example",
+        "problem": "Convert 2 1/3 to an improper fraction.",
+        "steps": [
+          "Two wholes contain 2 × 3 = 6 thirds.",
+          "Add the extra 1 third: 6 + 1 = 7.",
+          "Keep the denominator 3."
+        ],
+        "answer": "7/3",
+        "reasoning": "Each step keeps the meaning of the whole and its equal parts clear."
+      },
+      {
+        "type": "tip",
+        "heading": "Helpful habit",
+        "body": "Do not add the whole number directly to the numerator before making equal parts. Draw or rename the parts when you are unsure."
+      },
+      {
+        "type": "checkpoint",
+        "heading": "Your turn",
+        "prompt": "What is 1 2/5 as an improper fraction?",
+        "options": [
+          "7/5",
+          "3/5",
+          "6/5"
+        ],
+        "hint": "Use the visual and the worked steps above before choosing."
+      }
+    ],
+    "offline_ready": true
+  }
+]

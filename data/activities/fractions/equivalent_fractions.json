@@ -1,0 +1,108 @@
+[
+  {
+    "id": "equivalence_strip",
+    "concept_id": "equivalent_fractions",
+    "title": "Equivalent fractions",
+    "subtitle": "Explore the idea with a visual model.",
+    "content_type": "visual_lesson",
+    "estimated_minutes": 7,
+    "learning_objective": "Recognize and create fractions with the same value.",
+    "sections": [
+      {
+        "type": "explanation",
+        "heading": "Make sense of it",
+        "body": "Equivalent fractions use different-sized pieces to show the same amount. Multiply or divide the numerator and denominator by the same nonzero number."
+      },
+      {
+        "type": "fraction_bar",
+        "heading": "Build a picture",
+        "numerator": 1,
+        "denominator": 2,
+        "comparison_numerator": 2,
+        "comparison_denominator": 4,
+        "caption": "Each row represents the same-sized whole."
+      },
+      {
+        "type": "worked_example",
+        "problem": "Show that 1/2 is equivalent to 2/4.",
+        "steps": [
+          "Split each half into two equal smaller parts.",
+          "One selected half becomes two selected fourths.",
+          "Multiply 1 and 2 by 2: 1/2 = 2/4."
+        ],
+        "answer": "1/2 = 2/4",
+        "reasoning": "Each step keeps the meaning of the whole and its equal parts clear."
+      },
+      {
+        "type": "warning",
+        "heading": "Watch for this",
+        "body": "Changing only the numerator or only the denominator changes the value."
+      },
+      {
+        "type": "checkpoint",
+        "heading": "Your turn",
+        "prompt": "Which fraction is equivalent to 3/4?",
+        "options": [
+          "6/8",
+          "4/5",
+          "3/8"
+        ],
+        "hint": "Use the visual and the worked steps above before choosing."
+      }
+    ],
+    "offline_ready": true
+  },
+  {
+    "id": "multiply_divide_fractions",
+    "concept_id": "equivalent_fractions",
+    "title": "Equivalent fractions: guided practice",
+    "subtitle": "Use a worked example, then check your thinking.",
+    "content_type": "guided_practice",
+    "estimated_minutes": 6,
+    "learning_objective": "Recognize and create fractions with the same value.",
+    "sections": [
+      {
+        "type": "explanation",
+        "heading": "Make sense of it",
+        "body": "Equivalent fractions use different-sized pieces to show the same amount. Multiply or divide the numerator and denominator by the same nonzero number."
+      },
+      {
+        "type": "fraction_bar",
+        "heading": "Build a picture",
+        "numerator": 1,
+        "denominator": 2,
+        "comparison_numerator": 2,
+        "comparison_denominator": 4,
+        "caption": "Each row represents the same-sized whole."
+      },
+      {
+        "type": "worked_example",
+        "problem": "Show that 1/2 is equivalent to 2/4.",
+        "steps": [
+          "Split each half into two equal smaller parts.",
+          "One selected half becomes two selected fourths.",
+          "Multiply 1 and 2 by 2: 1/2 = 2/4."
+        ],
+        "answer": "1/2 = 2/4",
+        "reasoning": "Each step keeps the meaning of the whole and its equal parts clear."
+      },
+      {
+        "type": "tip",
+        "heading": "Helpful habit",
+        "body": "Changing only the numerator or only the denominator changes the value. Draw or rename the parts when you are unsure."
+      },
+      {
+        "type": "checkpoint",
+        "heading": "Your turn",
+        "prompt": "Which fraction is equivalent to 3/4?",
+        "options": [
+          "6/8",
+          "4/5",
+          "3/8"
+        ],
+        "hint": "Use the visual and the worked steps above before choosing."
+      }
+    ],
+    "offline_ready": true
+  }
+]

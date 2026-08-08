@@ -1,15 +1,24 @@
-import { useEffect, useState } from "react";
-import { StatusBar } from "./components/StatusBar";
-import { api } from "./services/api";
-import { flushQueue, queueInteraction, queuedCount } from "./offline/store";
-import type { ConceptState, Learner, Question, Recommendation, Resource } from "./types";
-import { Dashboard } from "./pages/Dashboard"; import { LearnerSelection } from "./pages/LearnerSelection"; import { Quiz } from "./pages/Quiz"; import { ResearchDashboard } from "./pages/ResearchDashboard";
-import { LearningActivity } from "./pages/LearningActivity";
-type View = "learners" | "dashboard" | "quiz" | "activity" | "progress" | "research" | "settings";
-export default function App() { const [view, setView] = useState<View>("learners"); const [learners, setLearners] = useState<Learner[]>([]); const [learner, setLearner] = useState<Learner>(); const [states, setStates] = useState<ConceptState[]>([]); const [question, setQuestion] = useState<Question>(); const [recs, setRecs] = useState<Recommendation[]>([]); const [resource, setResource] = useState<Resource>(); const [pending, setPending] = useState(0); const offline = !navigator.onLine;
-  const load = async (selected: Learner) => { setLearner(selected); const [next, state, recommendations] = await Promise.all([api.next(selected.id), api.state(selected.id), api.recommendations(selected.id)]); setQuestion(next.question); setStates(state); setRecs(recommendations); setView("dashboard"); };
-  const refresh = async () => { if (!learner) return; await load(learner); setPending(await queuedCount()); };
-  useEffect(() => { api.learners().then(setLearners).catch(() => undefined); api.resources().then(setResource).catch(() => undefined); queuedCount().then(setPending); const online = () => flushQueue(api.submit).then(refresh).catch(() => undefined); window.addEventListener("online", online); return () => window.removeEventListener("online", online); }, []);
-  const submit = async (answer: string, hints: number) => { if (!learner || !question) return; const payload = { learner_id: learner.id, question_id: question.id, submitted_answer: answer, response_time_ms: 2000, hints_used: hints, offline }; if (offline) { await queueInteraction(payload); setPending(await queuedCount()); return; } await api.submit(payload); await refresh(); };
-  const content = view === "learners" ? <LearnerSelection learners={learners} onSelect={load} onCreate={async name => { const created = await api.createLearner(name); setLearners([created, ...learners]); await load(created); }}/> : view === "dashboard" ? <Dashboard states={states} recommendation={recs[0]} resource={resource}/> : view === "quiz" ? <Quiz question={question} onSubmit={submit}/> : view === "activity" ? <LearningActivity recommendation={recs[0]}/> : view === "progress" ? <Dashboard states={states} resource={resource}/> : view === "research" ? <ResearchDashboard resource={resource} recs={recs}/> : <section><h2>Settings</h2><p>Resource thresholds and controller settings are configured by the local backend environment. Offline simulation is active when this device is disconnected.</p></section>;
-  return <main className="mx-auto min-h-screen max-w-5xl p-4 text-slate-900"><header className="mb-6 flex flex-wrap items-center justify-between gap-3"><div><h1 className="text-2xl font-bold">RAPID-Learn</h1><p className="text-sm text-slate-600">Resource-aware fractions learning</p></div><StatusBar offline={offline} pending={pending}/></header>{learner && <p className="mb-3 text-sm">Learner: <b>{learner.name}</b></p>}<nav className="mb-6 flex flex-wrap gap-2">{(["learners","dashboard","quiz","activity","progress","research","settings"] as View[]).map(item => <button key={item} onClick={() => setView(item)} className={`rounded px-3 py-2 ${view === item ? "bg-indigo-600 text-white" : "bg-slate-100"}`}>{item}</button>)}</nav>{content}</main>; }
+import { useState } from "react";
+
+import { ErrorState } from "./components/common/UI";
+import { ApplicationShell, type View } from "./components/layout/ApplicationShell";
+import { LearningProvider, useLearning } from "./contexts/LearningContext";
+import { Dashboard } from "./pages/Dashboard";
+import { Learn } from "./pages/Learn";
+import { Learners } from "./pages/Learners";
+import { Progress } from "./pages/Progress";
+import { Research } from "./pages/Research";
+import { Settings } from "./pages/Settings";
+
+export default function App() {
+  return <LearningProvider><RapidLearnApp /></LearningProvider>;
+}
+
+function RapidLearnApp() {
+  const { learner, learners, selectLearner, online, pending, error, refresh } = useLearning();
+  const [view, setView] = useState<View>("dashboard");
+  const [choosingLearner, setChoosingLearner] = useState(false);
+  if (!learner || choosingLearner) return <Learners onReady={() => { setChoosingLearner(false); setView("dashboard"); }} />;
+  const page = error ? <ErrorState message={error} onRetry={() => void refresh()} /> : view === "dashboard" ? <Dashboard onLearn={() => setView("learn")} /> : view === "learn" ? <Learn /> : view === "progress" ? <Progress /> : view === "research" ? <Research /> : <Settings />;
+  return <ApplicationShell view={view} onNavigate={setView} learner={learner} learners={learners} onSwitchLearner={(selected) => void selectLearner(selected)} onChooseLearner={() => setChoosingLearner(true)} online={online} pending={pending}>{page}</ApplicationShell>;
+}

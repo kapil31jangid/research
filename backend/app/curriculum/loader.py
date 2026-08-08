@@ -52,7 +52,7 @@ def load_activities() -> list[dict[str, Any]]:
             ]
             activity_type = "practice_quiz"
             if misconception_id:
-                paths += ["misconception_remediation", "cached_offline_recommendation"]
+                paths.append("misconception_remediation")
                 activity_type = "misconception_remediation"
             activities.append(
                 {

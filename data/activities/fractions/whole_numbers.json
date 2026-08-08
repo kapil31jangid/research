@@ -1,0 +1,108 @@
+[
+  {
+    "id": "number_line_walk",
+    "concept_id": "whole_numbers",
+    "title": "Whole numbers",
+    "subtitle": "Explore the idea with a visual model.",
+    "content_type": "visual_lesson",
+    "estimated_minutes": 7,
+    "learning_objective": "Use whole numbers confidently as a foundation for fraction thinking.",
+    "sections": [
+      {
+        "type": "explanation",
+        "heading": "Make sense of it",
+        "body": "Whole numbers count complete units. A number line shows their order and the equal distance between neighboring numbers."
+      },
+      {
+        "type": "number_line",
+        "heading": "See it on a number line",
+        "denominator": 4,
+        "points": [
+          2
+        ],
+        "caption": "The marked point helps connect position and value."
+      },
+      {
+        "type": "worked_example",
+        "problem": "Start at 2 and move 3 equal steps to the right.",
+        "steps": [
+          "Mark 2 on the number line.",
+          "Count three equal jumps: 3, 4, 5.",
+          "The landing point is 5."
+        ],
+        "answer": "5",
+        "reasoning": "Each step keeps the meaning of the whole and its equal parts clear."
+      },
+      {
+        "type": "warning",
+        "heading": "Watch for this",
+        "body": "Count the jumps, not the marks you touch."
+      },
+      {
+        "type": "checkpoint",
+        "heading": "Your turn",
+        "prompt": "Which whole number is halfway between 2 and 6?",
+        "options": [
+          "3",
+          "4",
+          "5"
+        ],
+        "hint": "Use the visual and the worked steps above before choosing."
+      }
+    ],
+    "offline_ready": true
+  },
+  {
+    "id": "place_value_cards",
+    "concept_id": "whole_numbers",
+    "title": "Whole numbers: guided practice",
+    "subtitle": "Use a worked example, then check your thinking.",
+    "content_type": "guided_practice",
+    "estimated_minutes": 6,
+    "learning_objective": "Use whole numbers confidently as a foundation for fraction thinking.",
+    "sections": [
+      {
+        "type": "explanation",
+        "heading": "Make sense of it",
+        "body": "Whole numbers count complete units. A number line shows their order and the equal distance between neighboring numbers."
+      },
+      {
+        "type": "number_line",
+        "heading": "See it on a number line",
+        "denominator": 4,
+        "points": [
+          2
+        ],
+        "caption": "The marked point helps connect position and value."
+      },
+      {
+        "type": "worked_example",
+        "problem": "Start at 2 and move 3 equal steps to the right.",
+        "steps": [
+          "Mark 2 on the number line.",
+          "Count three equal jumps: 3, 4, 5.",
+          "The landing point is 5."
+        ],
+        "answer": "5",
+        "reasoning": "Each step keeps the meaning of the whole and its equal parts clear."
+      },
+      {
+        "type": "tip",
+        "heading": "Helpful habit",
+        "body": "Count the jumps, not the marks you touch. Draw or rename the parts when you are unsure."
+      },
+      {
+        "type": "checkpoint",
+        "heading": "Your turn",
+        "prompt": "Which whole number is halfway between 2 and 6?",
+        "options": [
+          "3",
+          "4",
+          "5"
+        ],
+        "hint": "Use the visual and the worked steps above before choosing."
+      }
+    ],
+    "offline_ready": true
+  }
+]
