@@ -12,9 +12,9 @@ time, and candidate-specific prerequisites. The canonical ML output is
 `selected_candidate_predicted_probability`; the older interaction-level field is
 deprecated and new recommendations leave it null.
 
-This prototype uses SQLAlchemy table creation rather than a migration framework. For
-an existing local SQLite database, recreate it (or add the new columns manually)
-before using this refinement's new metadata fields.
+This prototype uses SQLAlchemy table creation rather than a migration framework.
+Startup and the seed command apply a small, idempotent set of additive SQLite
+compatibility updates for known prototype columns; they preserve existing rows.
 
 ## Current status
 
@@ -83,6 +83,7 @@ make backend
 ```
 
 The API is available at `http://localhost:8000`; OpenAPI docs are at `http://localhost:8000/docs`.
+If port 8000 is occupied, use `RAPID_LEARN_BACKEND_PORT=8001 make backend`.
 
 ### Frontend PWA
 
@@ -91,6 +92,7 @@ make frontend
 ```
 
 Vite serves the frontend at `http://localhost:5173`.
+If port 5173 is occupied, use `RAPID_LEARN_FRONTEND_PORT=5174 make frontend`.
 
 ### Full Docker stack
 

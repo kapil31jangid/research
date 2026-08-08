@@ -8,6 +8,7 @@ import app.models  # noqa: F401  # Register every SQLAlchemy model before create
 from app.curriculum.graph import build_graph
 from app.curriculum.loader import load_activities, load_concepts, load_questions
 from app.database.base import Base
+from app.database.compatibility import apply_sqlite_compatibility_migrations
 from app.database.session import SessionLocal, engine
 from app.misconceptions.rules import load_rules
 from app.models.activity import LearningActivity
@@ -105,6 +106,7 @@ def seed_database(db: Session) -> None:
 def initialise_database() -> None:
     """Create schema and seed it. Safe to call on every local startup."""
     Base.metadata.create_all(bind=engine)
+    apply_sqlite_compatibility_migrations(engine)
     with SessionLocal() as db:
         seed_database(db)
 

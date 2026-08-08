@@ -8,7 +8,7 @@ config hash, git/runtime provenance, interaction-level Parquet/CSV data, summari
 tables, and plots under `artifacts/experiments/`. Run the smoke configuration with:
 
 ```bash
-python -m app.evaluation.cli run --config experiments/configs/smoke.json
+.venv/bin/python -m app.evaluation.cli run --config experiments/configs/smoke.json
 ```
 
 Run multiple seeds or standard ablations with `run-suite` and
@@ -38,9 +38,10 @@ so reported Brier, log-loss, ROC-AUC, accuracy and calibration are temporally al
 synthetic diagnostics only.
 
 ```bash
-python -m app.evaluation.cli run-ablation-suite \
+.venv/bin/python -m app.evaluation.cli run-ablation-suite \
   --config experiments/configs/smoke.json --seeds 11 22
-python -m app.evaluation.cli summarize --experiment artifacts/experiments/<run-or-suite>
+.venv/bin/python -m app.evaluation.cli summarize \
+  --experiment artifacts/experiments/<run-or-suite>
 ```
 
 The CLI refuses workloads beyond `max_interactions_without_override` unless
