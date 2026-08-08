@@ -1,5 +1,21 @@
 # Experiments
 
+## Reproducible synthetic harness
+
+The evaluation harness runs deterministic synthetic populations through the real
+interaction service in an isolated SQLite database. It records a serialised config,
+config hash, git/runtime provenance, interaction-level Parquet/CSV data, summaries,
+tables, and plots under `artifacts/experiments/`. Run the smoke configuration with:
+
+```bash
+python -m app.evaluation.cli run --config experiments/configs/smoke.json
+```
+
+Run multiple seeds or standard ablations with `run-suite` and
+`run-ablation-suite`; all outputs are explicitly labelled `synthetic`. Synthetic
+mastery and response outcomes are system-behaviour proxies, not evidence of classroom
+effectiveness or causal learning gains.
+
 Offline analysis uses `offline_content_reason` with `matching_offline_activity_ids`,
 not app-shell state alone. ML analysis uses
 `selected_candidate_predicted_probability` and `candidate_prediction_summary`; the

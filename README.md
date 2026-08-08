@@ -45,6 +45,15 @@ No educational outcomes or device-performance claims have been validated with re
 
 ## Run commands
 
+### Synthetic experiment smoke test
+
+```bash
+.venv/bin/python -m app.evaluation.cli run --config experiments/configs/smoke.json
+```
+
+Artifacts contain provenance, configuration, synthetic interaction data, condition
+tables, and plots. They are not real learner outcomes.
+
 ### One-time setup
 
 ```bash
