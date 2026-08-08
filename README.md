@@ -159,6 +159,7 @@ Run the same core checks used by CI:
 .venv/bin/python -m ruff check backend
 .venv/bin/python -m ruff format --check backend
 npm ci --prefix frontend
+npm test --prefix frontend
 npm run build --prefix frontend
 docker compose build
 ```
