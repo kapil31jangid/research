@@ -17,7 +17,9 @@ Condition = Literal[
     "no_resource_awareness",
     "no_misconceptions",
     "no_forgetting",
-    "no_offline",
+    "no_offline_adaptation",
+    "no_uncertainty",
+    "no_ml",
 ]
 
 

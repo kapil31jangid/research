@@ -59,6 +59,23 @@ def run_experiment(config: ExperimentConfig) -> Path:
                 device_profile=synthetic.resource_profile,
             )
             db.add(learner)
+            for concept_id in concept_ids:
+                db.add(
+                    LearnerConceptState(
+                        learner_id=learner.id,
+                        concept_id=concept_id,
+                        mastery_probability=synthetic.initial_mastery_by_concept[concept_id],
+                        uncertainty=0.5,
+                        attempts=0,
+                        correct_attempts=0,
+                        recent_correctness="[]",
+                        response_time_variation=0.0,
+                        response_time_m2=0.0,
+                        response_time_count=0,
+                        hint_usage_rate=0.0,
+                        forgetting_rate=synthetic.forgetting_factor,
+                    )
+                )
             db.commit()
             for step in range(config.interactions_per_learner):
                 question = questions[
@@ -91,6 +108,7 @@ def run_experiment(config: ExperimentConfig) -> Path:
                     if state
                     else synthetic.initial_mastery_by_concept[question.concept_id]
                 )
+                mastery_before = mastery
                 response = simulate_response(
                     synthetic.latent_skill,
                     mastery,
@@ -142,6 +160,9 @@ def run_experiment(config: ExperimentConfig) -> Path:
                         "response_time_ms": response.response_time_ms,
                         "hints_used": response.hints_used,
                         "mastery_after": result.learner_state.mastery_probability,
+                        "mastery_before": mastery_before,
+                        "synthetic_mastery_before": mastery_before,
+                        "synthetic_mastery_after": mastery_before,
                         "retained_mastery": result.learner_state.retained_mastery,
                         "uncertainty": result.learner_state.uncertainty,
                         "resource_score": resource.score,

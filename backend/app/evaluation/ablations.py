@@ -35,4 +35,4 @@ def condition_config(config: ExperimentConfig, condition: str) -> ExperimentConf
         )
     if condition == "static_baseline":
         overrides.update(enable_adaptation=False, enable_bkt=False, enable_ml=False)
-    return config.model_copy(update=overrides)
+    return ExperimentConfig.model_validate(config.model_dump() | overrides)
