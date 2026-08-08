@@ -1,0 +1,38 @@
+[
+  {
+    "id":"c6_pattern_machine","concept_id":"c6_number_patterns","title":"Pattern machine","subtitle":"Find the rule before predicting the next value.","content_type":"guided_practice","estimated_minutes":6,"learning_objective":"Recognise and extend an additive number pattern.","sections":[
+      {"type":"explanation","heading":"Look for a consistent change","body":"Compare neighbouring terms. A pattern rule must explain every step, not just the first two numbers."},
+      {"type":"worked_example","problem":"Continue 7, 12, 17, 22.","steps":["Subtract neighbouring terms.","Each difference is 5.","Add 5 to 22."],"answer":"27","reasoning":"Checking every gap confirms the rule."},
+      {"type":"tip","heading":"Check twice","body":"Use your rule on two different steps before extending a sequence."},
+      {"type":"reflection","heading":"Explain the rule","body":"State both the starting value and the repeated change."},
+      {"type":"checkpoint","heading":"Your turn","prompt":"What follows 6, 10, 14, 18?","options":["20","22","24"],"hint":"Compare consecutive terms."}
+    ],"offline_ready":true,"content_origin":"original_adaptive_material","aligned_board":"NCERT"
+  },
+  {
+    "id":"c6_pattern_detective","concept_id":"c6_number_patterns","title":"Pattern detective","subtitle":"Describe a rule with clear mathematical language.","content_type":"worked_example","estimated_minutes":5,"learning_objective":"Explain how a number sequence changes.","sections":[
+      {"type":"explanation","heading":"Name the operation","body":"A useful rule states the starting value and the operation repeated at each step."},
+      {"type":"steps","heading":"A reliable method","steps":["Mark the starting term.","Find each difference.","Test the same operation across the sequence."]},
+      {"type":"worked_example","problem":"Describe 30, 27, 24, 21.","steps":["Start at 30.","Each term is 3 less.","The rule is subtract 3."],"answer":"Start at 30 and subtract 3"},
+      {"type":"reflection","heading":"Verify","body":"Apply the stated rule to each pair of neighbouring terms."},
+      {"type":"checkpoint","heading":"Your turn","prompt":"Describe 2, 6, 10, 14.","options":["Add 2","Add 4","Multiply by 2"],"hint":"Check every gap."}
+    ],"offline_ready":true,"content_origin":"original_adaptive_material","aligned_board":"NCERT"
+  },
+  {
+    "id":"c6_factor_array","concept_id":"c6_factors_multiples","title":"Factor arrays","subtitle":"Use equal rows to reveal factor pairs.","content_type":"guided_practice","estimated_minutes":7,"learning_objective":"Find factors using rectangular arrays.","sections":[
+      {"type":"explanation","heading":"Factors make complete groups","body":"A factor divides a number into equal groups with no remainder. Each rectangular array gives a factor pair."},
+      {"type":"worked_example","problem":"Find factor pairs of 18.","steps":["Make 1 row of 18.","Make 2 rows of 9.","Make 3 rows of 6."],"answer":"1×18, 2×9, 3×6"},
+      {"type":"warning","heading":"Factor or multiple?","body":"Factors divide the number; multiples are produced by multiplying the number."},
+      {"type":"reflection","heading":"Pair check","body":"Reverse each factor pair to confirm it describes the same array."},
+      {"type":"checkpoint","heading":"Your turn","prompt":"Which is a factor pair of 20?","options":["3 and 7","4 and 5","6 and 4"],"hint":"Multiply each pair."}
+    ],"offline_ready":true,"content_origin":"original_adaptive_material","aligned_board":"NCERT"
+  },
+  {
+    "id":"c6_multiple_paths","concept_id":"c6_factors_multiples","title":"Common multiple paths","subtitle":"Compare skip-counting paths to find a meeting point.","content_type":"guided_practice","estimated_minutes":6,"learning_objective":"Identify common multiples of two numbers.","sections":[
+      {"type":"explanation","heading":"Two lists can meet","body":"Write multiples in order. A common multiple appears in both lists; the least common multiple is the first positive meeting point."},
+      {"type":"worked_example","problem":"Find the least common multiple of 3 and 4.","steps":["List 3, 6, 9, 12.","List 4, 8, 12.","Choose the first shared value."],"answer":"12"},
+      {"type":"tip","heading":"Stop at the first match","body":"Ordered lists make the least common multiple visible without guessing."},
+      {"type":"reflection","heading":"Why least?","body":"Confirm that no smaller positive value appears in both lists."},
+      {"type":"checkpoint","heading":"Your turn","prompt":"What is the least common multiple of 5 and 3?","options":["8","10","15"],"hint":"List a few multiples of each."}
+    ],"offline_ready":true,"content_origin":"original_adaptive_material","aligned_board":"NCERT"
+  }
+]

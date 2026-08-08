@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.curriculum.content_loader import load_activity_content, load_content_for_concept
+from app.curriculum.registry import get_curriculum_context
 from app.database.session import get_db
 from app.models.activity import LearningActivity
 from app.schemas.activity_content import ActivityContent, ActivityContentRead, ActivitySummaryRead
@@ -21,6 +22,7 @@ def _summary(activity: LearningActivity, content: ActivityContent) -> ActivitySu
         difficulty=float(activity.difficulty),
         available_offline=activity.available_offline,
         estimated_minutes=content.estimated_minutes,
+        curriculum_context=get_curriculum_context(activity.concept_id).model_dump(),
     )
 
 

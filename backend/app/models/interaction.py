@@ -22,6 +22,12 @@ class Interaction(Base):
     hints_used: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     resource_state: Mapped[str] = mapped_column(Text, default="{}", nullable=False)
     offline: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    board_id: Mapped[str] = mapped_column(String(40), default="ncert", nullable=False)
+    class_level: Mapped[int] = mapped_column(Integer, default=5, nullable=False)
+    subject_id: Mapped[str] = mapped_column(String(100), default="ncert-c5-mathematics")
+    book_id: Mapped[str] = mapped_column(String(120), default="ncert-c5-math-reference")
+    chapter_id: Mapped[str] = mapped_column(String(120), default="ncert-c5-math-fractions")
+    curriculum_pack_version: Mapped[str] = mapped_column(String(30), default="1.0.0")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
     )

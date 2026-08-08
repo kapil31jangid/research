@@ -4,6 +4,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from app.schemas.curriculum import CurriculumContextRead
+
 
 class RecommendationAlternativeRead(BaseModel):
     concept_id: str
@@ -50,6 +52,7 @@ class RecommendationRead(BaseModel):
     explanation: list[str]
     alternatives: list[RecommendationAlternativeRead]
     created_at: datetime
+    curriculum_context: CurriculumContextRead
 
 
 class GenerateRecommendationRequest(BaseModel):

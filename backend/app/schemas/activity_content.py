@@ -4,6 +4,8 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
 
+from app.schemas.curriculum import CurriculumContextRead
+
 
 class ExplanationSection(BaseModel):
     type: Literal["explanation"]
@@ -80,6 +82,9 @@ class ActivityContent(BaseModel):
     learning_objective: str | None = Field(default=None, max_length=400)
     sections: list[ActivitySection] = Field(min_length=1)
     offline_ready: bool = True
+    content_origin: Literal["original_adaptive_material"] = "original_adaptive_material"
+    aligned_board: str = "NCERT"
+    official_reference_url: str | None = None
 
 
 class ActivitySummaryRead(BaseModel):
@@ -90,6 +95,7 @@ class ActivitySummaryRead(BaseModel):
     difficulty: float
     available_offline: bool
     estimated_minutes: int | None = None
+    curriculum_context: CurriculumContextRead
 
 
 class ActivityContentRead(BaseModel):

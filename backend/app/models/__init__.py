@@ -1,6 +1,12 @@
 """Persistence models."""
 
 from app.models.concept import Concept
+from app.models.curriculum import (
+    CurriculumBoard,
+    CurriculumBook,
+    CurriculumChapter,
+    CurriculumSubject,
+)
 from app.models.interaction import Interaction
 from app.models.learner import Learner
 from app.models.learner_state import LearnerConceptState, MasteryHistory
@@ -9,6 +15,10 @@ from app.models.recommendation import Recommendation
 
 __all__ = [
     "Concept",
+    "CurriculumBoard",
+    "CurriculumBook",
+    "CurriculumChapter",
+    "CurriculumSubject",
     "LearningActivity",
     "Interaction",
     "Learner",

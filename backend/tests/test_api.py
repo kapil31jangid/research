@@ -15,9 +15,9 @@ def test_create_and_list_learner(client):
 def test_seeded_curriculum_and_graph(client):
     concepts = client("GET", "/concepts")
     assert concepts.status_code == 200
-    assert len(concepts.json()) == 12
+    assert len(concepts.json()) == 16
     graph = client("GET", "/curriculum/graph").json()
-    assert len(graph["nodes"]) == 12
+    assert len(graph["nodes"]) == 16
     assert {edge["source"] for edge in graph["edges"]} >= {"whole_numbers"}
 
 

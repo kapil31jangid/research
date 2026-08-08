@@ -1,0 +1,42 @@
+[
+  {
+    "id": "c6_number_patterns",
+    "name": "Number Patterns",
+    "description": "Recognise and extend rules in whole-number sequences.",
+    "difficulty": 1,
+    "mastery_threshold": 0.75,
+    "prerequisite_ids": ["whole_numbers"],
+    "activity_ids": ["c6_pattern_machine", "c6_pattern_detective"],
+    "misconception_ids": []
+  },
+  {
+    "id": "c6_factors_multiples",
+    "name": "Factors and Multiples",
+    "description": "Use factor pairs and multiples to reason about divisibility.",
+    "difficulty": 2,
+    "mastery_threshold": 0.75,
+    "prerequisite_ids": ["c6_number_patterns"],
+    "activity_ids": ["c6_factor_array", "c6_multiple_paths"],
+    "misconception_ids": []
+  },
+  {
+    "id": "c6_fraction_number_line",
+    "name": "Fractions on a Number Line",
+    "description": "Locate and compare fractions as positions on a number line.",
+    "difficulty": 2,
+    "mastery_threshold": 0.75,
+    "prerequisite_ids": ["comparing_fractions"],
+    "activity_ids": ["c6_fraction_line_lab", "c6_between_fractions"],
+    "misconception_ids": []
+  },
+  {
+    "id": "c6_fraction_operations",
+    "name": "Fraction Operations",
+    "description": "Choose and apply fraction operations in multi-step situations.",
+    "difficulty": 3,
+    "mastery_threshold": 0.75,
+    "prerequisite_ids": ["c6_fraction_number_line", "fraction_addition", "fraction_subtraction"],
+    "activity_ids": ["c6_fraction_strategy", "c6_fraction_story_lab"],
+    "misconception_ids": []
+  }
+]

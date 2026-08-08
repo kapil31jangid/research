@@ -8,9 +8,11 @@ from sqlalchemy.orm import Session
 
 from app.curriculum.graph import graph_as_json
 from app.curriculum.loader import load_concepts
+from app.curriculum.registry import get_curriculum_context
 from app.database.session import get_db
 from app.models.concept import Concept
 from app.schemas.concept import ConceptRead
+from app.schemas.curriculum import CurriculumContextRead
 
 router = APIRouter(tags=["curriculum"])
 
@@ -38,6 +40,18 @@ async def get_concept(concept_id: str, db: Session = Depends(get_db)) -> dict[st
     if concept is None:
         raise HTTPException(status_code=404, detail="Concept not found")
     return serialise(concept)
+
+
+@router.get("/concepts/{concept_id}/context", response_model=CurriculumContextRead)
+async def concept_context(concept_id: str, db: Session = Depends(get_db)) -> CurriculumContextRead:
+    concept = db.get(Concept, concept_id)
+    if concept is None:
+        raise HTTPException(status_code=404, detail="Concept not found")
+    try:
+        context = get_curriculum_context(concept.id, concept.name)
+    except (KeyError, ValueError) as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    return CurriculumContextRead.model_validate(context.model_dump())
 
 
 @router.get("/curriculum/graph")

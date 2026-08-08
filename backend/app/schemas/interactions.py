@@ -13,6 +13,16 @@ class OfflineContentRequest(BaseModel):
     cached_activity_ids: list[str] = Field(default_factory=list)
     cached_concept_ids: list[str] = Field(default_factory=list)
     app_shell_available: bool = False
+    cached_curriculum_keys: list[str] = Field(default_factory=list)
+
+
+class InteractionCurriculumContext(BaseModel):
+    board_id: str
+    class_level: int = Field(ge=1, le=12)
+    subject_id: str
+    book_id: str
+    chapter_id: str
+    curriculum_pack_version: str
 
 
 class InteractionCreate(BaseModel):
@@ -24,6 +34,7 @@ class InteractionCreate(BaseModel):
     offline: bool = False
     device_resource_state: ResourceSimulationRequest | None = None
     offline_content: OfflineContentRequest | None = None
+    curriculum_context: InteractionCurriculumContext | None = None
 
 
 class InteractionRead(BaseModel):
@@ -36,6 +47,7 @@ class InteractionRead(BaseModel):
     response_time_ms: int
     hints_used: int
     offline: bool
+    curriculum_context: InteractionCurriculumContext
     created_at: datetime
 
 

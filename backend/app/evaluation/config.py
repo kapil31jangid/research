@@ -30,6 +30,11 @@ class ExperimentConfig(BaseModel):
     interactions_per_learner: int = Field(default=10, gt=0)
     mastery_threshold: float = Field(default=0.8, ge=0.0, le=1.0)
     condition: Condition = "full"
+    board_id: str = "ncert"
+    class_level: int = Field(default=5, ge=1, le=12)
+    subject_id: str = "ncert-c5-mathematics"
+    curriculum_pack_id: str = "ncert-class-5-mathematics"
+    curriculum_pack_version: str = "1.0.0"
     resource_profile: str = "mixed"
     learner_profile_distribution: dict[str, float] = Field(default_factory=lambda: {"mixed": 1.0})
     output_dir: str = "artifacts/experiments"

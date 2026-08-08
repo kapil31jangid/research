@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class ConceptRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: str
+    chapter_id: str
     name: str
     description: str
     difficulty: int = Field(ge=1, le=3)

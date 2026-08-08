@@ -1,0 +1,38 @@
+[
+  {
+    "id":"c6_fraction_line_lab","concept_id":"c6_fraction_number_line","title":"Fraction line lab","subtitle":"Treat each fraction as a position, not only as a pair of numbers.","content_type":"visual_explanation","estimated_minutes":7,"learning_objective":"Locate fractions accurately between whole numbers.","sections":[
+      {"type":"explanation","heading":"Equal intervals matter","body":"To place a fraction, divide the unit interval into equal parts named by the denominator and count parts from zero."},
+      {"type":"number_line","heading":"Locate three fourths","denominator":4,"points":[3],"caption":"The marked point is three of four equal intervals from zero."},
+      {"type":"worked_example","problem":"Place 2/3 between 0 and 1.","steps":["Divide the interval into 3 equal spaces.","Start at zero.","Move across 2 spaces."],"answer":"The second of three marks"},
+      {"type":"reflection","heading":"Position check","body":"The point should be beyond one half but before one whole."},
+      {"type":"checkpoint","heading":"Your turn","prompt":"Which fraction is closest to 1?","options":["1/4","2/4","3/4"],"hint":"Think about distance from 1."}
+    ],"offline_ready":true,"content_origin":"original_adaptive_material","aligned_board":"NCERT"
+  },
+  {
+    "id":"c6_between_fractions","concept_id":"c6_fraction_number_line","title":"Fractions between benchmarks","subtitle":"Use 0, one half, and 1 as reliable landmarks.","content_type":"guided_practice","estimated_minutes":6,"learning_objective":"Compare fractions using benchmark positions.","sections":[
+      {"type":"explanation","heading":"Benchmark first","body":"Decide whether a fraction is below, equal to, or above one half before making a finer comparison."},
+      {"type":"worked_example","problem":"Compare 3/8 and 5/8.","steps":["Both use eighths.","Three eighths is below one half.","Five eighths is above one half."],"answer":"5/8 is greater"},
+      {"type":"tip","heading":"Same denominator shortcut","body":"When pieces are the same size, the larger numerator marks the farther position."},
+      {"type":"reflection","heading":"Use distance","body":"Describe which benchmark each fraction is closest to."},
+      {"type":"checkpoint","heading":"Your turn","prompt":"Which lies between 1/2 and 1?","options":["2/5","3/4","5/4"],"hint":"Use the benchmark positions."}
+    ],"offline_ready":true,"content_origin":"original_adaptive_material","aligned_board":"NCERT"
+  },
+  {
+    "id":"c6_fraction_strategy","concept_id":"c6_fraction_operations","title":"Choose a fraction strategy","subtitle":"Read the situation before selecting an operation.","content_type":"worked_example","estimated_minutes":8,"learning_objective":"Select addition or subtraction for a fraction situation.","sections":[
+      {"type":"explanation","heading":"Operation follows meaning","body":"Combine parts when quantities join. Find what remains or the difference when a quantity is removed or compared."},
+      {"type":"worked_example","problem":"A jug held 5/6 litre and 2/6 litre was poured out. What remains?","steps":["The amount decreases, so subtract.","The parts are already sixths.","Subtract 5 − 2."],"answer":"3/6 litre","reasoning":"The operation matches the change in the story."},
+      {"type":"warning","heading":"Do not choose by keywords alone","body":"Sketch the quantities and decide what changes before calculating."},
+      {"type":"reflection","heading":"Check the result","body":"A remaining amount must be smaller than the starting amount."},
+      {"type":"checkpoint","heading":"Your turn","prompt":"Ravi walked 1/5 km then 3/5 km. Which operation fits?","options":["Addition","Subtraction","Division"],"hint":"The two distances join."}
+    ],"offline_ready":true,"content_origin":"original_adaptive_material","aligned_board":"NCERT"
+  },
+  {
+    "id":"c6_fraction_story_lab","concept_id":"c6_fraction_operations","title":"Fraction story lab","subtitle":"Represent, solve, and check a multi-step fraction story.","content_type":"guided_practice","estimated_minutes":8,"learning_objective":"Explain a fraction-operation solution using a representation.","sections":[
+      {"type":"steps","heading":"Read, draw, solve, check","steps":["Identify the whole and unit fraction.","Draw or name equal parts.","Choose an operation.","Check that the result fits the story."]},
+      {"type":"worked_example","problem":"Neha read 2/8 of a book Monday and 3/8 Tuesday. How much altogether?","steps":["Both amounts are parts of the same book.","Both are measured in eighths.","Add 2 + 3."],"answer":"5/8 of the book"},
+      {"type":"reflection","heading":"Reasonableness check","body":"The answer is below one whole because five of eight equal parts have been read."},
+      {"type":"tip","heading":"Keep the unit visible","body":"Write ‘of the book’ so the fraction remains connected to its whole."},
+      {"type":"checkpoint","heading":"Your turn","prompt":"If 1/8 more is read, what total is reached?","options":["6/8","6/16","4/8"],"hint":"The part size stays eighths."}
+    ],"offline_ready":true,"content_origin":"original_adaptive_material","aligned_board":"NCERT"
+  }
+]

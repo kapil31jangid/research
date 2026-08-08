@@ -27,6 +27,13 @@ class LearningActivity(Base):
     estimated_computational_cost_ms: Mapped[float] = mapped_column(
         Float, default=1.0, nullable=False
     )
+    content_origin: Mapped[str] = mapped_column(
+        String(50), default="original_adaptive_material", nullable=False
+    )
+    aligned_board: Mapped[str] = mapped_column(String(40), default="ncert", nullable=False)
+    official_reference_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    curriculum_pack_id: Mapped[str] = mapped_column(String(120), nullable=False)
+    curriculum_pack_version: Mapped[str] = mapped_column(String(30), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     deprecated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     deprecation_reason: Mapped[str | None] = mapped_column(Text, nullable=True)

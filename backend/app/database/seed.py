@@ -8,12 +8,19 @@ import app.models  # noqa: F401  # Register every SQLAlchemy model before create
 from app.curriculum.content_loader import validate_activity_content
 from app.curriculum.graph import build_graph
 from app.curriculum.loader import load_activities, load_concepts, load_questions
+from app.curriculum.registry import load_curriculum_registry, validate_curriculum_registry
 from app.database.base import Base
 from app.database.compatibility import apply_sqlite_compatibility_migrations
 from app.database.session import SessionLocal, engine
 from app.misconceptions.rules import load_rules
 from app.models.activity import LearningActivity
 from app.models.concept import Concept
+from app.models.curriculum import (
+    CurriculumBoard,
+    CurriculumBook,
+    CurriculumChapter,
+    CurriculumSubject,
+)
 from app.models.question import Question
 
 VALID_ADAPTATION_PATHS = {
@@ -32,6 +39,8 @@ def validate_seed_data() -> None:
     """Fail fast when legacy concept references and activity metadata diverge."""
     concepts = load_concepts()
     activities = load_activities()
+    questions = load_questions()
+    validate_curriculum_registry(concepts=concepts, activities=activities, questions=questions)
     concept_ids = {item["id"] for item in concepts}
     activity_ids = [item["id"] for item in activities]
     if len(activity_ids) != len(set(activity_ids)):
@@ -68,18 +77,57 @@ def seed_database(db: Session) -> None:
     concepts = load_concepts()
     validate_seed_data()
     build_graph(concepts)
+    registry = load_curriculum_registry()
+    for item in registry.boards:
+        record = db.get(CurriculumBoard, item.id)
+        values = item.model_dump()
+        if record is None:
+            db.add(CurriculumBoard(**values))
+        else:
+            for field, value in values.items():
+                setattr(record, field, value)
+    db.flush()
+    for item in registry.subjects:
+        record = db.get(CurriculumSubject, item.id)
+        values = item.model_dump()
+        if record is None:
+            db.add(CurriculumSubject(**values))
+        else:
+            for field, value in values.items():
+                setattr(record, field, value)
+    db.flush()
+    for item in registry.books:
+        record = db.get(CurriculumBook, item.id)
+        values = item.model_dump(mode="json")
+        if record is None:
+            db.add(CurriculumBook(**values))
+        else:
+            for field, value in values.items():
+                setattr(record, field, value)
+    db.flush()
+    for item in registry.chapters:
+        record = db.get(CurriculumChapter, item.id)
+        values = item.model_dump(exclude={"concept_ids"})
+        if record is None:
+            db.add(CurriculumChapter(**values))
+        else:
+            for field, value in values.items():
+                setattr(record, field, value)
+    db.flush()
     for item in concepts:
-        if db.get(Concept, item["id"]) is None:
-            db.add(
-                Concept(
-                    **{
-                        **item,
-                        "prerequisite_ids": json.dumps(item["prerequisite_ids"]),
-                        "activity_ids": json.dumps(item["activity_ids"]),
-                        "misconception_ids": json.dumps(item["misconception_ids"]),
-                    }
-                )
-            )
+        serialised = {
+            **item,
+            "prerequisite_ids": json.dumps(item["prerequisite_ids"]),
+            "activity_ids": json.dumps(item["activity_ids"]),
+            "misconception_ids": json.dumps(item["misconception_ids"]),
+        }
+        persisted = db.get(Concept, item["id"])
+        if persisted is None:
+            db.add(Concept(**serialised))
+        else:
+            for field, value in serialised.items():
+                if field != "id":
+                    setattr(persisted, field, value)
     for item in load_questions():
         if db.get(Question, item["id"]) is None:
             db.add(

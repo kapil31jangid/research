@@ -1,0 +1,12 @@
+{
+  "id": "ncert-class-6-mathematics",
+  "board": "ncert",
+  "class_level": 6,
+  "subject": "Mathematics",
+  "version": "1.0.0",
+  "language": "English",
+  "content_origin": "original_adaptive_material",
+  "aligned_source": "NCERT",
+  "official_reference_url": "https://ncert.nic.in/textbook.php",
+  "chapter_ids": ["ncert-c6-math-number-play", "ncert-c6-math-fractions"]
+}

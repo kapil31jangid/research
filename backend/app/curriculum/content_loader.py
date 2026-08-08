@@ -9,13 +9,13 @@ from pydantic import ValidationError
 from app.curriculum.loader import DATA_ROOT, load_activities, load_concepts
 from app.schemas.activity_content import ActivityContent
 
-CONTENT_ROOT = DATA_ROOT / "activities" / "fractions"
+CONTENT_ROOT = DATA_ROOT / "activities"
 
 
 @lru_cache(maxsize=1)
 def _content_index() -> dict[str, ActivityContent]:
     documents: dict[str, ActivityContent] = {}
-    for path in sorted(CONTENT_ROOT.glob("*.json")):
+    for path in sorted(CONTENT_ROOT.rglob("*.json")):
         with path.open(encoding="utf-8") as source:
             raw: Any = json.load(source)
         if not isinstance(raw, list):

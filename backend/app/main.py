@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import (
     activities,
     concepts,
+    curriculum,
     interactions,
     learners,
     questions,
@@ -42,6 +43,7 @@ app.include_router(resources.router)
 app.include_router(interactions.router)
 app.include_router(recommendations.router)
 app.include_router(activities.router)
+app.include_router(curriculum.router)
 
 
 @app.get("/health", tags=["system"])

@@ -12,6 +12,7 @@ from app.controller.policy import ControllerDecision, ControllerInput
 from app.curriculum.graph import build_graph
 from app.curriculum.loader import load_concepts
 from app.curriculum.prerequisites import prerequisite_mastery
+from app.curriculum.registry import get_curriculum_context
 from app.ml_runtime.model_registry import get_response_predictor_registry
 from app.models.activity import LearningActivity
 from app.models.concept import Concept
@@ -53,6 +54,7 @@ def serialise_recommendation(item: Recommendation) -> RecommendationRead:
         explanation=json.loads(item.explanation),
         alternatives=json.loads(item.alternatives),
         created_at=item.created_at,
+        curriculum_context=get_curriculum_context(item.selected_concept_id).model_dump(),
     )
 
 
@@ -77,6 +79,7 @@ def generate_recommendation(
     offline_content_reason: str | None = None,
     uncertainty_enabled: bool = True,
     forgetting_enabled: bool = True,
+    eligible_concept_ids: set[str] | None = None,
 ) -> RecommendationRead:
     """Score candidates, retain at least three alternatives when available, and persist."""
     concepts = {concept.id: concept for concept in db.scalars(select(Concept))}
@@ -100,6 +103,7 @@ def generate_recommendation(
         preferred_activity_id,
         activities,
         uncertainty_enabled,
+        eligible_concept_ids,
     )
     if not candidates:
         candidates = generate_candidates(
@@ -112,6 +116,7 @@ def generate_recommendation(
             preferred_activity_id,
             activities,
             uncertainty_enabled,
+            eligible_concept_ids,
         )
     candidate_probabilities = candidate_probabilities or {}
     if decision.adaptation_path == "lightweight_ml_recommendation" and not candidate_probabilities:
@@ -201,6 +206,7 @@ def generate_recommendation(
         explanation=json.dumps(explanation),
         alternatives=json.dumps([item.model_dump() for item in alternatives]),
         resource_state=json.dumps(controller_input.resource.__dict__),
+        **_curriculum_record_values(selected.concept_id),
     )
     db.add(record)
     if commit:
@@ -209,3 +215,16 @@ def generate_recommendation(
     else:
         db.flush()
     return serialise_recommendation(record)
+
+
+def _curriculum_record_values(concept_id: str) -> dict[str, str | int]:
+    context = get_curriculum_context(concept_id)
+    return {
+        "board_id": context.board_id,
+        "class_level": context.class_level,
+        "subject_id": context.subject_id,
+        "book_id": context.book_id,
+        "chapter_id": context.chapter_id,
+        "curriculum_pack_id": context.curriculum_pack_id,
+        "curriculum_pack_version": context.curriculum_pack_version,
+    }

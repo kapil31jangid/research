@@ -10,6 +10,7 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 
 import app.models  # noqa: F401
+from app.curriculum.registry import concept_ids_for_subject, resolve_available_pathway
 from app.database.base import Base
 from app.database.seed import seed_database
 from app.evaluation.config import ExperimentConfig
@@ -68,7 +69,17 @@ def run_experiment(config: ExperimentConfig) -> Path:
     )
     with factory() as db:
         seed_database(db)
-        questions = list(db.scalars(select(Question).order_by(Question.id)))
+        subject, book, chapter = resolve_available_pathway(
+            config.board_id, config.class_level, config.subject_id
+        )
+        scoped_concepts = concept_ids_for_subject(subject.id)
+        questions = list(
+            db.scalars(
+                select(Question)
+                .where(Question.concept_id.in_(scoped_concepts))
+                .order_by(Question.id)
+            )
+        )
         concept_ids = sorted({question.concept_id for question in questions})
         misconception_ids = misconception_ids_by_concept(load_rules())
         learners = generate_learners(
@@ -94,6 +105,11 @@ def run_experiment(config: ExperimentConfig) -> Path:
                 age_group="synthetic",
                 grade=0,
                 device_profile=synthetic.resource_profile,
+                board_id=config.board_id,
+                class_level=config.class_level,
+                active_subject_id=subject.id,
+                active_book_id=book.id,
+                active_chapter_id=chapter.id,
             )
             db.add(learner)
             for concept_id in concept_ids:
@@ -246,6 +262,15 @@ def run_experiment(config: ExperimentConfig) -> Path:
                     {
                         "experiment_id": experiment_id,
                         "condition": config.condition,
+                        "board_id": config.board_id,
+                        "class_level": config.class_level,
+                        "subject_id": subject.id,
+                        "book_id": recommendation.curriculum_context.book_id,
+                        "chapter_id": recommendation.curriculum_context.chapter_id,
+                        "curriculum_pack_id": config.curriculum_pack_id,
+                        "curriculum_pack_version": (
+                            recommendation.curriculum_context.curriculum_pack_version
+                        ),
                         "seed": config.random_seed,
                         "synthetic_learner_id": learner.id,
                         "learner_profile": synthetic.profile,

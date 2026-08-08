@@ -1,0 +1,48 @@
+{
+  "boards": [
+    {
+      "id": "ncert",
+      "name": "NCERT",
+      "country": "India",
+      "description": "National curriculum-aligned metadata for original RAPID-Learn adaptive material."
+    }
+  ],
+  "classes": [
+    {"board_id": "ncert", "class_level": 1, "content_status": "planned"},
+    {"board_id": "ncert", "class_level": 2, "content_status": "planned"},
+    {"board_id": "ncert", "class_level": 3, "content_status": "planned"},
+    {"board_id": "ncert", "class_level": 4, "content_status": "planned"},
+    {"board_id": "ncert", "class_level": 5, "content_status": "available"},
+    {"board_id": "ncert", "class_level": 6, "content_status": "available"},
+    {"board_id": "ncert", "class_level": 7, "content_status": "planned"},
+    {"board_id": "ncert", "class_level": 8, "content_status": "planned"},
+    {"board_id": "ncert", "class_level": 9, "content_status": "planned"},
+    {"board_id": "ncert", "class_level": 10, "content_status": "planned"},
+    {"board_id": "ncert", "class_level": 11, "content_status": "planned"},
+    {"board_id": "ncert", "class_level": 12, "content_status": "planned"}
+  ],
+  "subjects": [
+    {"id": "ncert-c1-mathematics", "board_id": "ncert", "class_level": 1, "name": "Mathematics", "slug": "mathematics", "description": "Planned Mathematics pathway.", "content_status": "planned"},
+    {"id": "ncert-c2-mathematics", "board_id": "ncert", "class_level": 2, "name": "Mathematics", "slug": "mathematics", "description": "Planned Mathematics pathway.", "content_status": "planned"},
+    {"id": "ncert-c3-mathematics", "board_id": "ncert", "class_level": 3, "name": "Mathematics", "slug": "mathematics", "description": "Planned Mathematics pathway.", "content_status": "planned"},
+    {"id": "ncert-c4-mathematics", "board_id": "ncert", "class_level": 4, "name": "Mathematics", "slug": "mathematics", "description": "Planned Mathematics pathway.", "content_status": "planned"},
+    {"id": "ncert-c5-mathematics", "board_id": "ncert", "class_level": 5, "name": "Mathematics", "slug": "mathematics", "description": "Validated fraction foundations and operations pathway.", "content_status": "available", "curriculum_pack_id": "ncert-class-5-mathematics", "curriculum_pack_version": "1.0.0"},
+    {"id": "ncert-c6-mathematics", "board_id": "ncert", "class_level": 6, "name": "Mathematics", "slug": "mathematics", "description": "Original adaptive material across number patterns, factors, fractions, and operations.", "content_status": "available", "curriculum_pack_id": "ncert-class-6-mathematics", "curriculum_pack_version": "1.0.0"},
+    {"id": "ncert-c7-mathematics", "board_id": "ncert", "class_level": 7, "name": "Mathematics", "slug": "mathematics", "description": "Planned Mathematics pathway.", "content_status": "planned"},
+    {"id": "ncert-c8-mathematics", "board_id": "ncert", "class_level": 8, "name": "Mathematics", "slug": "mathematics", "description": "Planned Mathematics pathway.", "content_status": "planned"},
+    {"id": "ncert-c9-mathematics", "board_id": "ncert", "class_level": 9, "name": "Mathematics", "slug": "mathematics", "description": "Planned Mathematics pathway.", "content_status": "planned"},
+    {"id": "ncert-c10-mathematics", "board_id": "ncert", "class_level": 10, "name": "Mathematics", "slug": "mathematics", "description": "Planned Mathematics pathway.", "content_status": "planned"},
+    {"id": "ncert-c11-mathematics", "board_id": "ncert", "class_level": 11, "name": "Mathematics", "slug": "mathematics", "description": "Planned Mathematics pathway.", "content_status": "planned"},
+    {"id": "ncert-c12-mathematics", "board_id": "ncert", "class_level": 12, "name": "Mathematics", "slug": "mathematics", "description": "Planned Mathematics pathway.", "content_status": "planned"}
+  ],
+  "books": [
+    {"id": "ncert-c5-math-reference", "subject_id": "ncert-c5-mathematics", "title": "Class 5 Mathematics reference", "source": "NCERT", "language": "English", "official_reference_url": "https://ncert.nic.in/textbook.php", "edition": "current registered reference", "is_active": true},
+    {"id": "ncert-c6-math-reference", "subject_id": "ncert-c6-mathematics", "title": "Class 6 Mathematics reference", "source": "NCERT", "language": "English", "official_reference_url": "https://ncert.nic.in/textbook.php", "edition": "current registered reference", "is_active": true}
+  ],
+  "chapters": [
+    {"id": "ncert-c5-math-number-foundations", "book_id": "ncert-c5-math-reference", "chapter_number": 1, "title": "Number Foundations", "slug": "number-foundations", "description": "Whole-number foundations used by the fraction pathway.", "sequence": 1, "concept_ids": ["whole_numbers"], "is_active": true},
+    {"id": "ncert-c5-math-fractions", "book_id": "ncert-c5-math-reference", "chapter_number": 2, "title": "Fractions", "slug": "fractions", "description": "Meaning, comparison, equivalence, operations, and fraction applications.", "sequence": 2, "concept_ids": ["fraction_meaning", "numerator_denominator", "equivalent_fractions", "simplifying_fractions", "comparing_fractions", "common_denominators", "fraction_addition", "fraction_subtraction", "improper_fractions", "mixed_numbers", "fraction_word_problems"], "is_active": true},
+    {"id": "ncert-c6-math-number-play", "book_id": "ncert-c6-math-reference", "chapter_number": 1, "title": "Number Play", "slug": "number-play", "description": "Patterns, factors, and multiples explored through original adaptive tasks.", "sequence": 1, "concept_ids": ["c6_number_patterns", "c6_factors_multiples"], "is_active": true},
+    {"id": "ncert-c6-math-fractions", "book_id": "ncert-c6-math-reference", "chapter_number": 2, "title": "Fractions", "slug": "fractions", "description": "Fraction positions and operations that build on Class 5 foundations.", "sequence": 2, "concept_ids": ["c6_fraction_number_line", "c6_fraction_operations"], "is_active": true}
+  ]
+}

@@ -14,6 +14,7 @@ from app.core.config import get_settings
 from app.curriculum.graph import build_graph, prerequisite_ids
 from app.curriculum.loader import load_concepts
 from app.curriculum.prerequisites import prerequisite_mastery
+from app.curriculum.registry import get_curriculum_context
 from app.evaluation.policy import EvaluationPolicy
 from app.learner_model.bkt import update_mastery
 from app.learner_model.response_time import update_response_time_statistics
@@ -32,11 +33,20 @@ from app.offline.content_availability import resolve_offline_availability
 from app.recommendation.recommender import generate_recommendation, serialise_recommendation
 from app.resources.monitor import current_resources
 from app.resources.scoring import ResourceSnapshot, snapshot_from_measurements
-from app.schemas.interactions import InteractionCreate, InteractionRead, MisconceptionRead
+from app.schemas.interactions import (
+    InteractionCreate,
+    InteractionCurriculumContext,
+    InteractionRead,
+    MisconceptionRead,
+)
 from app.schemas.recommendations import RecommendationRead
 from app.schemas.resources import ResourceStateRead
 from app.schemas.state import LearnerConceptStateRead
-from app.services.learner_service import ensure_learner_states, serialise_state
+from app.services.learner_service import (
+    active_concept_ids,
+    ensure_learner_states,
+    serialise_state,
+)
 
 
 @dataclass(frozen=True)
@@ -76,6 +86,14 @@ def _read(interaction: Interaction) -> InteractionRead:
         response_time_ms=interaction.response_time_ms,
         hints_used=interaction.hints_used,
         offline=interaction.offline,
+        curriculum_context=InteractionCurriculumContext(
+            board_id=interaction.board_id,
+            class_level=interaction.class_level,
+            subject_id=interaction.subject_id,
+            book_id=interaction.book_id,
+            chapter_id=interaction.chapter_id,
+            curriculum_pack_version=interaction.curriculum_pack_version,
+        ),
         created_at=interaction.created_at,
     )
 
@@ -84,6 +102,7 @@ def _create_interaction_record(
     payload: InteractionCreate, question: Question, correct: bool, resource: ResourceSnapshot
 ) -> Interaction:
     """Build the pending interaction event without committing it."""
+    context = get_curriculum_context(question.concept_id)
     return Interaction(
         learner_id=payload.learner_id,
         question_id=question.id,
@@ -94,6 +113,12 @@ def _create_interaction_record(
         hints_used=payload.hints_used,
         resource_state=json.dumps(resource.__dict__),
         offline=payload.offline or resource.offline,
+        board_id=context.board_id,
+        class_level=context.class_level,
+        subject_id=context.subject_id,
+        book_id=context.book_id,
+        chapter_id=context.chapter_id,
+        curriculum_pack_version=context.curriculum_pack_version,
     )
 
 
@@ -106,7 +131,9 @@ def process_interaction(
     """Run validation, BKT update, misconception detection, controller, and recommendation."""
     total_started = perf_counter_ns()
     try:
-        states = ensure_learner_states(payload.learner_id, db, commit=False)
+        states = ensure_learner_states(
+            payload.learner_id, db, commit=False, include_prerequisites=True
+        )
         state = next(item for item in states if item.concept_id == question.concept_id)
         correct = answers_equivalent(
             payload.submitted_answer, question.correct_answer, question.answer_type
@@ -305,6 +332,11 @@ def process_interaction(
                 offline_content_reason=availability.reason,
                 uncertainty_enabled=policy.enable_uncertainty,
                 forgetting_enabled=policy.enable_forgetting,
+                eligible_concept_ids=(
+                    {recommendation_focus_id}
+                    if decision.adaptation_path == "prerequisite_review"
+                    else active_concept_ids(payload.learner_id, db)
+                ),
             )
 
         try:

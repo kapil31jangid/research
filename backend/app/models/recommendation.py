@@ -48,6 +48,15 @@ class Recommendation(Base):
     controller_mode: Mapped[str] = mapped_column(
         String(60), default="deterministic", nullable=False
     )
+    board_id: Mapped[str] = mapped_column(String(40), default="ncert", nullable=False)
+    class_level: Mapped[int] = mapped_column(default=5, nullable=False)
+    subject_id: Mapped[str] = mapped_column(String(100), default="ncert-c5-mathematics")
+    book_id: Mapped[str] = mapped_column(String(120), default="ncert-c5-math-reference")
+    chapter_id: Mapped[str] = mapped_column(String(120), default="ncert-c5-math-fractions")
+    curriculum_pack_id: Mapped[str] = mapped_column(
+        String(120), default="ncert-class-5-mathematics"
+    )
+    curriculum_pack_version: Mapped[str] = mapped_column(String(30), default="1.0.0")
     score: Mapped[float] = mapped_column(Float, nullable=False)
     explanation: Mapped[str] = mapped_column(Text, nullable=False)
     alternatives: Mapped[str] = mapped_column(Text, default="[]", nullable=False)

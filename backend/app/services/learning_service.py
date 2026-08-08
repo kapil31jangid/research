@@ -14,27 +14,31 @@ from app.models.concept import Concept
 from app.models.question import Question
 from app.schemas.learning import LearningPlanRead, LearningSelectionRead
 from app.schemas.question import QuestionRead
-from app.services.learner_service import ensure_learner_states, serialise_state
+from app.services.learner_service import active_concept_ids, ensure_learner_states, serialise_state
 from app.services.question_service import serialise_question
 
 
 def learning_plan(learner_id: str, db: Session) -> LearningPlanRead:
     """Describe eligible, revision-needed, and prerequisite-blocked concepts."""
-    states = ensure_learner_states(learner_id, db)
+    states = ensure_learner_states(learner_id, db, include_prerequisites=True)
+    pathway_ids = active_concept_ids(learner_id, db)
     concepts = list(db.scalars(select(Concept)))
     mastery = {state.concept_id: state.mastery_probability for state in states}
     thresholds = {concept.id: concept.mastery_threshold for concept in concepts}
     graph = build_graph(load_concepts())
     ready = next_eligible_concepts(graph, mastery, thresholds)
+    ready = [concept_id for concept_id in ready if concept_id in pathway_ids]
     revision = [
         state.concept_id
         for state in states
+        if state.concept_id in pathway_ids
         if state.mastery_probability >= thresholds[state.concept_id]
         and serialise_state(state).retained_mastery < thresholds[state.concept_id]
     ]
     blocked = [
         concept.id
         for concept in concepts
+        if concept.id in pathway_ids
         if concept.id not in ready
         and concept.id not in revision
         and not prerequisite_status(graph, concept.id, mastery, thresholds).eligible
@@ -49,7 +53,8 @@ def learning_plan(learner_id: str, db: Session) -> LearningPlanRead:
 
 def select_next_question(learner_id: str, db: Session) -> LearningSelectionRead | None:
     """Prefer due spaced review; otherwise select a high-information eligible diagnostic."""
-    states = ensure_learner_states(learner_id, db)
+    states = ensure_learner_states(learner_id, db, include_prerequisites=True)
+    pathway_ids = active_concept_ids(learner_id, db)
     concepts = {concept.id: concept for concept in db.scalars(select(Concept))}
     mastery = {state.concept_id: state.mastery_probability for state in states}
     thresholds = {concept_id: concept.mastery_threshold for concept_id, concept in concepts.items()}
@@ -58,6 +63,7 @@ def select_next_question(learner_id: str, db: Session) -> LearningSelectionRead 
         (
             state
             for state in states
+            if state.concept_id in pathway_ids
             if state.mastery_probability >= thresholds[state.concept_id]
             and serialise_state(state).retained_mastery < thresholds[state.concept_id]
         ),
@@ -70,13 +76,26 @@ def select_next_question(learner_id: str, db: Session) -> LearningSelectionRead 
             "Previously mastered content has a retained-mastery estimate below its threshold."
         )
     else:
-        eligible = next_eligible_concepts(graph, mastery, thresholds)
-        candidates = [state for state in states if state.concept_id in eligible]
+        eligible = set(next_eligible_concepts(graph, mastery, thresholds))
+        candidates = [
+            state
+            for state in states
+            if state.concept_id in pathway_ids and state.concept_id in eligible
+        ]
         if not candidates:
-            return None
+            candidates = [state for state in states if state.concept_id in pathway_ids]
+            if not candidates:
+                return None
+            rationale = (
+                "This active concept needs evidence; unmet foundations may route a "
+                "prerequisite review."
+            )
+        else:
+            rationale = (
+                "This eligible concept has the highest current uncertainty and needs evidence."
+            )
         selected_state = max(candidates, key=lambda state: (state.uncertainty, -state.attempts))
         selection_type = "diagnostic_assessment"
-        rationale = "This eligible concept has the highest current uncertainty and needs evidence."
     question = db.scalar(
         select(Question)
         .where(Question.concept_id == selected_state.concept_id)

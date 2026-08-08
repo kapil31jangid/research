@@ -18,11 +18,23 @@ def load_json(relative_path: str) -> list[dict[str, Any]]:
 
 
 def load_concepts() -> list[dict[str, Any]]:
-    return load_json("curriculum/fractions.json")
+    from app.curriculum.registry import chapter_for_concept
+
+    concepts = load_json("curriculum/fractions.json") + load_json(
+        "curriculum/ncert/class_6/mathematics/concepts.json"
+    )
+    for concept in concepts:
+        chapter = chapter_for_concept(concept["id"])
+        if chapter is None:
+            raise ValueError(f"Concept {concept['id']} is missing a curriculum chapter")
+        concept["chapter_id"] = chapter.id
+    return concepts
 
 
 def load_questions() -> list[dict[str, Any]]:
-    return load_json("questions/fractions.json")
+    return load_json("questions/fractions.json") + load_json(
+        "questions/ncert/class_6/mathematics/questions.json"
+    )
 
 
 def load_activities() -> list[dict[str, Any]]:
@@ -37,8 +49,11 @@ def load_activities() -> list[dict[str, Any]]:
         "conversion_steps": "mixed_improper_conversion",
         "simplify_with_tiles": "incorrect_cancelling",
     }
+    from app.curriculum.registry import get_curriculum_context
+
     activities: list[dict[str, Any]] = []
     for concept in load_concepts():
+        context = get_curriculum_context(concept["id"], concept["name"])
         for activity_id in concept["activity_ids"]:
             misconception_id = remediation.get(activity_id)
             paths = [
@@ -70,6 +85,11 @@ def load_activities() -> list[dict[str, Any]]:
                     "content_type": "lesson",
                     "estimated_size_kb": 64,
                     "estimated_computational_cost_ms": 1.0,
+                    "content_origin": "original_adaptive_material",
+                    "aligned_board": context.board_id,
+                    "official_reference_url": "https://ncert.nic.in/textbook.php",
+                    "curriculum_pack_id": context.curriculum_pack_id,
+                    "curriculum_pack_version": context.curriculum_pack_version,
                     "is_active": True,
                     "deprecated_at": None,
                     "deprecation_reason": None,
