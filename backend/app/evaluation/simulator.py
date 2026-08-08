@@ -13,6 +13,7 @@ import app.models  # noqa: F401
 from app.database.base import Base
 from app.database.seed import seed_database
 from app.evaluation.config import ExperimentConfig
+from app.evaluation.metrics import condition_metrics, learner_metrics
 from app.evaluation.plots import write_plots
 from app.evaluation.provenance import collect_provenance
 from app.evaluation.resource_simulator import simulate_resource
@@ -160,16 +161,16 @@ def run_experiment(config: ExperimentConfig) -> Path:
     interactions = pd.DataFrame(rows)
     interactions.to_parquet(directory / "interactions.parquet", index=False)
     interactions.to_csv(directory / "interactions.csv", index=False)
+    learners_frame = learner_metrics(interactions, config.mastery_threshold)
+    learners_frame.to_parquet(directory / "learners.parquet", index=False)
+    learners_frame.to_csv(directory / "learners.csv", index=False)
     summary = {
         "simulated_results": True,
         "data_source": "synthetic",
         "condition": config.condition,
         "interaction_count": len(rows),
         "mean_correct": float(interactions.correct.mean()),
-        "mean_final_mastery": float(interactions.mastery_after.mean()),
-        "path_distribution": interactions.actual_adaptation_path.value_counts(
-            normalize=True
-        ).to_dict(),
+        **condition_metrics(interactions, config.mastery_threshold),
     }
     (directory / "config.json").write_text(config.model_dump_json(indent=2), encoding="utf-8")
     (directory / "provenance.json").write_text(
