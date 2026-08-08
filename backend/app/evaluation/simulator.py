@@ -13,6 +13,7 @@ import app.models  # noqa: F401
 from app.database.base import Base
 from app.database.seed import seed_database
 from app.evaluation.config import ExperimentConfig
+from app.evaluation.learning_effects import apply_learning_effect
 from app.evaluation.metrics import condition_metrics, learner_metrics
 from app.evaluation.plots import write_plots
 from app.evaluation.provenance import collect_provenance
@@ -20,6 +21,7 @@ from app.evaluation.resource_simulator import simulate_resource
 from app.evaluation.response_simulator import simulate_response
 from app.evaluation.synthetic_learners import generate_learners
 from app.evaluation.tables import write_condition_table
+from app.models.activity import LearningActivity
 from app.models.learner import Learner
 from app.models.learner_state import LearnerConceptState
 from app.models.question import Question
@@ -51,6 +53,8 @@ def run_experiment(config: ExperimentConfig) -> Path:
         )
         rows: list[dict[str, object]] = []
         for learner_index, synthetic in enumerate(learners):
+            latent_mastery = dict(synthetic.initial_mastery_by_concept)
+            next_concept_id: str | None = None
             learner = Learner(
                 id=synthetic.synthetic_learner_id,
                 name=synthetic.synthetic_learner_id,
@@ -78,9 +82,14 @@ def run_experiment(config: ExperimentConfig) -> Path:
                 )
             db.commit()
             for step in range(config.interactions_per_learner):
-                question = questions[
-                    (learner_index * config.interactions_per_learner + step) % len(questions)
-                ]
+                eligible = [item for item in questions if item.concept_id == next_concept_id]
+                question = (
+                    eligible[step % len(eligible)]
+                    if eligible
+                    else questions[
+                        (learner_index * config.interactions_per_learner + step) % len(questions)
+                    ]
+                )
                 resource_profile = (
                     "high_end"
                     if not config.enable_resource_awareness
@@ -111,7 +120,7 @@ def run_experiment(config: ExperimentConfig) -> Path:
                 mastery_before = mastery
                 response = simulate_response(
                     synthetic.latent_skill,
-                    mastery,
+                    latent_mastery[question.concept_id],
                     question.difficulty,
                     synthetic.hint_probability,
                     synthetic.misconception_tendency,
@@ -143,6 +152,16 @@ def run_experiment(config: ExperimentConfig) -> Path:
                 )
                 result = process_interaction(payload, question, db)
                 recommendation = result.recommendation
+                activity = db.get(LearningActivity, recommendation.selected_activity_id)
+                if activity is not None:
+                    selected_concept = recommendation.selected_concept_id
+                    latent_mastery[selected_concept] = apply_learning_effect(
+                        latent_mastery[selected_concept],
+                        activity.difficulty,
+                        selected_concept == question.concept_id,
+                        np.random.default_rng(config.random_seed + learner_index * 20_000 + step),
+                    )
+                    next_concept_id = selected_concept
                 selected_probability = recommendation.selected_candidate_predicted_probability
                 adaptive_latency = recommendation.measured_total_adaptive_latency_ms
                 true_probability = response.synthetic_true_correct_probability
@@ -162,7 +181,7 @@ def run_experiment(config: ExperimentConfig) -> Path:
                         "mastery_after": result.learner_state.mastery_probability,
                         "mastery_before": mastery_before,
                         "synthetic_mastery_before": mastery_before,
-                        "synthetic_mastery_after": mastery_before,
+                        "synthetic_mastery_after": latent_mastery[question.concept_id],
                         "retained_mastery": result.learner_state.retained_mastery,
                         "uncertainty": result.learner_state.uncertainty,
                         "resource_score": resource.score,
