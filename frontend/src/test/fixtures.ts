@@ -1,0 +1,147 @@
+import type {
+  ActivityContentResponse,
+  ConceptState,
+  InteractionResponse,
+  Learner,
+  LearningSelection,
+  Recommendation,
+  Resource,
+} from "../types";
+
+export const learner: Learner = {
+  id: "learner-1",
+  name: "Asha",
+  age_group: "9-11",
+  grade: 5,
+  preferred_language: "en",
+  device_profile: "test",
+  created_at: "2026-08-08T00:00:00Z",
+  last_active_at: "2026-08-08T00:00:00Z",
+};
+
+export const state: ConceptState = {
+  concept_id: "fraction_addition",
+  mastery_probability: 0.63,
+  retained_mastery: 0.58,
+  uncertainty: 0.24,
+  attempts: 4,
+  correct_attempts: 3,
+  recent_correctness: [true, false, true, true],
+  average_response_time: 2100,
+  response_time_variation: 0.1,
+  hint_usage_rate: 0.25,
+  last_practised_at: "2026-08-07T00:00:00Z",
+  forgetting_rate: 0.02,
+  suspected_misconception: null,
+  misconception_confidence: 0,
+};
+
+export const recommendation: Recommendation = {
+  id: "recommendation-1",
+  learner_id: learner.id,
+  selected_activity_id: "addition_steps",
+  selected_concept_id: "fraction_addition",
+  adaptation_path: "bkt_based_recommendation",
+  requested_adaptation_path: "bkt_based_recommendation",
+  explanation: ["Mastery is below the practice target."],
+  score: 0.72,
+  expected_learning_gain: 0.37,
+  computational_cost_ms: 1,
+  fallback_used: false,
+  fallback_reason: null,
+  ml_model_available: false,
+  model_version: null,
+  predicted_correctness_probability: null,
+  selected_candidate_predicted_probability: null,
+  candidate_prediction_summary: [],
+  matching_offline_activity_ids: [],
+  offline_content_reason: "No cache metadata supplied",
+  offline_content_available: false,
+  triggered_rules: ["moderate_resources"],
+  rejected_paths: [],
+  measured_controller_latency_ms: 0.2,
+  measured_recommendation_latency_ms: 0.5,
+  measured_total_adaptive_latency_ms: 1.1,
+  controller_mode: "deterministic",
+  created_at: "2026-08-08T00:00:00Z",
+};
+
+export const selection: LearningSelection = {
+  learner_id: learner.id,
+  selection_type: "diagnostic_assessment",
+  concept_id: "fraction_addition",
+  rationale: "Gather evidence",
+  prerequisite_mastery: 1,
+  question: {
+    id: "question-1",
+    concept_id: "fraction_addition",
+    text: "What is 1/4 + 2/4?",
+    answer_type: "fraction",
+    options: ["3/4", "3/8", "2/4"],
+    difficulty: 2,
+    explanation: "Equal fourths can be added.",
+    diagnostic_value: 0.8,
+    estimated_cost_ms: 1,
+    misconception_patterns: [],
+    template_id: null,
+  },
+};
+
+export const activityContent: ActivityContentResponse = {
+  activity: {
+    id: "addition_steps",
+    concept_id: "fraction_addition",
+    title: "Adding fractions: guided practice",
+    activity_type: "practice_quiz",
+    difficulty: 3,
+    available_offline: true,
+    estimated_minutes: 6,
+  },
+  content: {
+    id: "addition_steps",
+    concept_id: "fraction_addition",
+    title: "Adding fractions: guided practice",
+    subtitle: "Make equal-sized parts before adding.",
+    content_type: "guided_practice",
+    estimated_minutes: 6,
+    learning_objective: "Add fractions using a common denominator.",
+    offline_ready: true,
+    sections: [
+      { type: "explanation", heading: "Make sense of it", body: "Fractions need equal-sized parts before they can be added." },
+      { type: "fraction_bar", heading: "Build a picture", numerator: 1, denominator: 2, comparison_numerator: 2, comparison_denominator: 4, caption: "Both bars show the same amount." },
+      { type: "worked_example", heading: "Worked example", problem: "Find 1/2 + 1/4.", steps: ["Rename 1/2 as 2/4.", "Add 2/4 + 1/4."], answer: "3/4", reasoning: "The pieces are all fourths." },
+      { type: "steps", heading: "Try these steps", steps: ["Find a shared denominator.", "Add the numerators."] },
+      { type: "tip", heading: "Helpful tip", body: "Draw a fraction bar when you are unsure." },
+      { type: "warning", heading: "Watch for this", body: "Do not add the denominators." },
+      { type: "checkpoint", heading: "Your turn", prompt: "What is 1/4 + 2/4?", options: ["3/4"], hint: "The parts are already the same size." },
+    ],
+  },
+};
+
+export const resource: Resource = {
+  score: 0.9,
+  level: "high",
+  offline: false,
+  network_available: true,
+  network_quality: 1,
+  cpu_percent: 10,
+  available_memory_mb: 4096,
+  total_memory_mb: 8192,
+  battery_percent: 80,
+  battery_charging: false,
+  storage_available_mb: 10000,
+  inference_latency_ms: 1,
+};
+
+export const processedInteraction: InteractionResponse = {
+  learner_id: learner.id,
+  interaction_result: {
+    id: "interaction-1",
+    correct: true,
+    concept_id: "fraction_addition",
+    response_time_ms: 1500,
+  },
+  learner_state: { ...state, attempts: 5, correct_attempts: 4 },
+  decision: { ...recommendation, id: "recommendation-2" },
+  explanation: ["BKT is the safe default."],
+};

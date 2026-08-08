@@ -1,7 +1,9 @@
 export function humanize(value: string): string {
   return value
     .replaceAll("_", " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
+    .replace(/\bBkt\b/g, "BKT")
+    .replace(/\bMl\b/g, "ML");
 }
 
 const misconceptionLabels: Record<string, string> = {
