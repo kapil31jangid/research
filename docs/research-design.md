@@ -14,7 +14,18 @@ The central question is whether the resource-aware hybrid policy preserves learn
 
 ## Baselines and ablations
 
-The experiment runner supports static curriculum, rule-based, BKT-only, ML-only, hybrid without resource awareness, resource-aware hybrid, and ablations removing uncertainty, misconception detection, forgetting, or prerequisite gating.
+The experiment runner supports a state-independent static curriculum baseline,
+BKT-only and BKT-plus-uncertainty conditions, pedagogical adaptation, the full system
+with and without ML, and explicit ablations for uncertainty, misconceptions,
+forgetting, resource awareness, offline adaptation, and ML. Switches reach the real
+interaction runtime rather than post-processing pathway labels.
+
+The simulator maintains two intentionally separate state systems. System mastery is
+RAPID-Learn's estimated state; synthetic mastery is simulator ground truth used to
+generate responses and apply independent learning effects. Cross-concept
+recommendations update only the selected concept's synthetic state. Synthetic
+misconception intensity is tracked separately and may decrease after matching
+remediation, allowing a clearly labelled simulation proxy for resolution.
 
 ## Measures and validity
 

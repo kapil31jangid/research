@@ -16,6 +16,38 @@ Run multiple seeds or standard ablations with `run-suite` and
 mastery and response outcomes are system-behaviour proxies, not evidence of classroom
 effectiveness or causal learning gains.
 
+The runtime receives an immutable evaluation policy. `full` enables every component.
+Each `no_*` condition disables its named component at the real runtime boundary.
+`bkt_only` retains BKT and adaptation but disables uncertainty, forgetting,
+misconceptions, resource awareness, offline adaptation, and ML. `static_baseline`
+disables every adaptive signal and follows a curriculum-order question/activity
+sequence independent of learner state. Production requests omit this policy and keep
+normal behaviour.
+
+Interaction exports distinguish `system_mastery_*` (RAPID-Learn's estimate) from
+`synthetic_*_mastery_*` (simulator latent state). Cross-concept recommendations update
+only the selected concept's independent learning state. `concept_outcomes.csv` and
+Parquet contain true pre-interaction and final values for every learner and concept;
+primary mastery gain is computed from those multi-concept snapshots.
+
+Multi-seed suites write seed metrics, bootstrap aggregate intervals, paired
+full-versus-ablation comparisons and effect sizes, PNG/PDF plots, and
+CSV/Markdown/LaTeX tables under `artifacts/experiments/suites/`. Candidate ML
+probabilities are matched to the next observed assessment of the recommended concept,
+so reported Brier, log-loss, ROC-AUC, accuracy and calibration are temporally aligned
+synthetic diagnostics only.
+
+```bash
+python -m app.evaluation.cli run-ablation-suite \
+  --config experiments/configs/smoke.json --seeds 11 22
+python -m app.evaluation.cli summarize --experiment artifacts/experiments/<run-or-suite>
+```
+
+The CLI refuses workloads beyond `max_interactions_without_override` unless
+`--allow-large-run` is explicitly supplied. Run and suite metadata include config
+hash, git revision, seed, environment, and integrity labels stating that results are
+synthetic and educational effectiveness is not validated.
+
 Offline analysis uses `offline_content_reason` with `matching_offline_activity_ids`,
 not app-shell state alone. ML analysis uses
 `selected_candidate_predicted_probability` and `candidate_prediction_summary`; the

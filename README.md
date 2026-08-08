@@ -54,6 +54,20 @@ No educational outcomes or device-performance claims have been validated with re
 Artifacts contain provenance, configuration, synthetic interaction data, condition
 tables, and plots. They are not real learner outcomes.
 
+Run a multi-seed semantic ablation suite with:
+
+```bash
+.venv/bin/python -m app.evaluation.cli run-ablation-suite \
+  --config experiments/configs/smoke.json --seeds 11 22
+```
+
+Runs keep system-estimate and simulator-latent mastery separate, save per-concept
+initial/final snapshots, align candidate predictions with later assessments, and
+produce bootstrap aggregates, paired comparisons, PNG/PDF plots, and portable tables.
+The non-interactive workload guard requires `--allow-large-run` for deliberately large
+runs. These artifacts are simulation evidence about software behaviour—not validated
+educational outcomes.
+
 ### One-time setup
 
 ```bash
