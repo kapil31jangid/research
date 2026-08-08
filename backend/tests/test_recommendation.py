@@ -7,6 +7,19 @@ from app.recommendation.candidate_generator import ActivityCandidate, generate_c
 from app.recommendation.scorer import score_candidate
 
 
+def _activity(activity_id: str, concept_id: str, path: str) -> LearningActivity:
+    return LearningActivity(
+        id=activity_id,
+        concept_id=concept_id,
+        title=activity_id,
+        description="",
+        activity_type="practice_quiz",
+        difficulty=1,
+        adaptation_paths=f'["{path}"]',
+        misconception_ids="[]",
+    )
+
+
 def test_candidate_score_rewards_need_and_penalises_cost() -> None:
     high_need = ActivityCandidate("a", "activity_a", 0.9, 1.0, 0.9, 0.8, 0.0, 0.1)
     low_need = ActivityCandidate("a", "activity_b", 0.2, 0.4, 0.2, 0.1, 0.0, 0.9)
@@ -37,7 +50,14 @@ def test_remediation_and_cached_paths_do_not_offer_other_concepts() -> None:
         ),
     ]
     for path in ("misconception_remediation", "cached_offline_recommendation"):
-        candidates = generate_candidates(states, concepts, "focus", path, set())
+        candidates = generate_candidates(
+            states,
+            concepts,
+            "focus",
+            path,
+            set(),
+            activities=[_activity("focus_a", "focus", path), _activity("other_a", "other", path)],
+        )
         assert {candidate.concept_id for candidate in candidates} == {"focus"}
 
 
@@ -53,7 +73,15 @@ def test_recent_activities_are_excluded_when_alternatives_exist() -> None:
         )
     ]
     candidates = generate_candidates(
-        states, concepts, "focus", "bkt_based_recommendation", {"recent"}
+        states,
+        concepts,
+        "focus",
+        "bkt_based_recommendation",
+        {"recent"},
+        activities=[
+            _activity("recent", "focus", "bkt_based_recommendation"),
+            _activity("new", "focus", "bkt_based_recommendation"),
+        ],
     )
     assert [candidate.activity_id for candidate in candidates] == ["new"]
 
@@ -80,6 +108,10 @@ def test_exact_remediation_activity_excludes_unrelated_practice() -> None:
         "misconception_remediation",
         set(),
         preferred_activity_id="remediation",
+        activities=[
+            _activity("remediation", "focus", "misconception_remediation"),
+            _activity("unrelated", "focus", "misconception_remediation"),
+        ],
     )
     assert [candidate.activity_id for candidate in candidates] == ["remediation"]
 
@@ -128,6 +160,19 @@ def test_activity_metadata_controls_candidate_eligibility() -> None:
     assert [candidate.activity_id for candidate in candidates] == ["active"]
     assert candidates[0].difficulty == 3.0
     assert candidates[0].estimated_computational_cost_ms == 7.0
+    assert candidates[0].computational_cost == 7.0
+
+
+def test_concept_ids_cannot_create_candidates_without_activity_metadata() -> None:
+    concept = Concept(
+        id="focus", name="Focus", description="", difficulty=1, activity_ids='["legacy_only"]'
+    )
+    state = LearnerConceptState(
+        learner_id="l", concept_id="focus", mastery_probability=0.5, uncertainty=1.0
+    )
+    assert not generate_candidates(
+        [state], {"focus": concept}, "focus", "bkt_based_recommendation", set(), activities=[]
+    )
 
 
 def test_deprecated_activity_is_not_eligible() -> None:

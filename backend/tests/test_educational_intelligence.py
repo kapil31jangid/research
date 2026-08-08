@@ -6,8 +6,13 @@ from app.core.config import Settings
 from app.curriculum.graph import build_graph, descendants, prerequisite_ids
 from app.curriculum.loader import load_concepts
 from app.curriculum.prerequisites import prerequisite_status
+from app.database.seed import validate_seed_data
 from app.misconceptions.detector import InteractionEvidence, detect_misconceptions
 from app.misconceptions.rules import MisconceptionRule, load_rules
+
+
+def test_seed_activity_metadata_is_consistent() -> None:
+    validate_seed_data()
 
 
 def test_prerequisite_graph_helpers_and_mastery_gate() -> None:

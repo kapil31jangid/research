@@ -56,23 +56,7 @@ def generate_candidates(
         ):
             continue
         concept = concepts[state.concept_id]
-        # A supplied activity collection is authoritative. The legacy concept
-        # list remains only as a compatibility fallback for isolated callers.
         source = activities_by_concept.get(concept.id)
-        if source is None and activities is None:
-            source = [
-                LearningActivity(
-                    id=activity_id,
-                    concept_id=concept.id,
-                    title=activity_id,
-                    description="",
-                    activity_type="practice_quiz",
-                    difficulty=concept.difficulty,
-                    adaptation_paths=json.dumps([adaptation_path]),
-                    misconception_ids="[]",
-                )
-                for activity_id in json.loads(concept.activity_ids)
-            ]
         if source is None:
             continue
         for activity in source:
@@ -104,7 +88,7 @@ def generate_candidates(
                         if adaptation_path == "misconception_remediation"
                         else 0.0
                     ),
-                    computational_cost=0.2 if "visual" not in activity_id else 0.5,
+                    computational_cost=activity.estimated_computational_cost_ms,
                     activity_type=activity.activity_type,
                     difficulty=float(activity.difficulty),
                     estimated_computational_cost_ms=activity.estimated_computational_cost_ms,
