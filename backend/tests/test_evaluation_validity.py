@@ -1,6 +1,7 @@
 import json
 import sys
 
+import numpy as np
 import pandas as pd
 import pytest
 from sqlalchemy import select
@@ -10,6 +11,10 @@ from app.evaluation import cli
 from app.evaluation.ablations import condition_config
 from app.evaluation.cli import validate_workload
 from app.evaluation.config import ExperimentConfig
+from app.evaluation.learning_effects import (
+    apply_misconception_remediation,
+    apply_recommendation_learning,
+)
 from app.evaluation.metrics import condition_metrics, learner_metrics
 from app.evaluation.ml_metrics import synthetic_ml_metrics
 from app.evaluation.policy import EvaluationPolicy
@@ -195,6 +200,25 @@ def test_static_baseline_sequence_is_profile_independent(tmp_path) -> None:
         interactions = pd.read_parquet(run_experiment(config) / "interactions.parquet")
         sequences.append(interactions[["question_id", "selected_activity_id"]].values.tolist())
     assert sequences[0] == sequences[1]
+
+
+def test_cross_concept_effect_updates_only_selected_concept() -> None:
+    latent = {"target": 0.4, "prerequisite": 0.2}
+    before, after = apply_recommendation_learning(
+        latent,
+        "target",
+        "prerequisite",
+        1.0,
+        np.random.default_rng(7),
+    )
+    assert before == 0.2 and after > before
+    assert latent["target"] == 0.4
+    assert latent["prerequisite"] == after
+
+
+def test_matching_remediation_reduces_synthetic_misconception() -> None:
+    assert apply_misconception_remediation(0.6, True) == 0.3
+    assert apply_misconception_remediation(0.6, False) == 0.6
 
 
 def _metric_frames():

@@ -4,10 +4,21 @@ import platform
 import subprocess
 import sys
 from datetime import UTC, datetime
+from importlib.metadata import PackageNotFoundError, version
 from os import cpu_count
 from socket import gethostname
 
 import psutil
+
+
+def _package_versions() -> dict[str, str]:
+    versions = {}
+    for package in ("rapid-learn", "numpy", "pandas", "sqlalchemy", "scikit-learn"):
+        try:
+            versions[package] = version(package)
+        except PackageNotFoundError:
+            versions[package] = "unknown"
+    return versions
 
 
 def _git(*args: str) -> str:
@@ -31,7 +42,7 @@ def collect_provenance(model_version: str | None = None) -> dict[str, object]:
         "hostname": gethostname(),
         "cpu_count": cpu_count() or 0,
         "total_memory_mb": round(psutil.virtual_memory().total / 1_048_576, 2),
-        "package_versions": {"rapid_learn": "0.1.0"},
+        "package_versions": _package_versions(),
         "model_version": model_version or "unknown",
         "configuration_version": "1",
     }

@@ -13,7 +13,10 @@ import app.models  # noqa: F401
 from app.database.base import Base
 from app.database.seed import seed_database
 from app.evaluation.config import ExperimentConfig
-from app.evaluation.learning_effects import apply_learning_effect
+from app.evaluation.learning_effects import (
+    apply_misconception_remediation,
+    apply_recommendation_learning,
+)
 from app.evaluation.metrics import condition_metrics, learner_metrics
 from app.evaluation.ml_metrics import synthetic_ml_metrics
 from app.evaluation.plots import write_plots
@@ -169,21 +172,25 @@ def run_experiment(config: ExperimentConfig) -> Path:
                 synthetic_selected_mastery_before = latent_mastery[selected_concept]
                 synthetic_selected_mastery_after = synthetic_selected_mastery_before
                 if activity is not None:
-                    synthetic_selected_mastery_after = apply_learning_effect(
+                    (
                         synthetic_selected_mastery_before,
+                        synthetic_selected_mastery_after,
+                    ) = apply_recommendation_learning(
+                        latent_mastery,
+                        question.concept_id,
+                        selected_concept,
                         activity.difficulty,
-                        selected_concept == question.concept_id,
                         np.random.default_rng(config.random_seed + learner_index * 20_000 + step),
                     )
-                    latent_mastery[selected_concept] = synthetic_selected_mastery_after
-                    if (
+                    matched_remediation = (
                         config.enable_misconceptions
                         and recommendation.adaptation_path == "misconception_remediation"
                         and json.loads(activity.misconception_ids)
-                    ):
-                        synthetic_misconceptions[selected_concept] = max(
-                            0.0, synthetic_misconceptions[selected_concept] * 0.5
-                        )
+                    )
+                    synthetic_misconceptions[selected_concept] = apply_misconception_remediation(
+                        synthetic_misconceptions[selected_concept],
+                        bool(matched_remediation),
+                    )
                     next_concept_id = selected_concept if config.enable_adaptation else None
                 all_states = list(
                     db.scalars(
