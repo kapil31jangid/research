@@ -4,36 +4,54 @@ import argparse
 import json
 from pathlib import Path
 
-from app.evaluation.ablations import ABLATIONS, condition_config
+from app.evaluation.ablations import ABLATIONS
 from app.evaluation.config import ExperimentConfig
 from app.evaluation.simulator import run_experiment
+from app.evaluation.suite import run_suite
+
+
+def validate_workload(
+    config: ExperimentConfig,
+    condition_count: int,
+    seed_count: int,
+    allow_large_run: bool,
+) -> None:
+    workload = config.learner_count * config.interactions_per_learner * condition_count * seed_count
+    if workload > config.max_interactions_without_override and not allow_large_run:
+        raise SystemExit(
+            f"Refusing {workload} simulated interactions; pass --allow-large-run "
+            "after reviewing the experiment size."
+        )
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Synthetic RAPID-Learn experiment harness")
     parser.add_argument("command", choices=["run", "run-suite", "run-ablation-suite", "summarize"])
-    parser.add_argument("--config", type=Path, required=True)
+    parser.add_argument("--config", type=Path)
     parser.add_argument("--seeds", nargs="*", type=int)
     parser.add_argument("--experiment", type=Path)
+    parser.add_argument("--allow-large-run", action="store_true")
     args = parser.parse_args()
-    config = ExperimentConfig.model_validate(json.loads(args.config.read_text(encoding="utf-8")))
-    if args.command == "run":
-        print(run_experiment(config))
-    elif args.command == "summarize":
+    if args.command == "summarize":
         directory = args.experiment
         if directory is None:
             raise SystemExit("--experiment is required for summarize")
-        print((directory / "summary.json").read_text(encoding="utf-8"))
+        summary = directory / "summary.json"
+        if not summary.exists():
+            summary = directory / "suite_summary.json"
+        print(summary.read_text(encoding="utf-8"))
+        return
+    if args.config is None:
+        raise SystemExit("--config is required for run commands")
+    config = ExperimentConfig.model_validate(json.loads(args.config.read_text(encoding="utf-8")))
+    seeds = args.seeds or [config.random_seed]
+    if args.command == "run":
+        validate_workload(config, 1, 1, args.allow_large_run)
+        print(run_experiment(config))
     else:
         conditions = ABLATIONS if args.command == "run-ablation-suite" else (config.condition,)
-        seeds = args.seeds or [config.random_seed]
-        for seed in seeds:
-            for condition in conditions:
-                print(
-                    run_experiment(
-                        condition_config(config.model_copy(update={"random_seed": seed}), condition)
-                    )
-                )
+        validate_workload(config, len(conditions), len(seeds), args.allow_large_run)
+        print(run_suite(config, conditions, seeds))
 
 
 if __name__ == "__main__":

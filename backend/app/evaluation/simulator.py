@@ -15,7 +15,9 @@ from app.database.seed import seed_database
 from app.evaluation.config import ExperimentConfig
 from app.evaluation.learning_effects import apply_learning_effect
 from app.evaluation.metrics import condition_metrics, learner_metrics
+from app.evaluation.ml_metrics import synthetic_ml_metrics
 from app.evaluation.plots import write_plots
+from app.evaluation.policy import evaluation_policy_from_config
 from app.evaluation.provenance import collect_provenance
 from app.evaluation.resource_simulator import simulate_resource
 from app.evaluation.response_simulator import simulate_response
@@ -52,8 +54,13 @@ def run_experiment(config: ExperimentConfig) -> Path:
             config.learner_profile_distribution,
         )
         rows: list[dict[str, object]] = []
+        concept_rows: list[dict[str, object]] = []
         for learner_index, synthetic in enumerate(learners):
             latent_mastery = dict(synthetic.initial_mastery_by_concept)
+            initial_system_mastery = dict(synthetic.initial_mastery_by_concept)
+            synthetic_misconceptions = {
+                concept_id: synthetic.misconception_tendency for concept_id in concept_ids
+            }
             next_concept_id: str | None = None
             learner = Learner(
                 id=synthetic.synthetic_learner_id,
@@ -85,9 +92,11 @@ def run_experiment(config: ExperimentConfig) -> Path:
                 eligible = [item for item in questions if item.concept_id == next_concept_id]
                 question = (
                     eligible[step % len(eligible)]
-                    if eligible
+                    if eligible and config.enable_adaptation
                     else questions[
                         (learner_index * config.interactions_per_learner + step) % len(questions)
+                        if config.enable_adaptation
+                        else step % len(questions)
                     ]
                 )
                 resource_profile = (
@@ -112,18 +121,19 @@ def run_experiment(config: ExperimentConfig) -> Path:
                     ),
                     None,
                 )
-                mastery = (
+                system_mastery_before = (
                     state.mastery_probability
                     if state
                     else synthetic.initial_mastery_by_concept[question.concept_id]
                 )
-                mastery_before = mastery
+                synthetic_assessed_mastery_before = latent_mastery[question.concept_id]
+                synthetic_misconception_before = synthetic_misconceptions[question.concept_id]
                 response = simulate_response(
                     synthetic.latent_skill,
-                    latent_mastery[question.concept_id],
+                    synthetic_assessed_mastery_before,
                     question.difficulty,
                     synthetic.hint_probability,
-                    synthetic.misconception_tendency,
+                    synthetic_misconception_before,
                     synthetic.response_speed_factor,
                     np.random.default_rng(config.random_seed + learner_index * 10000 + step),
                 )
@@ -150,21 +160,42 @@ def run_experiment(config: ExperimentConfig) -> Path:
                         )
                     },
                 )
-                result = process_interaction(payload, question, db)
+                result = process_interaction(
+                    payload, question, db, evaluation_policy_from_config(config)
+                )
                 recommendation = result.recommendation
                 activity = db.get(LearningActivity, recommendation.selected_activity_id)
+                selected_concept = recommendation.selected_concept_id
+                synthetic_selected_mastery_before = latent_mastery[selected_concept]
+                synthetic_selected_mastery_after = synthetic_selected_mastery_before
                 if activity is not None:
-                    selected_concept = recommendation.selected_concept_id
-                    latent_mastery[selected_concept] = apply_learning_effect(
-                        latent_mastery[selected_concept],
+                    synthetic_selected_mastery_after = apply_learning_effect(
+                        synthetic_selected_mastery_before,
                         activity.difficulty,
                         selected_concept == question.concept_id,
                         np.random.default_rng(config.random_seed + learner_index * 20_000 + step),
                     )
-                    next_concept_id = selected_concept
+                    latent_mastery[selected_concept] = synthetic_selected_mastery_after
+                    if (
+                        config.enable_misconceptions
+                        and recommendation.adaptation_path == "misconception_remediation"
+                        and json.loads(activity.misconception_ids)
+                    ):
+                        synthetic_misconceptions[selected_concept] = max(
+                            0.0, synthetic_misconceptions[selected_concept] * 0.5
+                        )
+                    next_concept_id = selected_concept if config.enable_adaptation else None
+                all_states = list(
+                    db.scalars(
+                        select(LearnerConceptState).where(
+                            LearnerConceptState.learner_id == learner.id
+                        )
+                    )
+                )
                 selected_probability = recommendation.selected_candidate_predicted_probability
                 adaptive_latency = recommendation.measured_total_adaptive_latency_ms
                 true_probability = response.synthetic_true_correct_probability
+                synthetic_misconception_after = synthetic_misconceptions[question.concept_id]
                 rows.append(
                     {
                         "experiment_id": experiment_id,
@@ -178,30 +209,112 @@ def run_experiment(config: ExperimentConfig) -> Path:
                         "correct": result.interaction.correct,
                         "response_time_ms": response.response_time_ms,
                         "hints_used": response.hints_used,
-                        "mastery_after": result.learner_state.mastery_probability,
-                        "mastery_before": mastery_before,
-                        "synthetic_mastery_before": mastery_before,
-                        "synthetic_mastery_after": latent_mastery[question.concept_id],
-                        "retained_mastery": result.learner_state.retained_mastery,
+                        "system_mastery_before": system_mastery_before,
+                        "system_mastery_after": result.learner_state.mastery_probability,
+                        "system_mean_mastery_after": float(
+                            np.mean([item.mastery_probability for item in all_states])
+                        ),
+                        "synthetic_assessed_concept_id": question.concept_id,
+                        "synthetic_assessed_mastery_before": synthetic_assessed_mastery_before,
+                        "synthetic_assessed_mastery_after": latent_mastery[question.concept_id],
+                        "synthetic_selected_concept_id": selected_concept,
+                        "synthetic_selected_mastery_before": synthetic_selected_mastery_before,
+                        "synthetic_selected_mastery_after": synthetic_selected_mastery_after,
+                        "retained_mastery": (
+                            result.learner_state.retained_mastery
+                            if config.enable_forgetting
+                            else result.learner_state.mastery_probability
+                        ),
                         "uncertainty": result.learner_state.uncertainty,
+                        "misconception_id": result.misconception.id,
+                        "misconception_confidence": result.misconception.confidence,
+                        "synthetic_misconception_before": synthetic_misconception_before,
+                        "synthetic_misconception_after": synthetic_misconception_after,
+                        "synthetic_misconception_resolved": (
+                            synthetic_misconception_before
+                            >= config.synthetic_misconception_resolution_threshold
+                            and synthetic_misconception_after
+                            < config.synthetic_misconception_resolution_threshold
+                        ),
                         "resource_score": resource.score,
+                        "resource_profile": resource_profile,
+                        "network_available": resource.network_available,
+                        "network_quality": resource.network_quality,
                         "offline": resource.offline,
                         "requested_adaptation_path": recommendation.requested_adaptation_path,
                         "actual_adaptation_path": recommendation.adaptation_path,
                         "fallback_used": recommendation.fallback_used,
+                        "fallback_reason": recommendation.fallback_reason,
+                        "selected_concept_id": selected_concept,
                         "selected_activity_id": recommendation.selected_activity_id,
+                        "selected_activity_type": activity.activity_type if activity else None,
+                        "selected_activity_difficulty": activity.difficulty if activity else None,
+                        "offline_content_available": recommendation.offline_content_available,
+                        "matching_offline_activity_ids": json.dumps(
+                            recommendation.matching_offline_activity_ids
+                        ),
                         "offline_content_reason": recommendation.offline_content_reason,
+                        "ml_model_available": recommendation.ml_model_available,
+                        "model_version": recommendation.model_version,
                         "selected_candidate_predicted_probability": selected_probability,
+                        "estimated_computational_cost_ms": recommendation.computational_cost_ms,
+                        "measured_controller_latency_ms": (
+                            recommendation.measured_controller_latency_ms
+                        ),
+                        "measured_recommendation_latency_ms": (
+                            recommendation.measured_recommendation_latency_ms
+                        ),
                         "measured_total_adaptive_latency_ms": adaptive_latency,
                         "synthetic_latent_skill": synthetic.latent_skill,
                         "synthetic_true_correct_probability": true_probability,
                         "data_source": "synthetic",
+                        "simulated_results": True,
+                        "event_code": (
+                            "fallback"
+                            if recommendation.fallback_used
+                            else "model_unavailable"
+                            if config.enable_ml and not recommendation.ml_model_available
+                            else "offline_content_miss"
+                            if resource.offline and not recommendation.offline_content_available
+                            else "recommendation_success"
+                        ),
                     }
                 )
+            final_states = {
+                item.concept_id: item
+                for item in db.scalars(
+                    select(LearnerConceptState).where(LearnerConceptState.learner_id == learner.id)
+                )
+            }
+            for concept_id in concept_ids:
+                initial_system = initial_system_mastery[concept_id]
+                final_system = final_states[concept_id].mastery_probability
+                initial_synthetic = synthetic.initial_mastery_by_concept[concept_id]
+                final_synthetic = latent_mastery[concept_id]
+                concept_rows.append(
+                    {
+                        "experiment_id": experiment_id,
+                        "condition": config.condition,
+                        "seed": config.random_seed,
+                        "synthetic_learner_id": learner.id,
+                        "concept_id": concept_id,
+                        "initial_system_mastery": initial_system,
+                        "final_system_mastery": final_system,
+                        "system_mastery_gain": final_system - initial_system,
+                        "initial_synthetic_mastery": initial_synthetic,
+                        "final_synthetic_mastery": final_synthetic,
+                        "synthetic_mastery_gain": final_synthetic - initial_synthetic,
+                        "mastery_threshold_reached": final_system >= config.mastery_threshold,
+                    }
+                )
+    engine.dispose()
     interactions = pd.DataFrame(rows)
     interactions.to_parquet(directory / "interactions.parquet", index=False)
     interactions.to_csv(directory / "interactions.csv", index=False)
-    learners_frame = learner_metrics(interactions, config.mastery_threshold)
+    concept_outcomes = pd.DataFrame(concept_rows)
+    concept_outcomes.to_parquet(directory / "concept_outcomes.parquet", index=False)
+    concept_outcomes.to_csv(directory / "concept_outcomes.csv", index=False)
+    learners_frame = learner_metrics(interactions, concept_outcomes, config.mastery_threshold)
     learners_frame.to_parquet(directory / "learners.parquet", index=False)
     learners_frame.to_csv(directory / "learners.csv", index=False)
     summary = {
@@ -210,11 +323,30 @@ def run_experiment(config: ExperimentConfig) -> Path:
         "condition": config.condition,
         "interaction_count": len(rows),
         "mean_correct": float(interactions.correct.mean()),
-        **condition_metrics(interactions, config.mastery_threshold),
+        "project": "RAPID-Learn",
+        "experiment_id": experiment_id,
+        "random_seed": config.random_seed,
+        "config_hash": config.config_hash,
+        "educational_effectiveness_validated": False,
+        **condition_metrics(interactions, concept_outcomes, config.mastery_threshold),
+        **synthetic_ml_metrics(interactions),
     }
     (directory / "config.json").write_text(config.model_dump_json(indent=2), encoding="utf-8")
     (directory / "provenance.json").write_text(
-        json.dumps(collect_provenance(), indent=2), encoding="utf-8"
+        json.dumps(
+            collect_provenance()
+            | {
+                "config_hash": config.config_hash,
+                "condition": config.condition,
+                "seed": config.random_seed,
+                "experiment_harness_version": "2",
+                "simulated_results": True,
+                "data_source": "synthetic",
+                "educational_effectiveness_validated": False,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
     )
     (directory / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     write_condition_table(interactions, directory)
