@@ -37,6 +37,8 @@ class ExperimentConfig(BaseModel):
     save_candidate_prediction_summary: bool = True
     synthetic_misconception_resolution_threshold: float = Field(default=0.2, ge=0.0, le=1.0)
     max_interactions_without_override: int = Field(default=100_000, gt=0)
+    bootstrap_samples: int = Field(default=10_000, ge=100, le=1_000_000)
+    suite_workers: int = Field(default=1, ge=1, le=64)
     enable_adaptation: bool = True
     enable_bkt: bool = True
     enable_uncertainty: bool = True

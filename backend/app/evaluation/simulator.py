@@ -26,12 +26,24 @@ from app.evaluation.resource_simulator import simulate_resource
 from app.evaluation.response_simulator import simulate_response
 from app.evaluation.synthetic_learners import generate_learners
 from app.evaluation.tables import write_condition_table
+from app.misconceptions.rules import MisconceptionRule, load_rules
 from app.models.activity import LearningActivity
 from app.models.learner import Learner
 from app.models.learner_state import LearnerConceptState
 from app.models.question import Question
 from app.schemas.interactions import InteractionCreate
 from app.services.interaction_service import process_interaction
+
+
+def misconception_ids_by_concept(
+    rules: list[MisconceptionRule],
+) -> dict[str, tuple[str, ...]]:
+    """Map curriculum concepts to deterministic identifiers from real rules."""
+    mapping: dict[str, set[str]] = {}
+    for rule in rules:
+        for concept_id in rule.concept_ids:
+            mapping.setdefault(concept_id, set()).add(rule.id)
+    return {concept_id: tuple(sorted(identifiers)) for concept_id, identifiers in mapping.items()}
 
 
 def run_experiment(config: ExperimentConfig) -> Path:
@@ -45,11 +57,20 @@ def run_experiment(config: ExperimentConfig) -> Path:
     directory.mkdir(parents=True)
     engine = create_engine("sqlite://")
     Base.metadata.create_all(engine)
-    factory = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+    # Experiment sessions retain loaded values across each interaction commit. The
+    # production service still commits and refreshes its persisted records; avoiding
+    # blanket ORM expiry here prevents thousands of redundant SQLite point queries.
+    factory = sessionmaker(
+        bind=engine,
+        autoflush=False,
+        autocommit=False,
+        expire_on_commit=False,
+    )
     with factory() as db:
         seed_database(db)
         questions = list(db.scalars(select(Question).order_by(Question.id)))
         concept_ids = sorted({question.concept_id for question in questions})
+        misconception_ids = misconception_ids_by_concept(load_rules())
         learners = generate_learners(
             config.learner_count,
             concept_ids,
@@ -62,7 +83,9 @@ def run_experiment(config: ExperimentConfig) -> Path:
             latent_mastery = dict(synthetic.initial_mastery_by_concept)
             initial_system_mastery = dict(synthetic.initial_mastery_by_concept)
             synthetic_misconceptions = {
-                concept_id: synthetic.misconception_tendency for concept_id in concept_ids
+                misconception_id: synthetic.misconception_tendency
+                for concept_id in concept_ids
+                for misconception_id in misconception_ids.get(concept_id, ())
             }
             next_concept_id: str | None = None
             learner = Learner(
@@ -130,13 +153,16 @@ def run_experiment(config: ExperimentConfig) -> Path:
                     else synthetic.initial_mastery_by_concept[question.concept_id]
                 )
                 synthetic_assessed_mastery_before = latent_mastery[question.concept_id]
-                synthetic_misconception_before = synthetic_misconceptions[question.concept_id]
+                current_misconceptions = {
+                    misconception_id: synthetic_misconceptions[misconception_id]
+                    for misconception_id in misconception_ids.get(question.concept_id, ())
+                }
                 response = simulate_response(
                     synthetic.latent_skill,
                     synthetic_assessed_mastery_before,
                     question.difficulty,
                     synthetic.hint_probability,
-                    synthetic_misconception_before,
+                    current_misconceptions,
                     synthetic.response_speed_factor,
                     np.random.default_rng(config.random_seed + learner_index * 10000 + step),
                 )
@@ -167,6 +193,14 @@ def run_experiment(config: ExperimentConfig) -> Path:
                     payload, question, db, evaluation_policy_from_config(config)
                 )
                 recommendation = result.recommendation
+                synthetic_misconception_id = response.synthetic_misconception_id
+                synthetic_misconception_before = (
+                    synthetic_misconceptions[synthetic_misconception_id]
+                    if synthetic_misconception_id is not None
+                    else None
+                )
+                synthetic_misconception_after = synthetic_misconception_before
+                matched_remediation = False
                 activity = db.get(LearningActivity, recommendation.selected_activity_id)
                 selected_concept = recommendation.selected_concept_id
                 synthetic_selected_mastery_before = latent_mastery[selected_concept]
@@ -182,14 +216,20 @@ def run_experiment(config: ExperimentConfig) -> Path:
                         activity.difficulty,
                         np.random.default_rng(config.random_seed + learner_index * 20_000 + step),
                     )
-                    matched_remediation = (
-                        config.enable_misconceptions
+                    eligible_activity_misconceptions = (
+                        set(json.loads(activity.misconception_ids))
+                        if config.enable_misconceptions
                         and recommendation.adaptation_path == "misconception_remediation"
-                        and json.loads(activity.misconception_ids)
+                        else set()
                     )
-                    synthetic_misconceptions[selected_concept] = apply_misconception_remediation(
-                        synthetic_misconceptions[selected_concept],
-                        bool(matched_remediation),
+                    (
+                        synthetic_misconception_before,
+                        synthetic_misconception_after,
+                        matched_remediation,
+                    ) = apply_misconception_remediation(
+                        synthetic_misconceptions,
+                        synthetic_misconception_id,
+                        eligible_activity_misconceptions,
                     )
                     next_concept_id = selected_concept if config.enable_adaptation else None
                 all_states = list(
@@ -202,7 +242,6 @@ def run_experiment(config: ExperimentConfig) -> Path:
                 selected_probability = recommendation.selected_candidate_predicted_probability
                 adaptive_latency = recommendation.measured_total_adaptive_latency_ms
                 true_probability = response.synthetic_true_correct_probability
-                synthetic_misconception_after = synthetic_misconceptions[question.concept_id]
                 rows.append(
                     {
                         "experiment_id": experiment_id,
@@ -234,11 +273,17 @@ def run_experiment(config: ExperimentConfig) -> Path:
                         ),
                         "uncertainty": result.learner_state.uncertainty,
                         "misconception_id": result.misconception.id,
+                        "system_detected_misconception_id": result.misconception.id,
                         "misconception_confidence": result.misconception.confidence,
+                        "synthetic_true_misconception_id": synthetic_misconception_id,
+                        "synthetic_misconception_id": synthetic_misconception_id,
                         "synthetic_misconception_before": synthetic_misconception_before,
                         "synthetic_misconception_after": synthetic_misconception_after,
+                        "synthetic_misconception_matched_remediation": matched_remediation,
                         "synthetic_misconception_resolved": (
-                            synthetic_misconception_before
+                            synthetic_misconception_before is not None
+                            and synthetic_misconception_after is not None
+                            and synthetic_misconception_before
                             >= config.synthetic_misconception_resolution_threshold
                             and synthetic_misconception_after
                             < config.synthetic_misconception_resolution_threshold
@@ -334,6 +379,7 @@ def run_experiment(config: ExperimentConfig) -> Path:
         "experiment_id": experiment_id,
         "random_seed": config.random_seed,
         "config_hash": config.config_hash,
+        "bootstrap_samples": config.bootstrap_samples,
         "educational_effectiveness_validated": False,
         **condition_metrics(interactions, concept_outcomes, config.mastery_threshold),
         **synthetic_ml_metrics(interactions),
@@ -346,6 +392,7 @@ def run_experiment(config: ExperimentConfig) -> Path:
                 "config_hash": config.config_hash,
                 "condition": config.condition,
                 "seed": config.random_seed,
+                "bootstrap_samples": config.bootstrap_samples,
                 "experiment_harness_version": "2",
                 "simulated_results": True,
                 "data_source": "synthetic",

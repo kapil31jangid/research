@@ -128,3 +128,29 @@ def test_repeated_matching_errors_trigger_persisted_misconception_remediation(cl
     assert response["misconception"]["id"] == "adds_denominators"
     assert response["decision"]["adaptation_path"] == "misconception_remediation"
     assert response["decision"]["selected_activity_id"] == "visual_common_denominator_demo"
+
+
+def test_cross_concept_remediation_uses_rule_owned_activity(client):
+    learner = client(
+        "POST", "/learners", json={"name": "Adi", "age_group": "10-12", "grade": 5}
+    ).json()
+    payload = {
+        "learner_id": learner["id"],
+        "question_id": "improper_fractions_01",
+        "submitted_answer": "0",
+        "response_time_ms": 1000,
+        "device_resource_state": {
+            "available_memory_mb": 800,
+            "total_memory_mb": 1000,
+            "cpu_percent": 10,
+            "battery_percent": 90,
+            "network_available": True,
+        },
+    }
+    assert client("POST", "/interactions", json=payload).status_code == 201
+    response = client("POST", "/interactions", json=payload)
+    assert response.status_code == 201
+    decision = response.json()["decision"]
+    assert decision["adaptation_path"] == "misconception_remediation"
+    assert decision["selected_activity_id"] == "conversion_steps"
+    assert decision["selected_concept_id"] == "mixed_numbers"

@@ -18,13 +18,15 @@ from app.evaluation.learning_effects import (
 from app.evaluation.metrics import condition_metrics, learner_metrics
 from app.evaluation.ml_metrics import synthetic_ml_metrics
 from app.evaluation.policy import EvaluationPolicy
-from app.evaluation.simulator import run_experiment
+from app.evaluation.response_simulator import simulate_response
+from app.evaluation.simulator import misconception_ids_by_concept, run_experiment
 from app.evaluation.statistics import (
     bootstrap_confidence_interval,
     cohens_d,
     paired_bootstrap_difference,
 )
 from app.evaluation.suite import run_suite
+from app.misconceptions.rules import load_rules
 from app.models.question import Question
 from app.offline.content_availability import OfflineAvailability
 from app.schemas.interactions import InteractionCreate
@@ -216,9 +218,79 @@ def test_cross_concept_effect_updates_only_selected_concept() -> None:
     assert latent["prerequisite"] == after
 
 
-def test_matching_remediation_reduces_synthetic_misconception() -> None:
-    assert apply_misconception_remediation(0.6, True) == 0.3
-    assert apply_misconception_remediation(0.6, False) == 0.6
+def test_misconception_state_uses_ids_not_concepts() -> None:
+    mapping = misconception_ids_by_concept(load_rules())
+    assert "adds_denominators" in mapping["fraction_addition"]
+    assert "incorrect_common_denominator" in mapping["fraction_addition"]
+    identifiers = {identifier for values in mapping.values() for identifier in values}
+    assert "fraction_addition" not in identifiers
+
+
+def test_matching_remediation_reduces_only_matching_id() -> None:
+    misconceptions = {"adds_denominators": 0.6, "incorrect_common_denominator": 0.3}
+    before, after, matched = apply_misconception_remediation(
+        misconceptions,
+        "adds_denominators",
+        {"adds_denominators"},
+    )
+    assert (before, after, matched) == (0.6, 0.3, True)
+    assert misconceptions == {
+        "adds_denominators": 0.3,
+        "incorrect_common_denominator": 0.3,
+    }
+
+
+def test_nonmatching_remediation_does_not_reduce_intensity() -> None:
+    misconceptions = {"adds_denominators": 0.6}
+    result = apply_misconception_remediation(
+        misconceptions,
+        "adds_denominators",
+        {"incorrect_common_denominator"},
+    )
+    assert result == (0.6, 0.6, False)
+    assert misconceptions["adds_denominators"] == 0.6
+
+
+def test_multiple_misconceptions_remain_independent() -> None:
+    misconceptions = {"m1": 0.7, "m2": 0.3}
+    apply_misconception_remediation(misconceptions, "m1", {"m1", "m2"})
+    assert misconceptions == {"m1": 0.35, "m2": 0.3}
+
+
+def test_response_simulator_reports_synthetic_misconception_id() -> None:
+    response = simulate_response(
+        skill=0.0,
+        mastery=0.0,
+        difficulty=4.0,
+        hints=0.0,
+        misconception={"adds_denominators": 1.0},
+        speed=1.0,
+        rng=np.random.default_rng(7),
+    )
+    assert not response.correct
+    assert response.synthetic_misconception_id == "adds_denominators"
+
+
+def test_system_and_synthetic_misconception_ids_are_separate(tmp_path) -> None:
+    config = ExperimentConfig(
+        learner_count=1,
+        interactions_per_learner=2,
+        output_dir=str(tmp_path / "artifacts"),
+        learner_profile_distribution={"misconception_heavy": 1.0},
+        bootstrap_samples=100,
+    )
+    frame = pd.read_parquet(run_experiment(config) / "interactions.parquet")
+    assert "system_detected_misconception_id" in frame
+    assert "synthetic_true_misconception_id" in frame
+    assert frame.system_detected_misconception_id is not frame.synthetic_true_misconception_id
+
+
+def test_resolution_threshold_is_per_misconception() -> None:
+    misconceptions = {"m1": 0.3, "m2": 0.1}
+    before, after, matched = apply_misconception_remediation(misconceptions, "m1", {"m1"})
+    resolved = before is not None and after is not None and before >= 0.2 and after < 0.2
+    assert matched and resolved
+    assert misconceptions["m2"] == 0.1
 
 
 def _metric_frames():
@@ -236,8 +308,11 @@ def _metric_frames():
                 "measured_total_adaptive_latency_ms": 2.0,
                 "estimated_computational_cost_ms": 3.0,
                 "misconception_id": None,
-                "synthetic_misconception_before": 0.0,
-                "synthetic_misconception_after": 0.0,
+                "system_detected_misconception_id": None,
+                "synthetic_true_misconception_id": None,
+                "synthetic_misconception_before": None,
+                "synthetic_misconception_after": None,
+                "synthetic_misconception_matched_remediation": False,
                 "synthetic_misconception_resolved": False,
                 "event_code": "recommendation_success",
                 "matching_offline_activity_ids": "[]",
@@ -250,12 +325,15 @@ def _metric_frames():
                 "resource_score": 0.6,
                 "offline": False,
                 "fallback_used": True,
-                "actual_adaptation_path": "bkt_based_recommendation",
+                "actual_adaptation_path": "misconception_remediation",
                 "measured_total_adaptive_latency_ms": 4.0,
                 "estimated_computational_cost_ms": 5.0,
                 "misconception_id": "m",
+                "system_detected_misconception_id": "m",
+                "synthetic_true_misconception_id": "m",
                 "synthetic_misconception_before": 0.3,
                 "synthetic_misconception_after": 0.1,
+                "synthetic_misconception_matched_remediation": True,
                 "synthetic_misconception_resolved": True,
                 "event_code": "fallback",
                 "matching_offline_activity_ids": "[]",
@@ -293,7 +371,20 @@ def test_true_multiconcept_initial_gain_threshold_and_cost_metrics() -> None:
     assert learner.estimated_total_compute_cost_ms == 8.0
     summary = condition_metrics(interactions, concepts, 0.8)
     assert summary["misconception_resolution_rate"] == 1.0
+    assert summary["synthetic_misconception_resolution_rate"] == 1.0
+    assert summary["matched_remediation_rate"] == 1.0
+    assert summary["system_detection_rate"] == 0.5
     assert summary["fallback_rate"] == 0.5
+
+
+def test_misconception_metrics_use_id_level_events() -> None:
+    interactions, concepts = _metric_frames()
+    learner = learner_metrics(interactions, concepts, 0.8).iloc[0]
+    assert learner.synthetic_misconceptions_triggered == 1
+    assert learner.synthetic_misconceptions_resolved == 1
+    assert learner.system_misconceptions_detected == 1
+    assert learner.matched_remediation_count == 1
+    assert learner.unmatched_remediation_count == 0
 
 
 def test_synthetic_ml_metrics_are_temporally_aligned_and_exact() -> None:
@@ -390,6 +481,7 @@ def test_multi_seed_suite_writes_aggregate_statistics_plots_and_tables(tmp_path)
         interactions_per_learner=2,
         output_dir=str(tmp_path / "artifacts"),
         learner_profile_distribution={"mixed": 1.0},
+        bootstrap_samples=100,
     )
     directory = run_suite(config, ("full", "no_ml"), [3])
     for filename in (
@@ -399,8 +491,16 @@ def test_multi_seed_suite_writes_aggregate_statistics_plots_and_tables(tmp_path)
         "paired_comparisons.csv",
     ):
         assert (directory / filename).exists()
-    assert (directory / "plots" / "mean_final_mastery.png").exists()
+    for plot in (
+        "mean_final_mastery",
+        "misconception_resolution_rate",
+        "ablation_mastery_delta",
+        "ml_calibration_curve",
+    ):
+        assert (directory / "plots" / f"{plot}.png").exists()
+        assert (directory / "plots" / f"{plot}.pdf").exists()
     assert (directory / "tables" / "main_comparison.tex").exists()
     summary = json.loads((directory / "suite_summary.json").read_text())
     assert summary["simulated_results"] is True
     assert summary["educational_effectiveness_validated"] is False
+    assert summary["bootstrap_samples"] == 100

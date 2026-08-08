@@ -22,9 +22,12 @@ def learner_metrics(
         concepts = concept_outcomes.loc[concept_outcomes.synthetic_learner_id == learner_id]
         threshold = ordered.loc[ordered.system_mean_mastery_after >= mastery_threshold, "step"]
         paths = ordered.actual_adaptation_path
-        misconception_events = ordered.loc[ordered.misconception_id.notna()]
-        triggered = int(len(misconception_events))
+        synthetic_triggered = int(ordered.synthetic_true_misconception_id.notna().sum())
         resolved = int(ordered.synthetic_misconception_resolved.sum())
+        system_detected = int(ordered.system_detected_misconception_id.notna().sum())
+        remediation = ordered.actual_adaptation_path.eq("misconception_remediation")
+        matched = int(ordered.synthetic_misconception_matched_remediation.sum())
+        unmatched = int((remediation & ~ordered.synthetic_misconception_matched_remediation).sum())
         costs = ordered.estimated_computational_cost_ms.astype(float)
         latencies = ordered.measured_total_adaptive_latency_ms.astype(float)
         initial_mean = float(concepts.initial_system_mastery.mean())
@@ -47,9 +50,19 @@ def learner_metrics(
                 "interactions_to_mastery_threshold": (
                     int(threshold.iloc[0] + 1) if len(threshold) else None
                 ),
-                "misconceptions_triggered": triggered,
+                "synthetic_misconceptions_triggered": synthetic_triggered,
+                "synthetic_misconceptions_resolved": resolved,
+                "synthetic_misconception_resolution_rate": (
+                    resolved / synthetic_triggered if synthetic_triggered else None
+                ),
+                "system_misconceptions_detected": system_detected,
+                "matched_remediation_count": matched,
+                "unmatched_remediation_count": unmatched,
+                "misconceptions_triggered": synthetic_triggered,
                 "misconceptions_resolved": resolved,
-                "misconception_resolution_rate": resolved / triggered if triggered else None,
+                "misconception_resolution_rate": (
+                    resolved / synthetic_triggered if synthetic_triggered else None
+                ),
                 "mean_response_time": float(ordered.response_time_ms.mean()),
                 "mean_resource_score": float(ordered.resource_score.mean()),
                 "offline_interaction_rate": float(ordered.offline.mean()),
@@ -77,7 +90,12 @@ def condition_metrics(
     paths = interactions.actual_adaptation_path
     events = interactions.event_code
     threshold_steps = learners.interactions_to_mastery_threshold.dropna()
-    misconception_rates = learners.misconception_resolution_rate.dropna()
+    synthetic_triggered = int(interactions.synthetic_true_misconception_id.notna().sum())
+    synthetic_resolved = int(interactions.synthetic_misconception_resolved.sum())
+    remediation = interactions.actual_adaptation_path.eq("misconception_remediation")
+    matched_remediation = int(interactions.synthetic_misconception_matched_remediation.sum())
+    remediation_count = int(remediation.sum())
+    system_detected = int(interactions.system_detected_misconception_id.notna().sum())
     offline = interactions.offline.astype(bool)
     offline_misses = events.eq("offline_content_miss") & offline
     return {
@@ -91,9 +109,16 @@ def condition_metrics(
         "mean_initial_synthetic_mastery": float(learners.initial_mean_synthetic_mastery.mean()),
         "mean_final_synthetic_mastery": float(learners.final_mean_synthetic_mastery.mean()),
         "mean_synthetic_mastery_gain": float(learners.synthetic_mastery_gain.mean()),
-        "misconception_resolution_rate": (
-            float(misconception_rates.mean()) if not misconception_rates.empty else None
+        "synthetic_misconception_resolution_rate": (
+            synthetic_resolved / synthetic_triggered if synthetic_triggered else None
         ),
+        "misconception_resolution_rate": (
+            synthetic_resolved / synthetic_triggered if synthetic_triggered else None
+        ),
+        "matched_remediation_rate": (
+            matched_remediation / remediation_count if remediation_count else None
+        ),
+        "system_detection_rate": system_detected / len(interactions),
         "path_distribution": paths.value_counts(normalize=True).to_dict(),
         "fallback_rate": float(interactions.fallback_used.mean()),
         "ml_usage_rate": float((paths == "lightweight_ml_recommendation").mean()),

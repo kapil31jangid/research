@@ -1,0 +1,22 @@
+{
+  "experiment_name": "final-study",
+  "random_seed": 11,
+  "learner_count": 500,
+  "interactions_per_learner": 40,
+  "condition": "full",
+  "learner_profile_distribution": {
+    "strong": 0.10,
+    "average": 0.20,
+    "struggling": 0.15,
+    "misconception_heavy": 0.20,
+    "slow_responder": 0.10,
+    "high_hint_usage": 0.05,
+    "forgetful": 0.05,
+    "offline_constrained": 0.075,
+    "low_resource": 0.075
+  },
+  "output_dir": "artifacts/experiments",
+  "max_interactions_without_override": 100000,
+  "bootstrap_samples": 10000,
+  "suite_workers": 8
+}

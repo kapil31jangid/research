@@ -28,6 +28,16 @@ def apply_recommendation_learning(
     return before, after
 
 
-def apply_misconception_remediation(intensity: float, matched: bool) -> float:
-    """Model a simulator-only reduction for correctly matched remediation."""
-    return max(0.0, intensity * 0.5) if matched else intensity
+def apply_misconception_remediation(
+    misconceptions: dict[str, float],
+    misconception_id: str | None,
+    activity_misconception_ids: set[str],
+) -> tuple[float | None, float | None, bool]:
+    """Reduce only the exact simulator-ground-truth misconception matched by content."""
+    if misconception_id is None or misconception_id not in misconceptions:
+        return None, None, False
+    before = misconceptions[misconception_id]
+    matched = misconception_id in activity_misconception_ids
+    after = max(0.0, before * 0.5) if matched else before
+    misconceptions[misconception_id] = after
+    return before, after, matched

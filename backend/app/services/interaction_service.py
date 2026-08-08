@@ -250,6 +250,10 @@ def process_interaction(
         graph = build_graph(load_concepts())
         recommendation_focus_id = question.concept_id
         static_preferred_activity_id = None
+        if decision.adaptation_path == "misconception_remediation" and misconception:
+            remediation_activity = db.get(LearningActivity, misconception.remediation_activity)
+            if remediation_activity is not None:
+                recommendation_focus_id = remediation_activity.concept_id
         if not policy.enable_adaptation:
             static_activities = sorted(
                 (

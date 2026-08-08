@@ -37,12 +37,39 @@ probabilities are matched to the next observed assessment of the recommended con
 so reported Brier, log-loss, ROC-AUC, accuracy and calibration are temporally aligned
 synthetic diagnostics only.
 
+`bootstrap_samples` is part of the typed experiment configuration and is recorded in
+run and suite provenance. The smoke configuration uses 200 resamples to keep
+verification quick; `final_study.json` uses 10,000 resamples for aggregate and paired
+intervals.
+Independent condition/seed databases can be executed concurrently using the recorded
+`suite_workers` setting. Smoke and CI keep the default of one; the final eight-core
+study configuration uses eight workers without sharing database state.
+
 ```bash
 .venv/bin/python -m app.evaluation.cli run-ablation-suite \
   --config experiments/configs/smoke.json --seeds 11 22
 .venv/bin/python -m app.evaluation.cli summarize \
   --experiment artifacts/experiments/<run-or-suite>
 ```
+
+The documented serious synthetic study uses 500 learners, 40 interactions, seeds
+11/22/33/44/55, and the nine standard conditions. It exceeds the normal workload
+guard intentionally:
+
+```bash
+.venv/bin/python -m app.evaluation.cli run-ablation-suite \
+  --config experiments/configs/final_study.json \
+  --seeds 11 22 33 44 55 \
+  --allow-large-run
+```
+
+Synthetic misconception ground truth is keyed by the real rule identifier, not by
+concept. A response records the selected synthetic misconception independently from
+the system detector. Remediation reduces an intensity only when the selected activity
+declares that exact identifier; resolution is the per-ID crossing from at or above
+the configured threshold to below it. Exports distinguish
+`synthetic_true_misconception_id` from `system_detected_misconception_id` and report
+matched and unmatched remediation counts with safe denominators.
 
 The CLI refuses workloads beyond `max_interactions_without_override` unless
 `--allow-large-run` is explicitly supplied. Run and suite metadata include config

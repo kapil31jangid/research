@@ -32,6 +32,23 @@ def _bar_plot(frame: pd.DataFrame, value: str, title: str, ylabel: str, path: Pa
     plt.close(figure)
 
 
+def _unavailable_plot(title: str, path: Path) -> None:
+    """Write an honest placeholder when a conditional metric is undefined."""
+    figure, axis = plt.subplots(figsize=(7, 4))
+    axis.axis("off")
+    axis.set_title(title)
+    axis.text(
+        0.5,
+        0.5,
+        "Metric undefined for this synthetic run",
+        ha="center",
+        va="center",
+    )
+    for extension in ("png", "pdf"):
+        figure.savefig(path.with_suffix(f".{extension}"), bbox_inches="tight", dpi=160)
+    plt.close(figure)
+
+
 def write_suite_plots(
     seed_metrics: pd.DataFrame,
     paired: pd.DataFrame,
@@ -69,25 +86,34 @@ def write_suite_plots(
         ),
     )
     for field, title, ylabel in figures:
-        if field in grouped:
+        if field in grouped and grouped[field].notna().any():
             _bar_plot(grouped, field, title, ylabel, plots / field)
-    if not paired.empty:
-        for metric, filename in (
-            ("mean_mastery_gain", "ablation_mastery_delta"),
-            ("mean_latency", "ablation_latency_delta"),
-            ("mean_estimated_compute_cost_ms", "ablation_compute_delta"),
-        ):
+        else:
+            _unavailable_plot(title, plots / field)
+    for metric, filename in (
+        ("mean_mastery_gain", "ablation_mastery_delta"),
+        ("mean_latency", "ablation_latency_delta"),
+        ("mean_estimated_compute_cost_ms", "ablation_compute_delta"),
+    ):
+        if not paired.empty:
             frame = paired.loc[paired.metric == metric].rename(
                 columns={"comparison_condition": "condition", "mean_difference": metric}
             )
-            if not frame.empty:
-                _bar_plot(
-                    frame,
-                    metric,
-                    f"Synthetic experiment: {metric} ablation difference",
-                    "Full minus ablation",
-                    plots / filename,
-                )
+        else:
+            frame = pd.DataFrame()
+        if not frame.empty:
+            _bar_plot(
+                frame,
+                metric,
+                f"Synthetic experiment: {metric} ablation difference",
+                "Full minus ablation",
+                plots / filename,
+            )
+        else:
+            _unavailable_plot(
+                f"Synthetic experiment: {metric} ablation difference",
+                plots / filename,
+            )
     for group_field, filename, title in (
         (
             "condition",

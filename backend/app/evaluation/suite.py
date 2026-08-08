@@ -1,6 +1,7 @@
 """Multi-condition, multi-seed execution and aggregate research artifacts."""
 
 import json
+from concurrent.futures import ProcessPoolExecutor
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -39,6 +40,13 @@ PAIRED_METRICS = (
 )
 
 
+def _execute_run(job: tuple[dict[str, object], str, int]) -> str:
+    """Execute one isolated condition/seed run in a worker process."""
+    config_data, condition, seed = job
+    base = ExperimentConfig.model_validate(config_data | {"random_seed": seed})
+    return str(run_experiment(condition_config(base, condition)))
+
+
 def run_suite(
     config: ExperimentConfig,
     conditions: tuple[str, ...],
@@ -50,24 +58,25 @@ def run_suite(
     records: list[dict[str, object]] = []
     interaction_frames: list[pd.DataFrame] = []
     matched_frames: list[pd.DataFrame] = []
-    for seed in seeds:
-        for condition in conditions:
-            run_config = condition_config(
-                ExperimentConfig.model_validate(config.model_dump() | {"random_seed": seed}),
-                condition,
-            )
-            run_directory = run_experiment(run_config)
-            records.append(
-                json.loads((run_directory / "summary.json").read_text(encoding="utf-8"))
-                | {"run_directory": str(run_directory)}
-            )
-            interaction_frame = pd.read_parquet(run_directory / "interactions.parquet")
-            interaction_frame["run_directory"] = str(run_directory)
-            interaction_frames.append(interaction_frame)
-            matched = matched_prediction_outcomes(interaction_frame)
-            if not matched.empty:
-                matched["condition"] = condition
-                matched_frames.append(matched)
+    jobs = [(config.model_dump(), condition, seed) for seed in seeds for condition in conditions]
+    if config.suite_workers == 1:
+        run_directories = [_execute_run(job) for job in jobs]
+    else:
+        with ProcessPoolExecutor(max_workers=config.suite_workers) as executor:
+            run_directories = list(executor.map(_execute_run, jobs))
+    for run_directory_text in run_directories:
+        run_directory = Path(run_directory_text)
+        records.append(
+            json.loads((run_directory / "summary.json").read_text(encoding="utf-8"))
+            | {"run_directory": str(run_directory)}
+        )
+        interaction_frame = pd.read_parquet(run_directory / "interactions.parquet")
+        interaction_frame["run_directory"] = str(run_directory)
+        interaction_frames.append(interaction_frame)
+        matched = matched_prediction_outcomes(interaction_frame)
+        if not matched.empty:
+            matched["condition"] = interaction_frame["condition"].iloc[0]
+            matched_frames.append(matched)
     seed_metrics = pd.DataFrame(records)
     seed_metrics.to_csv(directory / "seed_metrics.csv", index=False)
     numeric = [
@@ -81,7 +90,9 @@ def run_suite(
             values = group[metric].dropna().astype(float).tolist()
             if not values:
                 continue
-            low, high = bootstrap_confidence_interval(values, config.random_seed, samples=500)
+            low, high = bootstrap_confidence_interval(
+                values, config.random_seed, samples=config.bootstrap_samples
+            )
             aggregate_rows.append(
                 {
                     "condition": condition,
@@ -113,7 +124,10 @@ def run_suite(
             reference = valid[left].astype(float).tolist()
             comparison = valid[right].astype(float).tolist()
             difference, low, high = paired_bootstrap_difference(
-                reference, comparison, config.random_seed, samples=500
+                reference,
+                comparison,
+                config.random_seed,
+                samples=config.bootstrap_samples,
             )
             paired_rows.append(
                 {
@@ -138,6 +152,8 @@ def run_suite(
         "conditions": list(conditions),
         "seeds": seeds,
         "run_count": len(records),
+        "bootstrap_samples": config.bootstrap_samples,
+        "suite_workers": config.suite_workers,
     }
     (directory / "suite_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     combined_interactions = pd.concat(interaction_frames, ignore_index=True)

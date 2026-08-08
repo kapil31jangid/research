@@ -1,1 +1,11 @@
-{"experiment_name":"smoke","random_seed":42,"learner_count":2,"interactions_per_learner":3,"condition":"full","learner_profile_distribution":{"mixed":1.0},"output_dir":"artifacts/experiments","max_interactions_without_override":10000}
+{
+  "experiment_name": "smoke",
+  "random_seed": 42,
+  "learner_count": 2,
+  "interactions_per_learner": 5,
+  "condition": "full",
+  "learner_profile_distribution": {"misconception_heavy": 1.0},
+  "output_dir": "artifacts/experiments",
+  "max_interactions_without_override": 10000,
+  "bootstrap_samples": 200
+}

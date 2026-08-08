@@ -61,6 +61,15 @@ Run a multi-seed semantic ablation suite with:
   --config experiments/configs/smoke.json --seeds 11 22
 ```
 
+The smoke config uses 200 bootstrap resamples. The serious synthetic study config
+uses 10,000 resamples, 500 learners, 40 interactions, and five seeds:
+
+```bash
+.venv/bin/python -m app.evaluation.cli run-ablation-suite \
+  --config experiments/configs/final_study.json \
+  --seeds 11 22 33 44 55 --allow-large-run
+```
+
 Runs keep system-estimate and simulator-latent mastery separate, save per-concept
 initial/final snapshots, align candidate predictions with later assessments, and
 produce bootstrap aggregates, paired comparisons, PNG/PDF plots, and portable tables.

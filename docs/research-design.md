@@ -24,8 +24,16 @@ The simulator maintains two intentionally separate state systems. System mastery
 RAPID-Learn's estimated state; synthetic mastery is simulator ground truth used to
 generate responses and apply independent learning effects. Cross-concept
 recommendations update only the selected concept's synthetic state. Synthetic
-misconception intensity is tracked separately and may decrease after matching
-remediation, allowing a clearly labelled simulation proxy for resolution.
+misconception intensity is tracked independently for each real misconception-rule
+ID. The response generator records the active synthetic ID without copying the
+system detector's result. A remediation changes only the exact ID declared by the
+selected activity, and resolution is measured per ID using the configured intensity
+threshold. These remain simulator assumptions and provide only a clearly labelled
+system-behaviour proxy for resolution.
+
+Bootstrap confidence intervals and paired comparisons take their resample count from
+the serialised experiment configuration. Smoke runs use 200 samples; the documented
+five-seed study uses 10,000 so provenance captures the exact statistical procedure.
 
 ## Measures and validity
 

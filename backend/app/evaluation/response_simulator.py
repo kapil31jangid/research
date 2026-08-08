@@ -11,6 +11,7 @@ class SyntheticResponse:
     response_time_ms: int
     hints_used: int
     synthetic_true_correct_probability: float
+    synthetic_misconception_id: str | None = None
 
 
 def simulate_response(
@@ -18,24 +19,38 @@ def simulate_response(
     mastery: float,
     difficulty: float,
     hints: float,
-    misconception: float,
+    misconception: float | dict[str, float],
     speed: float,
     rng: np.random.Generator,
 ) -> SyntheticResponse:
+    misconception_id = None
+    misconception_penalty = float(misconception) if not isinstance(misconception, dict) else 0.0
+    if isinstance(misconception, dict) and misconception:
+        identifiers = sorted(misconception)
+        intensities = np.asarray([misconception[item] for item in identifiers], dtype=float)
+        total = float(intensities.sum())
+        if total > 0:
+            candidate = str(rng.choice(identifiers, p=intensities / total))
+            intensity = float(misconception[candidate])
+            if rng.random() < intensity:
+                misconception_id = candidate
+                misconception_penalty = intensity
     logit = (
         -1.0
         + 2.2 * skill
         + 2.0 * mastery
         - 0.55 * difficulty
-        - 1.0 * misconception
+        - 1.0 * misconception_penalty
         + 0.25 * hints
         + rng.normal(0, 0.25)
     )
     probability = float(1 / (1 + np.exp(-logit)))
     used_hints = int(rng.random() < hints)
+    correct = bool(rng.random() < probability)
     return SyntheticResponse(
-        bool(rng.random() < probability),
+        correct,
         int(max(100, rng.lognormal(7.0, 0.35) * speed)),
         used_hints,
         probability,
+        misconception_id if not correct else None,
     )
