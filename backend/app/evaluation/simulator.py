@@ -12,10 +12,12 @@ import app.models  # noqa: F401
 from app.database.base import Base
 from app.database.seed import seed_database
 from app.evaluation.config import ExperimentConfig
+from app.evaluation.plots import write_plots
 from app.evaluation.provenance import collect_provenance
 from app.evaluation.resource_simulator import simulate_resource
 from app.evaluation.response_simulator import simulate_response
 from app.evaluation.synthetic_learners import generate_learners
+from app.evaluation.tables import write_condition_table
 from app.models.learner import Learner
 from app.models.question import Question
 from app.schemas.interactions import InteractionCreate
@@ -171,4 +173,6 @@ def run_experiment(config: ExperimentConfig) -> Path:
         json.dumps(collect_provenance(), indent=2), encoding="utf-8"
     )
     (directory / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    write_condition_table(interactions, directory)
+    write_plots(interactions, directory)
     return directory
