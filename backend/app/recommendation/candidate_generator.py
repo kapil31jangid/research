@@ -36,6 +36,7 @@ def generate_candidates(
     allowed_activity_ids: set[str] | None = None,
     preferred_activity_id: str | None = None,
     activities: list[LearningActivity] | None = None,
+    uncertainty_enabled: bool = True,
 ) -> list[ActivityCandidate]:
     """Rank source concepts by need and expose their distinct available activities."""
     ordered_states = sorted(
@@ -82,7 +83,7 @@ def generate_candidates(
                     expected_learning_gain=1.0 - state.mastery_probability,
                     prerequisite_relevance=1.0 if state.concept_id == focus_concept_id else 0.4,
                     retention_need=1.0 - state.mastery_probability,
-                    information_gain=state.uncertainty,
+                    information_gain=state.uncertainty if uncertainty_enabled else 0.0,
                     misconception_relevance=(
                         state.misconception_confidence
                         if adaptation_path == "misconception_remediation"

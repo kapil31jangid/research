@@ -75,6 +75,8 @@ def generate_recommendation(
     preferred_activity_id: str | None = None,
     matching_offline_activity_ids: list[str] | None = None,
     offline_content_reason: str | None = None,
+    uncertainty_enabled: bool = True,
+    forgetting_enabled: bool = True,
 ) -> RecommendationRead:
     """Score candidates, retain at least three alternatives when available, and persist."""
     concepts = {concept.id: concept for concept in db.scalars(select(Concept))}
@@ -97,6 +99,7 @@ def generate_recommendation(
         allowed_activity_ids,
         preferred_activity_id,
         activities,
+        uncertainty_enabled,
     )
     if not candidates:
         candidates = generate_candidates(
@@ -108,6 +111,7 @@ def generate_recommendation(
             allowed_activity_ids,
             preferred_activity_id,
             activities,
+            uncertainty_enabled,
         )
     candidate_probabilities = candidate_probabilities or {}
     if decision.adaptation_path == "lightweight_ml_recommendation" and not candidate_probabilities:
@@ -131,6 +135,8 @@ def generate_recommendation(
                     ),
                     resource_score=controller_input.resource.score,
                     now=now,
+                    forgetting_enabled=forgetting_enabled,
+                    uncertainty_enabled=uncertainty_enabled,
                 )
             )
     candidates = [

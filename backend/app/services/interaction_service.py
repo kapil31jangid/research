@@ -9,11 +9,12 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.assessment.answer_evaluator import answers_equivalent
-from app.controller.policy import ControllerInput, decide_adaptation
+from app.controller.policy import ControllerDecision, ControllerInput, decide_adaptation
 from app.core.config import get_settings
 from app.curriculum.graph import build_graph, prerequisite_ids
 from app.curriculum.loader import load_concepts
 from app.curriculum.prerequisites import prerequisite_mastery
+from app.evaluation.policy import EvaluationPolicy
 from app.learner_model.bkt import update_mastery
 from app.learner_model.response_time import update_response_time_statistics
 from app.learner_model.state import parameters_for_concept
@@ -97,7 +98,10 @@ def _create_interaction_record(
 
 
 def process_interaction(
-    payload: InteractionCreate, question: Question, db: Session
+    payload: InteractionCreate,
+    question: Question,
+    db: Session,
+    evaluation_policy: EvaluationPolicy | None = None,
 ) -> ProcessedInteraction:
     """Run validation, BKT update, misconception detection, controller, and recommendation."""
     total_started = perf_counter_ns()
@@ -111,11 +115,16 @@ def process_interaction(
         interaction = _create_interaction_record(payload, question, correct, resource)
         db.add(interaction)
         previous = state.attempts
-        state.mastery_probability = update_mastery(
-            state.mastery_probability,
-            correct,
-            parameters_for_concept(question.concept_id, question.difficulty),
-        )
+        policy = evaluation_policy or EvaluationPolicy()
+        if policy.enable_bkt:
+            state.mastery_probability = update_mastery(
+                state.mastery_probability,
+                correct,
+                parameters_for_concept(question.concept_id, question.difficulty),
+            )
+        else:
+            new_attempts = state.attempts + 1
+            state.mastery_probability = (state.correct_attempts + int(correct)) / new_attempts
         state.attempts += 1
         state.correct_attempts += int(correct)
         correctness = (json.loads(state.recent_correctness) + [correct])[-8:]
@@ -163,24 +172,29 @@ def process_interaction(
                 select(Question).where(Question.id.in_([item.question_id for item in recent]))
             )
         }
-        detections = detect_misconceptions(
-            [
-                InteractionEvidence(
-                    item.concept_id,
-                    item.correct,
-                    patterns.get(item.question_id, []),
-                    item.created_at
-                    if item.created_at.tzinfo
-                    else item.created_at.replace(tzinfo=UTC),
-                )
-                for item in recent
-            ],
-            load_rules(),
-            get_settings(),
+        detections = (
+            detect_misconceptions(
+                [
+                    InteractionEvidence(
+                        item.concept_id,
+                        item.correct,
+                        patterns.get(item.question_id, []),
+                        item.created_at
+                        if item.created_at.tzinfo
+                        else item.created_at.replace(tzinfo=UTC),
+                    )
+                    for item in recent
+                ],
+                load_rules(),
+                get_settings(),
+            )
+            if policy.enable_misconceptions
+            else []
         )
         misconception = detections[0] if detections else None
-        state.suspected_misconception = misconception.id if misconception else None
-        state.misconception_confidence = misconception.confidence if misconception else 0.0
+        if policy.enable_misconceptions:
+            state.suspected_misconception = misconception.id if misconception else None
+            state.misconception_confidence = misconception.confidence if misconception else 0.0
         controller_started = perf_counter_ns()
         mastery = {item.concept_id: item.mastery_probability for item in states}
         availability = resolve_offline_availability(
@@ -190,18 +204,39 @@ def process_interaction(
             "misconception_remediation" if misconception else "cached_offline_recommendation",
             misconception.id if misconception else None,
         )
+        if not policy.enable_offline_adaptation:
+            availability = replace(availability, available=False, matching_activity_ids=[])
         model_registry = get_response_predictor_registry()
+        controller_resource = resource
+        if not policy.enable_resource_awareness:
+            controller_resource = snapshot_from_measurements(
+                8000, 8192, 5, 100, True, True, 1.0, 10_000, 1.0
+            )
         controller_input = ControllerInput(
-            state.misconception_confidence,
+            state.misconception_confidence if policy.enable_misconceptions else 0.0,
             prerequisite_mastery(build_graph(load_concepts()), question.concept_id, mastery),
-            state.uncertainty,
-            serialise_state(state).retained_mastery,
+            state.uncertainty if policy.enable_uncertainty else 0.0,
+            serialise_state(state).retained_mastery
+            if policy.enable_forgetting
+            else state.mastery_probability,
             sum(item.attempts for item in states),
-            resource,
+            controller_resource,
             offline_cache_available=availability.available,
-            ml_model_available=model_registry.is_available(),
+            ml_model_available=model_registry.is_available() if policy.enable_ml else False,
         )
-        decision = decide_adaptation(controller_input)
+        decision = (
+            decide_adaptation(controller_input)
+            if policy.enable_adaptation
+            else ControllerDecision(
+                adaptation_path="rule_based_recommendation",
+                reason="Evaluation static baseline follows curriculum order only.",
+                triggered_rules=["evaluation_static_baseline"],
+                rejected_paths=[],
+                estimated_computational_cost_ms=1.0,
+                decision_confidence=1.0,
+                resource_score=controller_resource.score,
+            )
+        )
         controller_latency = (perf_counter_ns() - controller_started) / 1_000_000
         recommendation_started = perf_counter_ns()
         requested_path = decision.adaptation_path
@@ -214,6 +249,25 @@ def process_interaction(
         fallback_reason = None
         graph = build_graph(load_concepts())
         recommendation_focus_id = question.concept_id
+        static_preferred_activity_id = None
+        if not policy.enable_adaptation:
+            static_activities = sorted(
+                (
+                    activity
+                    for activity in db.scalars(
+                        select(LearningActivity).where(
+                            LearningActivity.concept_id == question.concept_id,
+                            LearningActivity.is_active.is_(True),
+                            LearningActivity.deprecated_at.is_(None),
+                        )
+                    )
+                    if "rule_based_recommendation" in json.loads(activity.adaptation_paths)
+                ),
+                key=lambda activity: activity.id,
+            )
+            if static_activities:
+                index = (controller_input.interaction_count - 1) % len(static_activities)
+                static_preferred_activity_id = static_activities[index].id
         if decision.adaptation_path == "prerequisite_review":
             required = prerequisite_ids(graph, question.concept_id)
             if required:
@@ -241,10 +295,12 @@ def process_interaction(
                 preferred_activity_id=(
                     misconception.remediation_activity
                     if decision.adaptation_path == "misconception_remediation" and misconception
-                    else None
+                    else static_preferred_activity_id
                 ),
                 matching_offline_activity_ids=availability.matching_activity_ids,
                 offline_content_reason=availability.reason,
+                uncertainty_enabled=policy.enable_uncertainty,
+                forgetting_enabled=policy.enable_forgetting,
             )
 
         try:

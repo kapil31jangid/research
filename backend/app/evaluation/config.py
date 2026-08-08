@@ -35,6 +35,8 @@ class ExperimentConfig(BaseModel):
     output_dir: str = "artifacts/experiments"
     save_interaction_level_data: bool = True
     save_candidate_prediction_summary: bool = True
+    synthetic_misconception_resolution_threshold: float = Field(default=0.2, ge=0.0, le=1.0)
+    max_interactions_without_override: int = Field(default=100_000, gt=0)
     enable_adaptation: bool = True
     enable_bkt: bool = True
     enable_uncertainty: bool = True

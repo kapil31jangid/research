@@ -20,6 +20,8 @@ def build_candidate_prediction_features(
     prerequisite_mastery: float,
     resource_score: float,
     now: datetime,
+    forgetting_enabled: bool = True,
+    uncertainty_enabled: bool = True,
 ) -> ResponsePredictionFeatures:
     """Build the trained feature schema from persisted learner and activity state."""
     current_time = now if now.tzinfo else now.replace(tzinfo=UTC)
@@ -34,13 +36,17 @@ def build_candidate_prediction_features(
     )
     return ResponsePredictionFeatures(
         mastery=learner_state.mastery_probability,
-        retained_mastery=retained_mastery(
-            learner_state.mastery_probability,
-            last_practised,
-            learner_state.forgetting_rate or 0.03,
-            current_time,
+        retained_mastery=(
+            retained_mastery(
+                learner_state.mastery_probability,
+                last_practised,
+                learner_state.forgetting_rate or 0.03,
+                current_time,
+            )
+            if forgetting_enabled
+            else learner_state.mastery_probability
         ),
-        uncertainty=learner_state.uncertainty,
+        uncertainty=learner_state.uncertainty if uncertainty_enabled else 0.0,
         question_difficulty=candidate.difficulty,
         concept_difficulty=float(concept.difficulty),
         recent_correctness=sum(bool(value) for value in recent) / len(recent) if recent else 0.0,
