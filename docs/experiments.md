@@ -1,5 +1,10 @@
 # Experiments
 
+Experiment configurations carry `board_id`, `class_level`, `subject_id`,
+`curriculum_pack_id`, and `curriculum_pack_version`. Defaults intentionally select
+the legacy-compatible NCERT Class 5 Mathematics pack; changing packs requires an
+explicit available pathway and keeps condition runs isolated.
+
 ## Reproducible synthetic harness
 
 The evaluation harness runs deterministic synthetic populations through the real

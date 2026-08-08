@@ -21,10 +21,13 @@ Offline metadata is validated against seeded activity metadata rather than trust
 `POST /learners` accepts:
 
 ```json
-{"name":"Asha","age_group":"10-12","grade":5,"preferred_language":"en","device_profile":"low-end"}
+{"name":"Asha","age_group":"10-12","grade":5,"class_level":5,"board_id":"ncert","active_subject_id":"ncert-c5-mathematics"}
 ```
 
 `GET /learners` lists local profiles. `GET /learners/{learner_id}` returns one profile.
+`PATCH /learners/{learner_id}/pathway` accepts `board_id`, `class_level`,
+`subject_id`, and optional book/chapter IDs. Planned or inconsistent pathways return
+`422`; switching does not delete progress from the previous subject.
 
 `GET /learners/{learner_id}/state` creates missing per-concept state entries on first use and returns current mastery, dynamic retained mastery, uncertainty, evidence, and forgetting parameters. `GET /learners/{learner_id}/progress` returns the same state list with aggregate progress. These endpoints do not yet accept learner interactions; BKT state updates arrive in the adaptive interaction milestone.
 
@@ -40,7 +43,19 @@ Offline metadata is validated against seeded activity metadata rather than trust
 
 ## Curriculum and questions
 
-`GET /concepts`, `GET /concepts/{concept_id}`, and `GET /curriculum/graph` expose the seeded fractions curriculum. `GET /questions?concept_id=fraction_addition&limit=10` lists safe question data; correct answers are never sent by this read API. `GET /questions/{question_id}` returns one question.
+Discovery endpoints are `GET /curriculum/boards`,
+`/curriculum/boards/{board_id}/classes`,
+`/curriculum/boards/{board_id}/classes/{class_level}/subjects`,
+`/curriculum/subjects/{subject_id}/books`,
+`/curriculum/books/{book_id}/chapters`, and
+`/curriculum/chapters/{chapter_id}/concepts`. `GET /concepts/{concept_id}/context`
+returns the compact hierarchy and content-pack version. These metadata endpoints do
+not return lesson bodies.
+
+`GET /concepts`, `GET /concepts/{concept_id}`, and `GET /curriculum/graph` expose all
+seeded concepts. `GET /questions/next` is scoped to the learner's active subject,
+except for an explicitly labelled prerequisite bridge. Question list endpoints never
+send correct answers.
 
 ## Learner activity content
 

@@ -40,3 +40,9 @@ five-seed study uses 10,000 so provenance captures the exact statistical procedu
 Educational measures include accuracy, learning gain, normalised gain, retention, and time to mastery. System measures include latency, memory, CPU, bandwidth, and resource-normalised utility. Threats include synthetic-learner assumptions, rule validity, curriculum scope, device heterogeneity, and the absence of real learner evidence. Current outputs are synthetic simulations only; no statistical or educational claim is made.
 
 Controller records retain requested and actual adaptation paths, triggered/rejected rules, resource and offline state, optional model version/probability, fallback state, and estimated versus measured latency. These fields support auditability, not claims of classroom effectiveness.
+
+Every interaction and recommendation also records compact curriculum identity:
+board, class, subject, book, chapter, concept, and content-pack version. Existing
+experiment configurations default explicitly to the validated Class 5 Mathematics
+pack, preventing Class 5 and Class 6 fixtures from being silently mixed. A run may
+select another available pack through the typed experiment configuration.

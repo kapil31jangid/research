@@ -13,6 +13,14 @@ the versioned source for concepts, questions, and typed learner-facing activity
 documents. NetworkX validates the prerequisite graph, and content integrity checks
 validate every active activity before seeding.
 
+Curriculum metadata follows `Board → Class → Subject → Book → Chapter → Concept`.
+Concept and activity IDs remain stable, so the legacy Class 5 fraction state is
+additively migrated rather than renamed. Learners persist an active board, class,
+subject, book, and chapter. State rows remain concept-specific and are never deleted
+when a pathway changes. Normal selection is subject-scoped; the prerequisite graph
+may deliberately cross chapters and classes, and such recommendations are labelled
+`prerequisite_review`.
+
 ```mermaid
 flowchart LR
   Client --> API[FastAPI routes]
@@ -24,7 +32,8 @@ flowchart LR
 ```
 
 The React PWA renders the activity ID selected by the existing recommendation loop.
-Successful content responses are cached in IndexedDB alongside—not inside—the
+Successful content responses are cached in IndexedDB using board/class/subject/activity
+identity alongside—not inside—the
 interaction queue. When connectivity is lost, content is read by activity ID from
 that cache and submissions remain queued until the browser reconnects. The app shell
 cache is informational and remains distinct from educational-content availability.

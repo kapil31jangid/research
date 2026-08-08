@@ -10,8 +10,8 @@ The project includes:
 
 - a FastAPI and SQLite backend;
 - a React progressive web application with an IndexedDB interaction queue;
-- 24 concise, typed fraction lessons with visual models, worked examples, and
-  checkpoints;
+- versioned NCERT-aligned Class 5 and Class 6 Mathematics packs containing original
+  adaptive lessons, worked examples, visual models, and checkpoints;
 - explicit learning-activity metadata and lifecycle controls;
 - an optional validated response-prediction model with safe BKT fallback;
 - a deterministic synthetic learner and resource simulator;
@@ -309,14 +309,24 @@ artifacts.
 
 ## Architecture and correctness notes
 
+- Curriculum resolves through `Board → Class → Subject → Book → Chapter → Concept →
+  Activity / Question`. Classes 1–12 are represented; only pathways whose registry
+  status is `available` can be selected. Class 5 and Class 6 Mathematics are the
+  currently available packs.
+- Existing concept IDs and learner states remain valid. Learner progress is retained
+  when switching pathways, while questions, dashboards, and recommendations are
+  scoped to the active subject. Explicit prerequisite review may bridge to an earlier
+  class.
+
 - `LearningActivity` is the recommendation source of truth for activity type,
   difficulty, supported paths, offline and bundled availability, computational cost,
   misconception links, and lifecycle state.
 - Learner-facing lesson documents are separate, typed JSON content under
-  `data/activities/fractions/`. Startup validates that every active seeded activity
+  `data/activities/`. Startup validates that every active seeded activity
   has matching content before serving requests.
 - The PWA uses the backend recommendation as the sole source for its next lesson.
-  Opened activity payloads are cached in IndexedDB by activity ID; when offline, the
+  Opened activity payloads are cached in IndexedDB by board, class, subject, and
+  activity ID; when offline, the
   same typed payload is rendered and answer submissions remain in the existing sync
   queue.
 - Inactive or deprecated activities remain readable in historical recommendations
@@ -342,6 +352,8 @@ artifacts.
 
 - `GET /health`
 - `POST /learners`, `GET /learners`, `GET /learners/{learner_id}`
+- `PATCH /learners/{learner_id}/pathway`
+- `GET /curriculum/boards`, board classes, class subjects, subject books, and book chapters
 - `GET /learners/{learner_id}/state`, `/progress`, `/learning-plan`
 - `GET /concepts`, `GET /concepts/{concept_id}`, `GET /curriculum/graph`
 - `GET /questions`, `GET /questions/next`, `GET /questions/{question_id}`
@@ -350,7 +362,7 @@ artifacts.
 - `POST /recommendations/generate`, `GET /recommendations/{learner_id}`
 - `GET /resources/current`, `POST /resources/simulate`
 
-See [API documentation](docs/api.md), [architecture](docs/architecture.md),
+See [curriculum documentation](docs/curriculum.md), [API documentation](docs/api.md), [architecture](docs/architecture.md),
 [research design](docs/research-design.md), and
 [experiment methodology](docs/experiments.md).
 
@@ -365,6 +377,15 @@ See [API documentation](docs/api.md), [architecture](docs/architecture.md),
 - SQLite is intended for this single-device research prototype, not a production
   multi-user deployment.
 - Offline PWA behavior depends on browser service-worker and storage support.
+- Classes and subjects marked `planned` are structural registry entries, not claims
+  that complete instructional content is available.
+
+## Curriculum and copyright notice
+
+RAPID-Learn contains original adaptive instructional material aligned to registered
+curriculum topics. NCERT references are provided for alignment and attribution. The
+repository does not redistribute complete NCERT textbook content, scrape textbooks,
+or describe RAPID-Learn explanations as official NCERT text.
 
 RAPID-Learn should currently be interpreted as a reproducible research software
 prototype, not as a validated educational intervention.
