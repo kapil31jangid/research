@@ -4,6 +4,7 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
@@ -19,6 +20,7 @@ from app.evaluation.response_simulator import simulate_response
 from app.evaluation.synthetic_learners import generate_learners
 from app.evaluation.tables import write_condition_table
 from app.models.learner import Learner
+from app.models.learner_state import LearnerConceptState
 from app.models.question import Question
 from app.schemas.interactions import InteractionCreate
 from app.services.interaction_service import process_interaction
@@ -61,20 +63,23 @@ def run_experiment(config: ExperimentConfig) -> Path:
                 question = questions[
                     (learner_index * config.interactions_per_learner + step) % len(questions)
                 ]
+                resource_profile = (
+                    "high_end"
+                    if not config.enable_resource_awareness
+                    else synthetic.resource_profile
+                )
                 resource = simulate_resource(
-                    synthetic.resource_profile,
-                    __import__("numpy").random.default_rng(
-                        config.random_seed + learner_index * 1000 + step
-                    ),
+                    resource_profile,
+                    np.random.default_rng(config.random_seed + learner_index * 1000 + step),
                     step,
                 )
                 state = next(
                     (
                         item
                         for item in db.scalars(
-                            select(app.models.LearnerConceptState).where(
-                                app.models.LearnerConceptState.learner_id == learner.id,
-                                app.models.LearnerConceptState.concept_id == question.concept_id,
+                            select(LearnerConceptState).where(
+                                LearnerConceptState.learner_id == learner.id,
+                                LearnerConceptState.concept_id == question.concept_id,
                             )
                         )
                     ),
@@ -92,9 +97,7 @@ def run_experiment(config: ExperimentConfig) -> Path:
                     synthetic.hint_probability,
                     synthetic.misconception_tendency,
                     synthetic.response_speed_factor,
-                    __import__("numpy").random.default_rng(
-                        config.random_seed + learner_index * 10000 + step
-                    ),
+                    np.random.default_rng(config.random_seed + learner_index * 10000 + step),
                 )
                 submitted = question.correct_answer if response.correct else "0"
                 payload = InteractionCreate(
@@ -103,7 +106,7 @@ def run_experiment(config: ExperimentConfig) -> Path:
                     submitted_answer=submitted,
                     response_time_ms=response.response_time_ms,
                     hints_used=response.hints_used,
-                    offline=resource.offline,
+                    offline=resource.offline if config.enable_offline_adaptation else False,
                     device_resource_state={
                         key: getattr(resource, key)
                         for key in (
