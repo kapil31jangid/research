@@ -6,7 +6,25 @@ import type {
   LearningSelection,
   Recommendation,
   Resource,
+  CurriculumContext,
 } from "../types";
+
+export const curriculum: CurriculumContext = {
+  board_id: "ncert",
+  board_name: "NCERT",
+  class_level: 5,
+  subject_id: "ncert-c5-mathematics",
+  subject_name: "Mathematics",
+  book_id: "ncert-c5-math-reference",
+  book_title: "Class 5 Mathematics reference",
+  chapter_id: "ncert-c5-math-fractions",
+  chapter_title: "Fractions",
+  concept_id: null,
+  concept_name: null,
+  curriculum_pack_id: "ncert-class-5-mathematics",
+  curriculum_pack_version: "1.0.0",
+  content_origin: "original_adaptive_material",
+};
 
 export const learner: Learner = {
   id: "learner-1",
@@ -17,6 +35,11 @@ export const learner: Learner = {
   device_profile: "test",
   created_at: "2026-08-08T00:00:00Z",
   last_active_at: "2026-08-08T00:00:00Z",
+  board_id: "ncert",
+  class_level: 5,
+  active_subject_id: curriculum.subject_id,
+  active_book_id: curriculum.book_id,
+  active_chapter_id: curriculum.chapter_id,
 };
 
 export const state: ConceptState = {
@@ -64,6 +87,7 @@ export const recommendation: Recommendation = {
   measured_total_adaptive_latency_ms: 1.1,
   controller_mode: "deterministic",
   created_at: "2026-08-08T00:00:00Z",
+  curriculum_context: curriculum,
 };
 
 export const selection: LearningSelection = {
@@ -96,6 +120,7 @@ export const activityContent: ActivityContentResponse = {
     difficulty: 3,
     available_offline: true,
     estimated_minutes: 6,
+    curriculum_context: curriculum,
   },
   content: {
     id: "addition_steps",
@@ -106,6 +131,9 @@ export const activityContent: ActivityContentResponse = {
     estimated_minutes: 6,
     learning_objective: "Add fractions using a common denominator.",
     offline_ready: true,
+    content_origin: "original_adaptive_material",
+    aligned_board: "NCERT",
+    official_reference_url: "https://ncert.nic.in/textbook.php",
     sections: [
       { type: "explanation", heading: "Make sense of it", body: "Fractions need equal-sized parts before they can be added." },
       { type: "fraction_bar", heading: "Build a picture", numerator: 1, denominator: 2, comparison_numerator: 2, comparison_denominator: 4, caption: "Both bars show the same amount." },
@@ -140,6 +168,14 @@ export const processedInteraction: InteractionResponse = {
     correct: true,
     concept_id: "fraction_addition",
     response_time_ms: 1500,
+    curriculum_context: {
+      board_id: curriculum.board_id,
+      class_level: curriculum.class_level,
+      subject_id: curriculum.subject_id,
+      book_id: curriculum.book_id,
+      chapter_id: curriculum.chapter_id,
+      curriculum_pack_version: curriculum.curriculum_pack_version,
+    },
   },
   learner_state: { ...state, attempts: 5, correct_attempts: 4 },
   decision: { ...recommendation, id: "recommendation-2" },

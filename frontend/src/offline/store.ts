@@ -1,14 +1,16 @@
-import type { ActivityContentResponse, InteractionCreate } from "../types";
+import type { ActivityContentResponse, CurriculumContext, InteractionCreate } from "../types";
 
 const DB_NAME = "rapid-learn";
 const QUEUE_STORE = "queue";
-const CONTENT_STORE = "activity-content";
-const DB_VERSION = 2;
+const CONTENT_STORE = "activity-content-v3";
+const DB_VERSION = 3;
 
 type QueueRecord = { id?: number; payload: InteractionCreate; createdAt: number };
 type ContentRecord = {
+  cacheKey: string;
   activityId: string;
   conceptId: string;
+  curriculumKey: string;
   payload: ActivityContentResponse;
   cachedAt: number;
 };
@@ -49,10 +51,14 @@ export async function flushQueue(
 
 export async function cacheActivityContent(payload: ActivityContentResponse): Promise<void> {
   const db = await openDatabase();
+  const context = payload.activity.curriculum_context;
+  const curriculumKey = curriculumCacheKey(context);
   await transactionDone(
     db.transaction(CONTENT_STORE, "readwrite").objectStore(CONTENT_STORE).put({
+      cacheKey: `${curriculumKey}:${payload.activity.id}`,
       activityId: payload.activity.id,
       conceptId: payload.activity.concept_id,
+      curriculumKey,
       payload,
       cachedAt: Date.now(),
     } satisfies ContentRecord),
@@ -61,21 +67,28 @@ export async function cacheActivityContent(payload: ActivityContentResponse): Pr
 
 export async function cachedActivityContent(
   activityId: string,
+  context?: CurriculumContext,
 ): Promise<ActivityContentResponse | undefined> {
   const db = await openDatabase();
-  const item = await getOne<ContentRecord>(db, CONTENT_STORE, activityId);
-  return item?.payload;
+  if (context) {
+    const key = `${curriculumCacheKey(context)}:${activityId}`;
+    return (await getOne<ContentRecord>(db, CONTENT_STORE, key))?.payload;
+  }
+  const items = await getAll<ContentRecord>(db, CONTENT_STORE);
+  return items.find((item) => item.activityId === activityId)?.payload;
 }
 
 export async function cachedContentMetadata(): Promise<{
   activityIds: string[];
   conceptIds: string[];
+  curriculumKeys: string[];
 }> {
   const db = await openDatabase();
   const items = await getAll<ContentRecord>(db, CONTENT_STORE);
   return {
-    activityIds: items.map((item) => item.activityId),
+    activityIds: [...new Set(items.map((item) => item.activityId))],
     conceptIds: [...new Set(items.map((item) => item.conceptId))],
+    curriculumKeys: [...new Set(items.map((item) => item.curriculumKey))],
   };
 }
 
@@ -88,12 +101,16 @@ function openDatabase(): Promise<IDBDatabase> {
         db.createObjectStore(QUEUE_STORE, { keyPath: "id", autoIncrement: true });
       }
       if (!db.objectStoreNames.contains(CONTENT_STORE)) {
-        db.createObjectStore(CONTENT_STORE, { keyPath: "activityId" });
+        db.createObjectStore(CONTENT_STORE, { keyPath: "cacheKey" });
       }
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
+}
+
+export function curriculumCacheKey(context: CurriculumContext): string {
+  return [context.board_id, `class-${context.class_level}`, context.subject_id].join(":");
 }
 
 function transactionDone(request: IDBRequest): Promise<void> {

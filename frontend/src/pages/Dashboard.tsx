@@ -6,7 +6,7 @@ import type { ActivityContentResponse } from "../types";
 import { greeting, humanize, percent } from "../utils/format";
 
 export function Dashboard({ onLearn }: { onLearn: () => void }) {
-  const { learner, states, recommendations, resource, pending, loading, loadActivity } = useLearning();
+  const { learner, states, recommendations, resource, pending, loading, loadActivity, curriculum, chapters, concepts } = useLearning();
   const [activity, setActivity] = useState<ActivityContentResponse>();
   const recommendation = recommendations[0];
 
@@ -39,6 +39,7 @@ export function Dashboard({ onLearn }: { onLearn: () => void }) {
           <p className="eyebrow">Your learning home</p>
           <h1>{greeting()}, {learner.name}</h1>
           <p>{pending > 0 ? "Your latest answer is saved and waiting to sync." : "Here’s what RAPID-Learn recommends next."}</p>
+          {curriculum && <p className="curriculum-breadcrumb">Class {curriculum.class_level} <span>›</span> {curriculum.subject_name} <span>›</span> {curriculum.chapter_title}</p>}
         </div>
       </header>
 
@@ -100,10 +101,22 @@ export function Dashboard({ onLearn }: { onLearn: () => void }) {
           <span>{resource ? `${humanize(resource.level)} resources` : "Resource check unavailable"}</span>
         </div>
         <div className="stats-grid">
-          <Stat label="Overall mastery" value={percent(overall)} detail="Across 12 fraction concepts" />
+          <Stat label="Subject mastery" value={percent(overall)} detail={`Across ${states.length} ${curriculum?.subject_name ?? "active"} concepts`} />
           <Stat label="Concepts mastered" value={`${mastered}`} detail="Mastery at or above 80%" />
           <Stat label="Needs practice" value={`${needsReview}`} detail="Concepts below 60%" />
           <Stat label="Recent evidence" value={`${attempts}`} detail="Questions completed" />
+        </div>
+      </section>
+
+      <section>
+        <div className="section-heading"><div><p className="eyebrow">Subject pathway</p><h2>Chapters</h2></div></div>
+        <div className="concept-grid">
+          {chapters.map((chapter) => {
+            const ids = new Set(concepts.filter((concept) => concept.chapter_id === chapter.id).map((concept) => concept.id));
+            const chapterStates = states.filter((state) => ids.has(state.concept_id));
+            const mastery = chapterStates.length ? chapterStates.reduce((sum, state) => sum + state.mastery_probability, 0) / chapterStates.length : 0;
+            return <Card key={chapter.id} className="concept-card"><div><h3>{chapter.title}</h3><strong>{percent(mastery)}</strong></div><ProgressBar value={mastery} label={`${chapter.title} mastery`} /><small>{mastery >= .8 ? "Mastered" : chapterStates.some((state) => state.attempts > 0) ? "In progress" : "Not started"}</small></Card>;
+          })}
         </div>
       </section>
 

@@ -1,12 +1,18 @@
 import type {
   ActivityContentResponse,
+  Book,
+  Chapter,
+  ClassOption,
   ConceptState,
+  CurriculumBoard,
+  CurriculumConcept,
   InteractionCreate,
   InteractionResponse,
   Learner,
   LearningSelection,
   Recommendation,
   Resource,
+  Subject,
 } from "../types";
 
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
@@ -34,11 +40,40 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   learners: () => request<Learner[]>("/learners"),
-  createLearner: (name: string, grade: number) =>
+  createLearner: (name: string, classLevel: number, subjectId: string) =>
     request<Learner>("/learners", {
       method: "POST",
-      body: JSON.stringify({ name, age_group: grade <= 5 ? "9-11" : "10-12", grade }),
+      body: JSON.stringify({
+        name,
+        age_group: classLevel <= 5 ? "9-11" : "10-12",
+        grade: classLevel,
+        class_level: classLevel,
+        board_id: "ncert",
+        active_subject_id: subjectId,
+      }),
     }),
+  updatePathway: (id: string, classLevel: number, subjectId: string, chapterId?: string) =>
+    request<Learner>(`/learners/${encodeURIComponent(id)}/pathway`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        board_id: "ncert",
+        class_level: classLevel,
+        subject_id: subjectId,
+        chapter_id: chapterId,
+      }),
+    }),
+  boards: () => request<CurriculumBoard[]>("/curriculum/boards"),
+  classes: (boardId = "ncert") =>
+    request<ClassOption[]>(`/curriculum/boards/${encodeURIComponent(boardId)}/classes`),
+  subjects: (classLevel: number, boardId = "ncert") =>
+    request<Subject[]>(
+      `/curriculum/boards/${encodeURIComponent(boardId)}/classes/${classLevel}/subjects`,
+    ),
+  books: (subjectId: string) =>
+    request<Book[]>(`/curriculum/subjects/${encodeURIComponent(subjectId)}/books`),
+  chapters: (bookId: string) =>
+    request<Chapter[]>(`/curriculum/books/${encodeURIComponent(bookId)}/chapters`),
+  concepts: () => request<CurriculumConcept[]>("/concepts"),
   state: (id: string) => request<ConceptState[]>(`/learners/${id}/state`),
   next: (id: string) =>
     request<LearningSelection>(`/questions/next?learner_id=${encodeURIComponent(id)}`),

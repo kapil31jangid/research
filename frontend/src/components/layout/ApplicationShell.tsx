@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 
-import type { Learner } from "../../types";
+import type { CurriculumContext, Learner, Subject } from "../../types";
 import { Icon } from "../common/UI";
 
 export type View = "dashboard" | "learn" | "progress" | "research" | "settings";
@@ -21,7 +21,10 @@ export function ApplicationShell({
   onNavigate,
   learner,
   learners,
+  subjects,
+  curriculum,
   onSwitchLearner,
+  onSwitchPathway,
   onChooseLearner,
   online,
   pending,
@@ -31,7 +34,10 @@ export function ApplicationShell({
   onNavigate: (view: View) => void;
   learner: Learner;
   learners: Learner[];
+  subjects: Subject[];
+  curriculum?: CurriculumContext;
   onSwitchLearner: (learner: Learner) => void;
+  onSwitchPathway: (classLevel: number, subjectId: string) => void;
   onChooseLearner: () => void;
   online: boolean;
   pending: number;
@@ -58,7 +64,7 @@ export function ApplicationShell({
         <nav aria-label="Secondary navigation" className="sidebar-nav sidebar-nav-secondary">
           {visibleSecondary.map((item) => <NavButton key={item.id} item={item} active={view === item.id} onNavigate={onNavigate} />)}
         </nav>
-        <div className="sidebar-note"><span>Grade {learner.grade}</span><strong>Fractions pathway</strong></div>
+        <div className="sidebar-note"><span>Class {learner.class_level}</span><strong>{curriculum?.subject_name ?? "Choose pathway"}</strong><small>{curriculum?.chapter_title}</small></div>
       </aside>
       <div className="app-frame">
         <header className="app-header">
@@ -67,6 +73,19 @@ export function ApplicationShell({
             <Icon name="wifi" /> {online ? "Online" : "Offline"}
             {pending > 0 && <span>· {pending} to sync</span>}
           </div>
+          <label className="curriculum-switcher">
+            <span className="sr-only">Active learning pathway</span>
+            <select
+              aria-label="Active learning pathway"
+              value={learner.active_subject_id ?? ""}
+              onChange={(event) => {
+                const selected = subjects.find((item) => item.id === event.target.value);
+                if (selected) onSwitchPathway(selected.class_level, selected.id);
+              }}
+            >
+              {subjects.filter((item) => item.content_status === "available").map((item) => <option key={item.id} value={item.id}>Class {item.class_level} · {item.name}</option>)}
+            </select>
+          </label>
           <label className="learner-switcher">
             <span className="sr-only">Current learner</span>
             <span className="avatar">{learner.name.charAt(0).toUpperCase()}</span>
@@ -94,7 +113,7 @@ export function ApplicationShell({
 }
 
 function Brand() {
-  return <div className="brand"><span className="brand-mark">R</span><span><strong>RAPID-Learn</strong><small>Adaptive fractions</small></span></div>;
+  return <div className="brand"><span className="brand-mark">R</span><span><strong>RAPID-Learn</strong><small>Adaptive learning</small></span></div>;
 }
 
 function NavButton({ item, active, onNavigate }: { item: { id: View; label: string; icon: "home" | "learn" | "progress" | "research" | "settings" }; active: boolean; onNavigate: (view: View) => void }) {

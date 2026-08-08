@@ -22,6 +22,13 @@ const mocks = vi.hoisted(() => ({
   activity: vi.fn(),
   submit: vi.fn(),
   createLearner: vi.fn(),
+  boards: vi.fn(),
+  classes: vi.fn(),
+  subjects: vi.fn(),
+  books: vi.fn(),
+  chapters: vi.fn(),
+  concepts: vi.fn(),
+  updatePathway: vi.fn(),
   cacheActivityContent: vi.fn(),
   cachedActivityContent: vi.fn(),
   cachedContentMetadata: vi.fn(),
@@ -40,6 +47,13 @@ vi.mock("../services/api", () => ({
     activity: mocks.activity,
     submit: mocks.submit,
     createLearner: mocks.createLearner,
+    boards: mocks.boards,
+    classes: mocks.classes,
+    subjects: mocks.subjects,
+    books: mocks.books,
+    chapters: mocks.chapters,
+    concepts: mocks.concepts,
+    updatePathway: mocks.updatePathway,
   },
 }));
 
@@ -99,9 +113,15 @@ describe("LearningProvider offline behavior", () => {
     mocks.resources.mockResolvedValue(resource);
     mocks.activity.mockResolvedValue(activityContent);
     mocks.submit.mockResolvedValue(processedInteraction);
+    mocks.boards.mockResolvedValue([{ id: "ncert", name: "NCERT", country: "India", description: null }]);
+    mocks.classes.mockResolvedValue([{ board_id: "ncert", class_level: 5, content_status: "available" }]);
+    mocks.subjects.mockResolvedValue([{ id: "ncert-c5-mathematics", board_id: "ncert", class_level: 5, name: "Mathematics", slug: "mathematics", description: "", content_status: "available", is_active: true, curriculum_pack_id: "ncert-class-5-mathematics", curriculum_pack_version: "1.0.0" }]);
+    mocks.books.mockResolvedValue([{ id: "ncert-c5-math-reference", subject_id: "ncert-c5-mathematics", title: "Class 5 Mathematics reference", source: "NCERT", language: "English", official_reference_url: null, edition: null, is_active: true }]);
+    mocks.chapters.mockResolvedValue([{ id: "ncert-c5-math-fractions", book_id: "ncert-c5-math-reference", chapter_number: 2, title: "Fractions", slug: "fractions", description: "", sequence: 2, concept_ids: [state.concept_id], is_active: true }]);
+    mocks.concepts.mockResolvedValue([]);
     mocks.cacheActivityContent.mockResolvedValue(undefined);
     mocks.cachedActivityContent.mockResolvedValue(undefined);
-    mocks.cachedContentMetadata.mockResolvedValue({ activityIds: [], conceptIds: [] });
+    mocks.cachedContentMetadata.mockResolvedValue({ activityIds: [], conceptIds: [], curriculumKeys: [] });
     mocks.flushQueue.mockResolvedValue(undefined);
     mocks.queueInteraction.mockResolvedValue(undefined);
     mocks.queuedCount.mockResolvedValue(0);
@@ -118,7 +138,10 @@ describe("LearningProvider offline behavior", () => {
 
     expect(await screen.findByText(`cache:${activityContent.content.title}`)).toBeInTheDocument();
     expect(mocks.activity).toHaveBeenCalledWith(activityContent.activity.id);
-    expect(mocks.cachedActivityContent).toHaveBeenCalledWith(activityContent.activity.id);
+    expect(mocks.cachedActivityContent).toHaveBeenCalledWith(
+      activityContent.activity.id,
+      undefined,
+    );
   });
 
   it("returns a clear error when offline content was never cached", async () => {
@@ -171,5 +194,22 @@ describe("LearningProvider offline behavior", () => {
 
     await waitFor(() => expect(mocks.submit).toHaveBeenCalledOnce());
     await waitFor(() => expect(screen.getByText("activity:fresh_activity")).toBeInTheDocument());
+  });
+
+  it("queues the original curriculum context when the learner switches while offline", async () => {
+    setOnline(false);
+    render(<LearningProvider><SyncHarness /></LearningProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Select learner" }));
+    await waitFor(() => expect(screen.getByText("activity:addition_steps")).toBeInTheDocument());
+    fireEvent.click(screen.getByRole("button", { name: "Submit answer" }));
+    await waitFor(() => expect(mocks.queueInteraction).toHaveBeenCalledOnce());
+    expect(mocks.queueInteraction.mock.calls[0][0].curriculum_context).toEqual({
+      board_id: "ncert",
+      class_level: 5,
+      subject_id: "ncert-c5-mathematics",
+      book_id: "ncert-c5-math-reference",
+      chapter_id: "ncert-c5-math-fractions",
+      curriculum_pack_version: "1.0.0",
+    });
   });
 });

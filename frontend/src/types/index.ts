@@ -24,6 +24,83 @@ export type Learner = {
   device_profile: string;
   created_at: string;
   last_active_at: string;
+  board_id: string;
+  class_level: number;
+  active_subject_id: string | null;
+  active_book_id: string | null;
+  active_chapter_id: string | null;
+};
+
+export type CurriculumBoard = {
+  id: string;
+  name: string;
+  country: string | null;
+  description: string | null;
+};
+export type ClassOption = {
+  board_id: string;
+  class_level: number;
+  content_status: "available" | "partial" | "planned";
+};
+export type Subject = {
+  id: string;
+  board_id: string;
+  class_level: number;
+  name: string;
+  slug: string;
+  description: string;
+  content_status: "available" | "partial" | "planned";
+  is_active: boolean;
+  curriculum_pack_id: string | null;
+  curriculum_pack_version: string | null;
+};
+export type Book = {
+  id: string;
+  subject_id: string;
+  title: string;
+  source: string;
+  language: string;
+  official_reference_url: string | null;
+  edition: string | null;
+  is_active: boolean;
+};
+export type Chapter = {
+  id: string;
+  book_id: string;
+  chapter_number: number;
+  title: string;
+  slug: string;
+  description: string;
+  sequence: number;
+  concept_ids: string[];
+  is_active: boolean;
+};
+export type CurriculumContext = {
+  board_id: string;
+  board_name: string;
+  class_level: number;
+  subject_id: string;
+  subject_name: string;
+  book_id: string;
+  book_title: string;
+  chapter_id: string;
+  chapter_title: string;
+  concept_id: string | null;
+  concept_name: string | null;
+  curriculum_pack_id: string;
+  curriculum_pack_version: string;
+  content_origin: "original_adaptive_material";
+};
+export type CurriculumConcept = {
+  id: string;
+  chapter_id: string;
+  name: string;
+  description: string;
+  difficulty: number;
+  mastery_threshold: number;
+  prerequisite_ids: string[];
+  activity_ids: string[];
+  misconception_ids: string[];
 };
 
 export type Question = {
@@ -78,6 +155,7 @@ export type Recommendation = {
   measured_total_adaptive_latency_ms: number;
   controller_mode: string;
   created_at: string;
+  curriculum_context: CurriculumContext;
 };
 
 export type Resource = {
@@ -152,6 +230,9 @@ export type ActivityContent = {
   learning_objective: string | null;
   sections: ActivitySection[];
   offline_ready: boolean;
+  content_origin: "original_adaptive_material";
+  aligned_board: string;
+  official_reference_url: string | null;
 };
 export type ActivityContentResponse = {
   activity: {
@@ -162,6 +243,7 @@ export type ActivityContentResponse = {
     difficulty: number;
     available_offline: boolean;
     estimated_minutes: number | null;
+    curriculum_context: CurriculumContext;
   };
   content: ActivityContent;
 };
@@ -170,6 +252,7 @@ export type OfflineContentMetadata = {
   cached_activity_ids: string[];
   cached_concept_ids: string[];
   app_shell_available: boolean;
+  cached_curriculum_keys: string[];
 };
 export type InteractionCreate = {
   learner_id: string;
@@ -179,6 +262,14 @@ export type InteractionCreate = {
   hints_used: number;
   offline: boolean;
   offline_content: OfflineContentMetadata;
+  curriculum_context: {
+    board_id: string;
+    class_level: number;
+    subject_id: string;
+    book_id: string;
+    chapter_id: string;
+    curriculum_pack_version: string;
+  };
 };
 export type InteractionResponse = {
   learner_id: string;
@@ -187,6 +278,7 @@ export type InteractionResponse = {
     correct: boolean;
     concept_id: string;
     response_time_ms: number;
+    curriculum_context: InteractionCreate["curriculum_context"];
   };
   learner_state: ConceptState;
   decision: Recommendation;
