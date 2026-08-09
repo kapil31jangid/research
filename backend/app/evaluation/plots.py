@@ -7,6 +7,30 @@ import pandas as pd
 
 from app.evaluation.statistics import bootstrap_confidence_interval
 
+_RESOURCE_DISPLAY_LABELS = {
+    "static_baseline": "Static",
+    "bkt_only": "BKT",
+    "bkt_uncertainty": "BKT+U",
+    "pedagogical_adaptive": "Pedag.",
+    "full": "Full",
+    "no_uncertainty": "No-U",
+    "no_forgetting": "No-F",
+    "no_misconceptions": "No-M",
+    "no_resource_awareness": "No-RA",
+}
+
+_RESOURCE_LABEL_OFFSETS = {
+    "static_baseline": (8, 7),
+    "bkt_only": (9, 9),
+    "bkt_uncertainty": (-8, -16),
+    "pedagogical_adaptive": (12, 13),
+    "full": (10, -18),
+    "no_uncertainty": (-34, 13),
+    "no_forgetting": (-26, 9),
+    "no_misconceptions": (9, -15),
+    "no_resource_awareness": (12, -18),
+}
+
 
 def write_plots(interactions: pd.DataFrame, directory: Path) -> None:
     plots = directory / "plots"
@@ -48,6 +72,62 @@ def _unavailable_plot(title: str, path: Path) -> None:
     )
     for extension in ("png", "pdf"):
         figure.savefig(path.with_suffix(f".{extension}"), bbox_inches="tight", dpi=160)
+    plt.close(figure)
+
+
+def write_resource_performance_plot(resource_frame: pd.DataFrame, plots: Path) -> None:
+    """Write Figure 5 without changing its validated quantitative encoding."""
+    resource_frame.to_csv(plots / "figure_5_resource_performance.csv", index=False)
+    figure, axis = plt.subplots(figsize=(7.6, 4.8))
+    scatter = axis.scatter(
+        resource_frame.mean_latency_ms,
+        resource_frame.resource_normalised_utility,
+        c=resource_frame.mean_resource_score,
+        cmap="viridis",
+        s=48,
+        edgecolors="white",
+        linewidths=0.6,
+        zorder=3,
+    )
+    for row in resource_frame.itertuples(index=False):
+        display_label = _RESOURCE_DISPLAY_LABELS.get(
+            row.condition, row.condition.replace("_", " ").title()
+        )
+        label_offset = _RESOURCE_LABEL_OFFSETS.get(row.condition, (8, 8))
+        axis.annotate(
+            display_label,
+            (row.mean_latency_ms, row.resource_normalised_utility),
+            xytext=label_offset,
+            textcoords="offset points",
+            fontsize=8,
+            ha="left",
+            va="center",
+            bbox={"boxstyle": "round,pad=0.18", "fc": "white", "ec": "none", "alpha": 0.9},
+            arrowprops={"arrowstyle": "-", "color": "0.45", "linewidth": 0.6},
+            annotation_clip=False,
+            zorder=4,
+        )
+    x_min = float(resource_frame.mean_latency_ms.min())
+    x_max = float(resource_frame.mean_latency_ms.max())
+    y_min = float(resource_frame.resource_normalised_utility.min())
+    y_max = float(resource_frame.resource_normalised_utility.max())
+    axis.set_xlim(x_min - 0.55, x_max + 0.65)
+    axis.set_ylim(y_min - 0.012, y_max + 0.014)
+    axis.margins(x=0.08, y=0.12)
+    axis.grid(color="0.88", linewidth=0.6, zorder=0)
+    axis.set(
+        title="Resource-performance comparison under synthetic evaluation",
+        xlabel="Mean adaptive latency (ms)",
+        ylabel="Resource-normalized utility",
+    )
+    figure.colorbar(scatter, ax=axis, label="Mean resource score", pad=0.035)
+    figure.subplots_adjust(left=0.12, right=0.88, bottom=0.15, top=0.88)
+    for extension in ("png", "pdf"):
+        figure.savefig(
+            plots / f"figure_5_resource_performance.{extension}",
+            bbox_inches="tight",
+            dpi=300,
+        )
     plt.close(figure)
 
 
@@ -202,31 +282,7 @@ def write_suite_plots(
         )
         .sort_values("condition")
     )
-    resource_frame.to_csv(plots / "figure_5_resource_performance.csv", index=False)
-    figure, axis = plt.subplots(figsize=(7.0, 4.2))
-    scatter = axis.scatter(
-        resource_frame.mean_latency_ms,
-        resource_frame.resource_normalised_utility,
-        c=resource_frame.mean_resource_score,
-        cmap="viridis",
-    )
-    for row in resource_frame.itertuples(index=False):
-        axis.annotate(
-            row.condition, (row.mean_latency_ms, row.resource_normalised_utility), fontsize=7
-        )
-    axis.set(
-        title="Resource-performance comparison under synthetic evaluation",
-        xlabel="Mean adaptive latency (ms)",
-        ylabel="Resource-normalized utility",
-    )
-    figure.colorbar(scatter, ax=axis, label="Mean resource score")
-    for extension in ("png", "pdf"):
-        figure.savefig(
-            plots / f"figure_5_resource_performance.{extension}",
-            bbox_inches="tight",
-            dpi=300,
-        )
-    plt.close(figure)
+    write_resource_performance_plot(resource_frame, plots)
     for filename, kind in (
         ("ml_predicted_vs_observed", "scatter"),
         ("ml_calibration_curve", "calibration"),
