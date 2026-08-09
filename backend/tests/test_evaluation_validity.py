@@ -18,6 +18,7 @@ from app.evaluation.learning_effects import (
 from app.evaluation.metrics import condition_metrics, learner_metrics
 from app.evaluation.ml_metrics import synthetic_ml_metrics
 from app.evaluation.policy import EvaluationPolicy
+from app.evaluation.provenance import collect_provenance
 from app.evaluation.response_simulator import simulate_response
 from app.evaluation.simulator import misconception_ids_by_concept, run_experiment
 from app.evaluation.statistics import (
@@ -430,6 +431,12 @@ def test_seeded_bootstrap_paired_difference_and_effect_size() -> None:
     assert difference == 2.0
     assert low == high == 2.0
     assert cohens_d([3, 4], [1, 2]) == 0.0
+
+
+def test_provenance_distinguishes_generated_metadata_from_runtime_source() -> None:
+    provenance = collect_provenance()
+    assert isinstance(provenance["dirty_paths"], list)
+    assert isinstance(provenance["runtime_source_dirty_state"], bool)
 
 
 def test_large_run_guard() -> None:

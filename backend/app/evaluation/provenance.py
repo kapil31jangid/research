@@ -32,10 +32,19 @@ def _git(*args: str) -> str:
 
 
 def collect_provenance(model_version: str | None = None) -> dict[str, object]:
+    status = _git("status", "--porcelain")
+    dirty_paths = (
+        [line[3:] for line in status.splitlines() if len(line) > 3]
+        if status not in {"", "unknown"}
+        else []
+    )
+    runtime_dirty_paths = [path for path in dirty_paths if "rapid_learn.egg-info/" not in path]
     return {
         "git_commit_sha": _git("rev-parse", "HEAD"),
         "git_branch": _git("branch", "--show-current"),
-        "repository_dirty_state": _git("status", "--porcelain") not in {"", "unknown"},
+        "repository_dirty_state": bool(dirty_paths),
+        "dirty_paths": dirty_paths,
+        "runtime_source_dirty_state": bool(runtime_dirty_paths),
         "experiment_started_at": datetime.now(UTC).isoformat(),
         "python_version": sys.version,
         "platform": platform.platform(),
