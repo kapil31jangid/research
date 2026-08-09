@@ -13,5 +13,6 @@
   },
   "output_dir": "artifacts/experiments",
   "max_interactions_without_override": 10000,
-  "bootstrap_samples": 200
+  "bootstrap_samples": 200,
+  "reuse_completed_runs": false
 }

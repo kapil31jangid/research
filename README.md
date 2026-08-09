@@ -199,9 +199,9 @@ prints the generated artifact directory when a run completes.
   --seeds 11 22
 ```
 
-The smoke configuration uses two learners, five interactions, and 200 bootstrap
-samples. It intentionally uses misconception-heavy synthetic profiles to exercise
-ID-level remediation behavior quickly.
+The smoke configuration uses five learners, five interactions, all nine conditions,
+and 200 bootstrap samples. It disables run reuse so repeated smoke commands genuinely
+re-execute the deterministic simulation.
 
 ### Run one configured condition across several seeds
 
