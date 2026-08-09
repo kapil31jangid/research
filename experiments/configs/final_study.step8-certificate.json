@@ -1,0 +1,72 @@
+{
+  "step": 8,
+  "status": "PASS",
+  "certified_at": "2026-08-09T12:24:06Z",
+  "canonical_suite": "results/paper_full/raw/suites/2026-08-09_100110_final-study",
+  "canonical_lock": "experiments/configs/final_study.lock.json",
+  "expected_interaction_count": 900000,
+  "actual_interaction_count": 900000,
+  "condition_count": 9,
+  "seed_count": 5,
+  "seeds": [11, 22, 33, 44, 55],
+  "condition_seed_run_count": 45,
+  "learner_count_per_condition_seed": 500,
+  "interactions_per_learner": 40,
+  "duplicate_interaction_count": 0,
+  "duplicate_run_count": 0,
+  "missing_learner_count": 0,
+  "missing_interaction_count": 0,
+  "missing_or_truncated_run_count": 0,
+  "failed_run_count": 0,
+  "isolated_state_database_output_count": 45,
+  "contaminating_interaction_count": 0,
+  "bootstrap_samples": 10000,
+  "config_hash": "e1fc14f5145f",
+  "implementation_git_sha": "e5995ad3b26fb434c6ac8409b0f4b62a01c76ad3",
+  "analysis_git_sha": "7b886091725d3aaa9ac56df5f21f4be0d5ef7be4",
+  "curriculum_pack_version": "1.0.0",
+  "model_artifact_version": "0.1.0",
+  "raw_file_validation": {
+    "interactions_csv_rows": 900000,
+    "interactions_parquet_rows": 900000,
+    "csv_parquet_identity_match": true,
+    "learner_metrics_rows": 22500,
+    "concept_metrics_rows": 270000,
+    "files_readable": true,
+    "internally_consistent": true
+  },
+  "definition_validation": {
+    "resolved_final_study_config_exact": true,
+    "condition_matrix_exact": true,
+    "synthetic_profiles_exact": true
+  },
+  "numeric_validation": {
+    "mastery_and_probability_bounds_valid": true,
+    "negative_counts_found": 0,
+    "unexpected_nan_or_inf_found": 0,
+    "latencies_valid": true,
+    "resource_scores_valid": true,
+    "normalized_gain_valid": true,
+    "synthetic_normalized_gain_min": 0.0366352846748187,
+    "synthetic_normalized_gain_max": 0.5084613543946318,
+    "retention_valid": true,
+    "synthetic_retention_min": 0.7533713448983183,
+    "synthetic_retention_max": 0.9950124791926824
+  },
+  "analysis_lineage": {
+    "aggregate_bootstrap_rows_recomputed": 434,
+    "paired_comparisons_recomputed_from_canonical_seed_metrics": true,
+    "publication_overall_table_recomputed_from_canonical_aggregate": true,
+    "direct_publication_source_hash_matches": 8,
+    "final_integrity_audit_valid": true,
+    "smoke_data_present": false,
+    "development_data_present": false,
+    "sensitivity_data_present": false
+  },
+  "rerun": {
+    "performed": false,
+    "required": false,
+    "reason": "No integrity defect was found."
+  },
+  "interpretation": "Certified synthetic manuscript dataset; not evidence of real-world educational effectiveness."
+}
