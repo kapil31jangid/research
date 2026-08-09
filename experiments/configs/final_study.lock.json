@@ -1,0 +1,53 @@
+{
+  "status": "frozen",
+  "designation": "canonical_manuscript_dataset",
+  "frozen_at": "2026-08-09T12:13:49Z",
+  "canonical_suite": "results/paper_full/raw/suites/2026-08-09_100110_final-study",
+  "accepted_implementation_sha": "e5995ad3b26fb434c6ac8409b0f4b62a01c76ad3",
+  "analysis_implementation_sha": "7b886091725d3aaa9ac56df5f21f4be0d5ef7be4",
+  "config_hash": "e1fc14f5145f",
+  "conditions": [
+    "static_baseline",
+    "bkt_only",
+    "bkt_uncertainty",
+    "pedagogical_adaptive",
+    "full",
+    "no_uncertainty",
+    "no_forgetting",
+    "no_misconceptions",
+    "no_resource_awareness"
+  ],
+  "seeds": [11, 22, 33, 44, 55],
+  "learner_count_per_condition_seed": 500,
+  "interactions_per_learner": 40,
+  "condition_seed_runs": 45,
+  "total_interactions": 900000,
+  "bootstrap_samples": 10000,
+  "isolated_database_count": 45,
+  "duplicate_interaction_count": 0,
+  "contaminating_interaction_count": 0,
+  "data_source": "synthetic",
+  "simulated_results": true,
+  "educational_effectiveness_validated": false,
+  "rerun_policy": "Do not rerun unless a concrete integrity defect invalidates the canonical suite.",
+  "sha256": {
+    "config.json": "8832ba52642e13fed48de119a830690cba495aec7282699aa25d89e6adf8b777",
+    "suite_summary.json": "8c687a193f22b6531c346b9e97a876408496c6faf339c929beb03f3e52d789b3",
+    "provenance.json": "9b556b060438f8a502569c2d2fd3547e4a2c22f7f658a8e40cac6f3965072c20",
+    "interactions.parquet": "efa49764a94ee3409b9e9d4a8a4c98f6ad1371d71984abc933b6c1ccb45402ef",
+    "seed_metrics.csv": "4d82b7d6a288aa5bc5f68f7bb20871fdb378a7a42ad1eae48d189ebf37c16a80",
+    "aggregate_metrics.csv": "1b680fa3ed23649bd86e583b21915d357c8e10c030bd22c90534d611361ebc27",
+    "paper_ready_results.csv": "d7fd8ffa79f8991f53070167a7276c4fe37d6a1dcbf2a27f377beb0dfc23ec09",
+    "paper_table_1_overall.csv": "2831d276c7a3c9667526b0d4eca9f76b0479d5321eb812a94bdc42f56f18caee",
+    "paper_table_2_ablation.csv": "a3923f1a137f50079d9b9f194f996ee3c46ac846d78fe9bcfea0467b4e89563f",
+    "figure_4_normalized_gain.csv": "bbba54f89e61fe5345f46be6932a53559995afe73e7261d361b7b1ce7350e82d",
+    "figure_5_resource_performance.csv": "97a73bc4824ed376f57b76d939f781dfff8d38941fcdbb02158dcc692ce2f78f"
+  },
+  "lineage": {
+    "published_resolved_config": "results/paper_full/config/final_study.json",
+    "raw_provenance": "results/paper_full/raw/suites/2026-08-09_100110_final-study/provenance.json",
+    "analysis_provenance": "results/paper_full/metadata/analysis_provenance.json",
+    "integrity_audit": "results/paper_full/metadata/final_integrity_audit.json",
+    "paper_claim_matrix": "docs/paper-repository-audit.md"
+  }
+}

@@ -61,6 +61,14 @@ The documented serious synthetic study uses 500 learners, 40 interactions, seeds
 11/22/33/44/55, and the nine standard conditions. It exceeds the normal workload
 guard intentionally:
 
+The accepted manuscript dataset is frozen at
+`results/paper_full/raw/suites/2026-08-09_100110_final-study`. Its resolved
+configuration, implementation revision, integrity counts, and artifact checksums are
+recorded in `experiments/configs/final_study.lock.json`. Do not rerun or replace this
+suite unless a concrete integrity defect invalidates it. The command below documents
+reproduction of the design; it is not required for subsequent manuscript analysis of
+the accepted dataset.
+
 ```bash
 .venv/bin/python -m app.evaluation.cli run-ablation-suite \
   --config experiments/configs/final_study.json \
