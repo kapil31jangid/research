@@ -89,6 +89,11 @@ def build_auxiliary_comparisons(
                         "ci_high": high,
                         "effect_size": cohens_d(reference, other),
                         "matched_seed_count": len(valid),
+                        "comparison_scope": (
+                            "descriptive_only_separately_scheduled_runtime"
+                            if metric == "mean_latency"
+                            else "matched_seed_synthetic_comparison"
+                        ),
                     }
                 )
     return pd.DataFrame(rows)

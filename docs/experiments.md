@@ -68,6 +68,24 @@ guard intentionally:
   --allow-large-run
 ```
 
+After the primary suite and the two matched-seed auxiliary controls have completed,
+regenerate the integrity audit, confidence-interval tables, safe paper text, and
+incremental ML/offline comparisons with:
+
+```bash
+.venv/bin/python -m app.evaluation.cli analyze-paper \
+  --experiment results/paper_full \
+  --auxiliary-suites \
+    results/paper_full/auxiliary_runs/suites/<no-ml-suite> \
+    results/paper_full/auxiliary_runs/suites/<no-offline-suite>
+```
+
+The primary bootstrap resampling unit is the independent condition-level seed
+summary. Paired comparisons use Full-minus-comparison differences for matching seeds;
+they do not incorrectly treat 900,000 dependent interaction rows as independent.
+See [the paper/repository audit](paper-repository-audit.md) for formulas, accepted
+provenance, rejected runs, and interpretation constraints.
+
 Synthetic misconception ground truth is keyed by the real rule identifier, not by
 concept. A response records the selected synthetic misconception independently from
 the system detector. Remediation reduces an intensity only when the selected activity

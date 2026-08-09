@@ -34,6 +34,14 @@ system-behaviour proxy for resolution.
 Bootstrap confidence intervals and paired comparisons take their resample count from
 the serialised experiment configuration. Smoke runs use 200 samples; the documented
 five-seed study uses 10,000 so provenance captures the exact statistical procedure.
+The resampling unit is the condition-level seed summary. With only five seeds, the
+intervals have limited resolution and should be interpreted together with seed-level
+values, not as classroom-population inference.
+
+The final primary design contains exactly nine conditions. ML-disabled and
+offline-disabled runs are separate matched-seed auxiliary controls so they do not
+silently expand the stated nine-condition design. Separately scheduled auxiliary
+latencies are descriptive and are not interpreted as isolated component overhead.
 
 ## Measures and validity
 

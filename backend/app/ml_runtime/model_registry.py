@@ -69,7 +69,12 @@ class ResponsePredictorRegistry:
             self._last_error_message = None
             return True
         except ResponsePredictionError as error:
-            return self._fail("validation_inference_failed", str(error))
+            code = (
+                "invalid_probability"
+                if str(error) == "Response prediction is outside [0, 1]"
+                else "validation_inference_failed"
+            )
+            return self._fail(code, str(error))
         except Exception:
             return self._fail("artifact_load_failed", "Model artifact could not be loaded")
 

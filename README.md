@@ -243,6 +243,38 @@ Replace the placeholder with the path printed by the preceding command:
   --experiment artifacts/experiments/suites/<suite-directory>
 ```
 
+### Paper-ready analysis and audit
+
+Run the optional ML-disabled and offline-disabled controls with the five paper seeds:
+
+```bash
+.venv/bin/python -m app.evaluation.cli run-suite \
+  --config experiments/configs/no_ml_auxiliary.json \
+  --seeds 11 22 33 44 55 \
+  --allow-large-run
+
+.venv/bin/python -m app.evaluation.cli run-suite \
+  --config experiments/configs/no_offline_auxiliary.json \
+  --seeds 11 22 33 44 55 \
+  --allow-large-run
+```
+
+Then regenerate traceable paper-facing tables, paired comparisons, findings, and the
+final 900,000-row integrity audit:
+
+```bash
+.venv/bin/python -m app.evaluation.cli analyze-paper \
+  --experiment results/paper_full \
+  --auxiliary-suites \
+    results/paper_full/auxiliary_runs/suites/<no-ml-suite> \
+    results/paper_full/auxiliary_runs/suites/<no-offline-suite>
+```
+
+See [the paper-to-repository audit](docs/paper-repository-audit.md) before inserting
+any generated number into the manuscript. It records metric formulas, claim status,
+accepted/rejected run provenance, and unfavorable or neutral findings that must not
+be omitted.
+
 Per-run artifacts include configuration and provenance JSON, interaction CSV and
 Parquet, learner metrics, concept outcomes, plots, and tables. Multi-seed suites add:
 

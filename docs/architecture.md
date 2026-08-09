@@ -1,5 +1,27 @@
 # Architecture
 
+## Research evaluation boundary
+
+The experiment harness preserves this one-way boundary:
+
+```text
+Synthetic profile and latent state
+  -> independent response and resource simulation
+  -> observable interaction payload only
+  -> production interaction/controller/recommendation pipeline
+  -> experiment logger
+  -> learner- and seed-level aggregation
+  -> bootstrap statistics
+  -> plots and publication tables
+```
+
+Simulator-only fields use the `synthetic_` prefix and are written to research output
+after the adaptive decision. They are not members of `ControllerInput`, interaction
+request schemas, or persisted production learner state. Each condition and seed uses
+its own in-memory SQLite database. See
+[the paper-to-repository audit](paper-repository-audit.md) for claim-level evidence
+and the accepted experiment provenance.
+
 Activities are lifecycle-controlled (`is_active`, `deprecated_at`): historical
 recommendations remain readable, but inactive/deprecated activities are excluded from
 offline resolution and candidate generation. Each recommendation records the offline
