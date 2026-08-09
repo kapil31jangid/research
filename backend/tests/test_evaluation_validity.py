@@ -91,7 +91,7 @@ def test_disabled_ml_never_checks_or_calls_predictor(client, monkeypatch) -> Non
         (EvaluationPolicy(enable_uncertainty=False), lambda value: value.uncertainty == 0.0),
         (
             EvaluationPolicy(enable_forgetting=False),
-            lambda value: value.retained_mastery == 0.69,
+            lambda value: value.retained_mastery == 1.0,
         ),
         (
             EvaluationPolicy(enable_resource_awareness=False),
@@ -116,10 +116,10 @@ def test_policy_neutralizes_controller_signal(client, monkeypatch, policy, asser
         )
 
     monkeypatch.setattr("app.services.interaction_service.decide_adaptation", capture)
-    result = _direct_interaction(client, policy)
+    _direct_interaction(client, policy)
     assert captured is not None
     if not policy.enable_forgetting:
-        assert captured.retained_mastery == result.learner_state.mastery_probability
+        assert captured.retained_mastery == 1.0
     else:
         assert assertion(captured)
 

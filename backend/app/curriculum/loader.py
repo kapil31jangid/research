@@ -69,6 +69,10 @@ def load_activities() -> list[dict[str, Any]]:
             if misconception_id:
                 paths.append("misconception_remediation")
                 activity_type = "misconception_remediation"
+            # Prototype costs are explicit heuristic metadata derived from the
+            # delivery type; they are not measured hardware timings.
+            estimated_size_kb = 96 if misconception_id else 64
+            estimated_computational_cost_ms = 2.0 if misconception_id else 1.0
             activities.append(
                 {
                     "id": activity_id,
@@ -83,8 +87,8 @@ def load_activities() -> list[dict[str, Any]]:
                     "misconception_ids": [misconception_id] if misconception_id else [],
                     "local_asset_key": activity_id,
                     "content_type": "lesson",
-                    "estimated_size_kb": 64,
-                    "estimated_computational_cost_ms": 1.0,
+                    "estimated_size_kb": estimated_size_kb,
+                    "estimated_computational_cost_ms": estimated_computational_cost_ms,
                     "content_origin": "original_adaptive_material",
                     "aligned_board": context.board_id,
                     "official_reference_url": "https://ncert.nic.in/textbook.php",

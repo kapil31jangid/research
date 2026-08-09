@@ -4,11 +4,15 @@ import numpy as np
 
 
 def apply_learning_effect(
-    mastery: float, difficulty: float, relevant: bool, rng: np.random.Generator
+    mastery: float,
+    difficulty: float,
+    relevant: bool,
+    rng: np.random.Generator,
+    learning_rate: float = 0.07,
 ) -> float:
     """Update simulator-only latent mastery without using BKT or ML scores."""
     match = 1.0 - min(abs(mastery - difficulty / 4.0), 1.0)
-    gain = (0.025 + 0.045 * match) * (1.0 if relevant else 0.3) + rng.normal(0, 0.005)
+    gain = learning_rate * match * (1.0 if relevant else 0.3) + rng.normal(0, 0.005)
     return float(np.clip(mastery + gain, 0.0, 1.0))
 
 
@@ -18,11 +22,16 @@ def apply_recommendation_learning(
     selected_concept_id: str,
     difficulty: float,
     rng: np.random.Generator,
+    learning_rate: float = 0.07,
 ) -> tuple[float, float]:
     """Mutate only the recommendation-selected concept and return its before/after."""
     before = latent_mastery[selected_concept_id]
     after = apply_learning_effect(
-        before, difficulty, selected_concept_id == assessed_concept_id, rng
+        before,
+        difficulty,
+        selected_concept_id == assessed_concept_id,
+        rng,
+        learning_rate,
     )
     latent_mastery[selected_concept_id] = after
     return before, after

@@ -1,8 +1,11 @@
 """Portable CSV, Markdown, and LaTeX summaries for synthetic conditions."""
 
+from dataclasses import asdict
 from pathlib import Path
 
 import pandas as pd
+
+from app.evaluation.synthetic_learners import PROFILES
 
 
 def write_condition_table(interactions: pd.DataFrame, directory: Path) -> pd.DataFrame:
@@ -64,16 +67,11 @@ def write_suite_tables(
     tables = directory / "tables"
     tables.mkdir(exist_ok=True)
     fields = {
-        "mean_initial_mastery": "Initial System Mastery",
-        "mean_final_mastery": "Final System Mastery",
-        "mean_mastery_gain": "System Mastery Gain",
-        "mean_synthetic_mastery_gain": "Synthetic Mastery Gain",
-        "mastery_threshold_success_rate": "Threshold Success",
-        "median_interactions_to_threshold": "Interactions to Threshold",
-        "misconception_resolution_rate": "Misconception Resolution",
-        "mean_latency": "Mean Latency",
-        "p95_latency": "p95 Latency",
-        "mean_estimated_compute_cost_ms": "Estimated Compute Cost",
+        "response_accuracy": "Accuracy",
+        "mean_synthetic_normalised_gain": "Normalized Gain",
+        "mean_synthetic_retention": "Retention",
+        "mean_latency": "Latency (ms)",
+        "resource_normalised_utility": "Resource-Normalized Utility",
     }
     available = [field for field in fields if field in seed_metrics]
     main = (
@@ -83,6 +81,22 @@ def write_suite_tables(
     )
     _write_formats(main, tables / "main_comparison")
     _write_formats(paired, tables / "ablation_comparisons")
+    ablation_fields = {
+        "mean_synthetic_normalised_gain": "Delta Gain",
+        "mean_synthetic_retention": "Delta Retention",
+        "mean_latency": "Delta Latency",
+        "resource_normalised_utility": "Delta Utility",
+    }
+    ablation_effects = (
+        paired.loc[paired.metric.isin(ablation_fields)]
+        .pivot(index="comparison_condition", columns="metric", values="mean_difference")
+        .reset_index()
+        .rename(
+            columns={"comparison_condition": "Ablation"}
+            | {field: label for field, label in ablation_fields.items()}
+        )
+    )
+    _write_formats(ablation_effects, tables / "ablation_effects")
     ml_fields = [
         "condition",
         "synthetic_ml_matched_samples",
@@ -112,3 +126,32 @@ def write_suite_tables(
         .merge(path_rates, on="resource_profile", how="left")
     )
     _write_formats(resources, tables / "resource_profiles")
+    path_distribution = (
+        pd.crosstab(
+            interactions.condition,
+            interactions.actual_adaptation_path,
+            normalize="index",
+        )
+        .reset_index()
+        .rename(columns={"condition": "Condition"})
+    )
+    _write_formats(path_distribution, tables / "path_distribution")
+    publication_profiles = {
+        name: profile
+        for name, profile in PROFILES.items()
+        if name
+        in {
+            "fast_learner",
+            "slow_learner",
+            "elevated_guess",
+            "elevated_slip",
+            "stronger_forgetting",
+            "misconception_prone",
+            "intermittent",
+            "constrained_resource",
+        }
+    }
+    profile_table = pd.DataFrame(
+        [{"Profile": name, **asdict(profile)} for name, profile in publication_profiles.items()]
+    )
+    _write_formats(profile_table, tables / "synthetic_learner_profiles")

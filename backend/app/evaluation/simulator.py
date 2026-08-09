@@ -1,7 +1,8 @@
 """Isolated, reproducible synthetic evaluation using the real interaction service."""
 
 import json
-from datetime import UTC, datetime
+import math
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import numpy as np
@@ -10,6 +11,8 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 
 import app.models  # noqa: F401
+from app.curriculum.graph import build_graph, prerequisite_ids
+from app.curriculum.loader import load_concepts
 from app.curriculum.registry import concept_ids_for_subject, resolve_available_pathway
 from app.database.base import Base
 from app.database.seed import seed_database
@@ -27,12 +30,15 @@ from app.evaluation.resource_simulator import simulate_resource
 from app.evaluation.response_simulator import simulate_response
 from app.evaluation.synthetic_learners import generate_learners
 from app.evaluation.tables import write_condition_table
+from app.evaluation.validation import validate_interaction_frame
+from app.learner_model.forgetting import retained_mastery
 from app.misconceptions.rules import MisconceptionRule, load_rules
+from app.ml_runtime.model_registry import get_response_predictor_registry
 from app.models.activity import LearningActivity
 from app.models.learner import Learner
 from app.models.learner_state import LearnerConceptState
 from app.models.question import Question
-from app.schemas.interactions import InteractionCreate
+from app.schemas.interactions import InteractionCreate, OfflineContentRequest
 from app.services.interaction_service import process_interaction
 
 
@@ -49,12 +55,13 @@ def misconception_ids_by_concept(
 
 def run_experiment(config: ExperimentConfig) -> Path:
     """Run one condition in a fresh SQLite database and write synthetic artifacts."""
-    experiment_id = f"{datetime.now(UTC):%Y-%m-%d}_{config.condition}_seed{config.random_seed}"
-    directory = Path(config.output_dir) / experiment_id
+    base_experiment_id = f"{datetime.now(UTC):%Y-%m-%d}_{config.condition}_seed{config.random_seed}"
+    directory = Path(config.output_dir) / base_experiment_id
     suffix = 1
     while directory.exists():
-        directory = Path(config.output_dir) / f"{experiment_id}_{suffix:02d}"
+        directory = Path(config.output_dir) / f"{base_experiment_id}_{suffix:02d}"
         suffix += 1
+    experiment_id = directory.name
     directory.mkdir(parents=True)
     engine = create_engine("sqlite://")
     Base.metadata.create_all(engine)
@@ -81,6 +88,10 @@ def run_experiment(config: ExperimentConfig) -> Path:
             )
         )
         concept_ids = sorted({question.concept_id for question in questions})
+        activities = list(db.scalars(select(LearningActivity)))
+        activities_by_concept: dict[str, list[LearningActivity]] = {}
+        for activity in activities:
+            activities_by_concept.setdefault(activity.concept_id, []).append(activity)
         misconception_ids = misconception_ids_by_concept(load_rules())
         learners = generate_learners(
             config.learner_count,
@@ -90,9 +101,15 @@ def run_experiment(config: ExperimentConfig) -> Path:
         )
         rows: list[dict[str, object]] = []
         concept_rows: list[dict[str, object]] = []
+        evaluation_policy = evaluation_policy_from_config(config)
+        graph = build_graph(load_concepts())
         for learner_index, synthetic in enumerate(learners):
             latent_mastery = dict(synthetic.initial_mastery_by_concept)
-            initial_system_mastery = dict(synthetic.initial_mastery_by_concept)
+            initial_system_mastery = {
+                concept_id: config.system_initial_mastery for concept_id in concept_ids
+            }
+            simulated_now = datetime(2026, 1, 1, tzinfo=UTC)
+            synthetic_last_practice = {concept_id: simulated_now for concept_id in concept_ids}
             synthetic_misconceptions = {
                 misconception_id: synthetic.misconception_tendency
                 for concept_id in concept_ids
@@ -117,7 +134,7 @@ def run_experiment(config: ExperimentConfig) -> Path:
                     LearnerConceptState(
                         learner_id=learner.id,
                         concept_id=concept_id,
-                        mastery_probability=synthetic.initial_mastery_by_concept[concept_id],
+                        mastery_probability=config.system_initial_mastery,
                         uncertainty=0.5,
                         attempts=0,
                         correct_attempts=0,
@@ -127,10 +144,20 @@ def run_experiment(config: ExperimentConfig) -> Path:
                         response_time_count=0,
                         hint_usage_rate=0.0,
                         forgetting_rate=synthetic.forgetting_factor,
+                        last_practised_at=simulated_now,
                     )
                 )
             db.commit()
             for step in range(config.interactions_per_learner):
+                interval_rng = np.random.default_rng(
+                    config.random_seed + learner_index * 30_000 + step
+                )
+                elapsed_days = (
+                    float(interval_rng.uniform(2.0, 7.0))
+                    if interval_rng.random() < synthetic.interruption_probability
+                    else 0.25
+                )
+                simulated_now += timedelta(days=elapsed_days)
                 eligible = [item for item in questions if item.concept_id == next_concept_id]
                 question = (
                     eligible[step % len(eligible)]
@@ -168,21 +195,57 @@ def run_experiment(config: ExperimentConfig) -> Path:
                     if state
                     else synthetic.initial_mastery_by_concept[question.concept_id]
                 )
+                system_last_practised_at = state.last_practised_at if state else None
+                system_retained_mastery_before = retained_mastery(
+                    system_mastery_before,
+                    system_last_practised_at,
+                    synthetic.forgetting_factor,
+                    simulated_now,
+                )
                 synthetic_assessed_mastery_before = latent_mastery[question.concept_id]
+                days_since_synthetic_practice = max(
+                    0.0,
+                    (simulated_now - synthetic_last_practice[question.concept_id]).total_seconds()
+                    / 86_400,
+                )
+                synthetic_retained_mastery_before = float(
+                    synthetic_assessed_mastery_before
+                    * math.exp(-synthetic.forgetting_factor * days_since_synthetic_practice)
+                )
                 current_misconceptions = {
                     misconception_id: synthetic_misconceptions[misconception_id]
                     for misconception_id in misconception_ids.get(question.concept_id, ())
                 }
                 response = simulate_response(
                     synthetic.latent_skill,
-                    synthetic_assessed_mastery_before,
+                    synthetic_retained_mastery_before,
                     question.difficulty,
                     synthetic.hint_probability,
                     current_misconceptions,
                     synthetic.response_speed_factor,
                     np.random.default_rng(config.random_seed + learner_index * 10000 + step),
+                    synthetic.guess_probability,
+                    synthetic.slip_probability,
                 )
-                submitted = question.correct_answer if response.correct else "0"
+                submitted = (
+                    question.correct_answer if response.correct else "__synthetic_incorrect__"
+                )
+                cache_rng = np.random.default_rng(
+                    config.random_seed + learner_index * 40_000 + step
+                )
+                educational_content_cached = cache_rng.random() < synthetic.offline_probability
+                cached_activities = [
+                    item.id
+                    for item in activities_by_concept.get(question.concept_id, [])
+                    if item.available_offline and item.bundled_locally
+                ]
+                offline_content = OfflineContentRequest(
+                    cached_activity_ids=(cached_activities if educational_content_cached else []),
+                    cached_concept_ids=(
+                        [question.concept_id] if educational_content_cached else []
+                    ),
+                    app_shell_available=True,
+                )
                 payload = InteractionCreate(
                     learner_id=learner.id,
                     question_id=question.id,
@@ -204,9 +267,14 @@ def run_experiment(config: ExperimentConfig) -> Path:
                             "inference_latency_ms",
                         )
                     },
+                    offline_content=offline_content,
                 )
                 result = process_interaction(
-                    payload, question, db, evaluation_policy_from_config(config)
+                    payload,
+                    question,
+                    db,
+                    evaluation_policy,
+                    now=simulated_now,
                 )
                 recommendation = result.recommendation
                 synthetic_misconception_id = response.synthetic_misconception_id
@@ -219,6 +287,24 @@ def run_experiment(config: ExperimentConfig) -> Path:
                 matched_remediation = False
                 activity = db.get(LearningActivity, recommendation.selected_activity_id)
                 selected_concept = recommendation.selected_concept_id
+                all_states = list(
+                    db.scalars(
+                        select(LearnerConceptState).where(
+                            LearnerConceptState.learner_id == learner.id
+                        )
+                    )
+                )
+                required_prerequisites = prerequisite_ids(graph, question.concept_id)
+                unmet_prerequisites = {
+                    concept_id
+                    for concept_id in required_prerequisites
+                    if next(
+                        item.mastery_probability
+                        for item in all_states
+                        if item.concept_id == concept_id
+                    )
+                    < evaluation_policy.settings.prerequisite_mastery_threshold
+                }
                 synthetic_selected_mastery_before = latent_mastery[selected_concept]
                 synthetic_selected_mastery_after = synthetic_selected_mastery_before
                 if activity is not None:
@@ -231,6 +317,7 @@ def run_experiment(config: ExperimentConfig) -> Path:
                         selected_concept,
                         activity.difficulty,
                         np.random.default_rng(config.random_seed + learner_index * 20_000 + step),
+                        synthetic.learning_rate,
                     )
                     eligible_activity_misconceptions = (
                         set(json.loads(activity.misconception_ids))
@@ -248,13 +335,7 @@ def run_experiment(config: ExperimentConfig) -> Path:
                         eligible_activity_misconceptions,
                     )
                     next_concept_id = selected_concept if config.enable_adaptation else None
-                all_states = list(
-                    db.scalars(
-                        select(LearnerConceptState).where(
-                            LearnerConceptState.learner_id == learner.id
-                        )
-                    )
-                )
+                    synthetic_last_practice[selected_concept] = simulated_now
                 selected_probability = recommendation.selected_candidate_predicted_probability
                 adaptive_latency = recommendation.measured_total_adaptive_latency_ms
                 true_probability = response.synthetic_true_correct_probability
@@ -288,14 +369,12 @@ def run_experiment(config: ExperimentConfig) -> Path:
                         "synthetic_assessed_concept_id": question.concept_id,
                         "synthetic_assessed_mastery_before": synthetic_assessed_mastery_before,
                         "synthetic_assessed_mastery_after": latent_mastery[question.concept_id],
+                        "synthetic_retained_mastery_before": synthetic_retained_mastery_before,
+                        "synthetic_days_since_practice": days_since_synthetic_practice,
                         "synthetic_selected_concept_id": selected_concept,
                         "synthetic_selected_mastery_before": synthetic_selected_mastery_before,
                         "synthetic_selected_mastery_after": synthetic_selected_mastery_after,
-                        "retained_mastery": (
-                            result.learner_state.retained_mastery
-                            if config.enable_forgetting
-                            else result.learner_state.mastery_probability
-                        ),
+                        "retained_mastery": system_retained_mastery_before,
                         "uncertainty": result.learner_state.uncertainty,
                         "misconception_id": result.misconception.id,
                         "system_detected_misconception_id": result.misconception.id,
@@ -313,11 +392,22 @@ def run_experiment(config: ExperimentConfig) -> Path:
                             and synthetic_misconception_after
                             < config.synthetic_misconception_resolution_threshold
                         ),
-                        "resource_score": resource.score,
+                        "resource_score": result.resource_state.score,
+                        "available_memory_mb": resource.available_memory_mb,
+                        "total_memory_mb": resource.total_memory_mb,
+                        "memory_used_mb": (resource.total_memory_mb - resource.available_memory_mb),
+                        "cpu_percent": resource.cpu_percent,
+                        "battery_percent": resource.battery_percent,
                         "resource_profile": resource_profile,
                         "network_available": resource.network_available,
                         "network_quality": resource.network_quality,
                         "offline": resource.offline,
+                        "prerequisite_gap_present": bool(unmet_prerequisites),
+                        "prerequisite_violation": bool(
+                            unmet_prerequisites
+                            and recommendation.adaptation_path != "prerequisite_review"
+                            and selected_concept not in unmet_prerequisites
+                        ),
                         "requested_adaptation_path": recommendation.requested_adaptation_path,
                         "actual_adaptation_path": recommendation.adaptation_path,
                         "fallback_used": recommendation.fallback_used,
@@ -326,6 +416,13 @@ def run_experiment(config: ExperimentConfig) -> Path:
                         "selected_activity_id": recommendation.selected_activity_id,
                         "selected_activity_type": activity.activity_type if activity else None,
                         "selected_activity_difficulty": activity.difficulty if activity else None,
+                        "bandwidth_kb": (
+                            0.0
+                            if resource.offline
+                            else float(activity.estimated_size_kb)
+                            if activity
+                            else 0.0
+                        ),
                         "offline_content_available": recommendation.offline_content_available,
                         "matching_offline_activity_ids": json.dumps(
                             recommendation.matching_offline_activity_ids
@@ -386,6 +483,7 @@ def run_experiment(config: ExperimentConfig) -> Path:
                 )
     engine.dispose()
     interactions = pd.DataFrame(rows)
+    integrity = validate_interaction_frame(interactions, config)
     interactions.to_parquet(directory / "interactions.parquet", index=False)
     interactions.to_csv(directory / "interactions.csv", index=False)
     concept_outcomes = pd.DataFrame(concept_rows)
@@ -406,13 +504,14 @@ def run_experiment(config: ExperimentConfig) -> Path:
         "config_hash": config.config_hash,
         "bootstrap_samples": config.bootstrap_samples,
         "educational_effectiveness_validated": False,
+        "integrity": integrity,
         **condition_metrics(interactions, concept_outcomes, config.mastery_threshold),
         **synthetic_ml_metrics(interactions),
     }
     (directory / "config.json").write_text(config.model_dump_json(indent=2), encoding="utf-8")
     (directory / "provenance.json").write_text(
         json.dumps(
-            collect_provenance()
+            collect_provenance(get_response_predictor_registry().get_model_version())
             | {
                 "config_hash": config.config_hash,
                 "condition": config.condition,

@@ -19,6 +19,7 @@ def calculate_resource_score(
     battery_percent: float | None,
     network_available: bool,
     network_quality: float | None,
+    settings: Settings | None = None,
 ) -> float:
     """Weight memory, CPU availability, battery, and network capacity."""
     memory_score = clamp(available_memory_mb / total_memory_mb) if total_memory_mb > 0 else 0.0
@@ -29,8 +30,12 @@ def calculate_resource_score(
         if network_available and network_quality is not None
         else float(network_available)
     )
+    configuration = settings or get_settings()
     return clamp(
-        0.35 * memory_score + 0.25 * cpu_score + 0.20 * battery_score + 0.20 * network_score
+        configuration.resource_memory_weight * memory_score
+        + configuration.resource_cpu_weight * cpu_score
+        + configuration.resource_battery_weight * battery_score
+        + configuration.resource_network_weight * network_score
     )
 
 
@@ -72,6 +77,7 @@ def snapshot_from_measurements(
     network_quality: float | None,
     storage_available_mb: float,
     inference_latency_ms: float,
+    settings: Settings | None = None,
 ) -> ResourceSnapshot:
     """Create a scored snapshot from observed or simulated measurements."""
     score = calculate_resource_score(
@@ -81,6 +87,7 @@ def snapshot_from_measurements(
         battery_percent,
         network_available,
         network_quality,
+        settings,
     )
     return ResourceSnapshot(
         available_memory_mb,
@@ -94,5 +101,5 @@ def snapshot_from_measurements(
         storage_available_mb,
         inference_latency_ms,
         score,
-        classify_resource_level(score),
+        classify_resource_level(score, settings),
     )

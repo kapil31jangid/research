@@ -17,9 +17,10 @@ def simulate_resource(profile: str, rng: np.random.Generator, step: int = 0) -> 
     memory, cpu, battery, online = _PROFILES.get(profile, _PROFILES["mixed"])
     if profile == "mixed" and step % 5 == 4:
         online = False
+    total_memory_mb = 8192.0
     return snapshot_from_measurements(
-        max(64, memory + rng.normal(0, memory * 0.05)),
-        8192,
+        float(np.clip(memory + rng.normal(0, memory * 0.05), 64, total_memory_mb)),
+        total_memory_mb,
         float(np.clip(cpu + rng.normal(0, 5), 0, 100)),
         float(np.clip(battery - step * 0.5, 1, 100)),
         False,

@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.controller.explanation import explain_decision
 from app.controller.policy import ControllerDecision, ControllerInput
+from app.core.config import Settings
 from app.curriculum.graph import build_graph
 from app.curriculum.loader import load_concepts
 from app.curriculum.prerequisites import prerequisite_mastery
@@ -80,6 +81,7 @@ def generate_recommendation(
     uncertainty_enabled: bool = True,
     forgetting_enabled: bool = True,
     eligible_concept_ids: set[str] | None = None,
+    settings: Settings | None = None,
 ) -> RecommendationRead:
     """Score candidates, retain at least three alternatives when available, and persist."""
     concepts = {concept.id: concept for concept in db.scalars(select(Concept))}
@@ -153,7 +155,7 @@ def generate_recommendation(
     ]
     ranked = sorted(
         (
-            (*score_candidate(candidate, controller_input.resource.score), candidate)
+            (*score_candidate(candidate, controller_input.resource.score, settings), candidate)
             for candidate in candidates
         ),
         key=lambda item: item[0],

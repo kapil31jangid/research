@@ -22,6 +22,8 @@ def simulate_response(
     misconception: float | dict[str, float],
     speed: float,
     rng: np.random.Generator,
+    guess_probability: float = 0.0,
+    slip_probability: float = 0.0,
 ) -> SyntheticResponse:
     misconception_id = None
     misconception_penalty = float(misconception) if not isinstance(misconception, dict) else 0.0
@@ -44,7 +46,14 @@ def simulate_response(
         + 0.25 * hints
         + rng.normal(0, 0.25)
     )
-    probability = float(1 / (1 + np.exp(-logit)))
+    base_probability = float(1 / (1 + np.exp(-logit)))
+    probability = float(
+        np.clip(
+            guess_probability + (1.0 - slip_probability - guess_probability) * base_probability,
+            0.0,
+            1.0,
+        )
+    )
     used_hints = int(rng.random() < hints)
     correct = bool(rng.random() < probability)
     return SyntheticResponse(

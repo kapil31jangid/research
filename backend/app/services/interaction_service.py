@@ -17,6 +17,7 @@ from app.curriculum.prerequisites import prerequisite_mastery
 from app.curriculum.registry import get_curriculum_context
 from app.evaluation.policy import EvaluationPolicy
 from app.learner_model.bkt import update_mastery
+from app.learner_model.forgetting import retained_mastery
 from app.learner_model.response_time import update_response_time_statistics
 from app.learner_model.state import parameters_for_concept
 from app.learner_model.uncertainty import calculate_uncertainty
@@ -58,7 +59,7 @@ class ProcessedInteraction:
     recommendation: RecommendationRead
 
 
-def _resource_for(payload: InteractionCreate) -> ResourceSnapshot:
+def _resource_for(payload: InteractionCreate, settings=None) -> ResourceSnapshot:
     if payload.device_resource_state is None:
         return current_resources()
     value = payload.device_resource_state
@@ -72,6 +73,7 @@ def _resource_for(payload: InteractionCreate) -> ResourceSnapshot:
         value.network_quality,
         value.storage_available_mb,
         value.inference_latency_ms,
+        settings,
     )
 
 
@@ -127,22 +129,31 @@ def process_interaction(
     question: Question,
     db: Session,
     evaluation_policy: EvaluationPolicy | None = None,
+    now: datetime | None = None,
 ) -> ProcessedInteraction:
     """Run validation, BKT update, misconception detection, controller, and recommendation."""
     total_started = perf_counter_ns()
+    current_time = now or datetime.now(UTC)
     try:
         states = ensure_learner_states(
             payload.learner_id, db, commit=False, include_prerequisites=True
         )
         state = next(item for item in states if item.concept_id == question.concept_id)
+        policy = evaluation_policy or EvaluationPolicy()
+        settings = policy.settings or get_settings()
+        retained_mastery_before = retained_mastery(
+            state.mastery_probability,
+            state.last_practised_at,
+            state.forgetting_rate,
+            current_time,
+        )
         correct = answers_equivalent(
             payload.submitted_answer, question.correct_answer, question.answer_type
         )
-        resource = _resource_for(payload)
+        resource = _resource_for(payload, settings)
         interaction = _create_interaction_record(payload, question, correct, resource)
         db.add(interaction)
         previous = state.attempts
-        policy = evaluation_policy or EvaluationPolicy()
         if policy.enable_bkt:
             state.mastery_probability = update_mastery(
                 state.mastery_probability,
@@ -159,19 +170,19 @@ def process_interaction(
         update_response_time_statistics(
             state,
             payload.response_time_ms,
-            get_settings().response_time_variation_reference_seconds,
+            settings.response_time_variation_reference_seconds,
         )
         state.hint_usage_rate = (
             state.hint_usage_rate * previous + int(payload.hints_used > 0)
         ) / state.attempts
-        state.uncertainty = calculate_uncertainty(
-            "heuristic",
-            state.mastery_probability,
-            state.attempts,
-            correctness,
-            state.response_time_variation,
-        )
-        state.last_practised_at = datetime.now(UTC)
+        if policy.enable_uncertainty:
+            state.uncertainty = calculate_uncertainty(
+                "heuristic",
+                state.mastery_probability,
+                state.attempts,
+                correctness,
+                state.response_time_variation,
+            )
         db.add(
             MasteryHistory(
                 learner_id=payload.learner_id,
@@ -190,7 +201,7 @@ def process_interaction(
                     Interaction.concept_id == question.concept_id,
                 )
                 .order_by(Interaction.created_at.desc())
-                .limit(get_settings().misconception_evidence_window)
+                .limit(settings.misconception_evidence_window)
             )
         )
         patterns = {
@@ -213,7 +224,7 @@ def process_interaction(
                     for item in recent
                 ],
                 load_rules(),
-                get_settings(),
+                settings,
             )
             if policy.enable_misconceptions
             else []
@@ -237,22 +248,29 @@ def process_interaction(
         controller_resource = resource
         if not policy.enable_resource_awareness:
             controller_resource = snapshot_from_measurements(
-                8000, 8192, 5, 100, True, True, 1.0, 10_000, 1.0
+                8000, 8192, 5, 100, True, True, 1.0, 10_000, 1.0, settings
             )
+        candidate_prerequisite_mastery = (
+            prerequisite_mastery(build_graph(load_concepts()), question.concept_id, mastery)
+            if policy.enable_prerequisites
+            else 1.0
+        )
         controller_input = ControllerInput(
             state.misconception_confidence if policy.enable_misconceptions else 0.0,
-            prerequisite_mastery(build_graph(load_concepts()), question.concept_id, mastery),
+            candidate_prerequisite_mastery,
             state.uncertainty if policy.enable_uncertainty else 0.0,
-            serialise_state(state).retained_mastery
-            if policy.enable_forgetting
-            else state.mastery_probability,
+            retained_mastery_before if policy.enable_forgetting else 1.0,
             sum(item.attempts for item in states),
             controller_resource,
             offline_cache_available=availability.available,
             ml_model_available=model_registry.is_available() if policy.enable_ml else False,
         )
         decision = (
-            decide_adaptation(controller_input)
+            (
+                decide_adaptation(controller_input, settings)
+                if policy.settings is not None
+                else decide_adaptation(controller_input)
+            )
             if policy.enable_adaptation
             else ControllerDecision(
                 adaptation_path="rule_based_recommendation",
@@ -337,6 +355,7 @@ def process_interaction(
                     if decision.adaptation_path == "prerequisite_review"
                     else active_concept_ids(payload.learner_id, db)
                 ),
+                settings=settings,
             )
 
         try:
@@ -358,12 +377,13 @@ def process_interaction(
             perf_counter_ns() - recommendation_started
         ) / 1_000_000
         record.measured_total_adaptive_latency_ms = (perf_counter_ns() - total_started) / 1_000_000
+        state.last_practised_at = current_time
         db.commit()
         db.refresh(interaction)
         db.refresh(record)
         return ProcessedInteraction(
             interaction=_read(interaction),
-            learner_state=serialise_state(state),
+            learner_state=serialise_state(state, current_time),
             misconception=MisconceptionRead(
                 detected=misconception is not None,
                 id=misconception.id if misconception else None,

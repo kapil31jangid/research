@@ -12,7 +12,9 @@ build/
 node_modules/
 frontend/dist/
 data/models/
+data/synthetic/
 *.tsbuildinfo
 frontend/vite.config.js
 frontend/vite.config.d.ts
 artifacts/
+results/

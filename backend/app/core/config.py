@@ -25,6 +25,17 @@ class Settings(BaseSettings):
     ml_minimum_interactions: int = Field(default=30, ge=1)
     ml_target_success_probability: float = Field(default=0.70, ge=0.0, le=1.0)
     ml_learning_zone_weight: float = Field(default=0.10, ge=0.0, le=1.0)
+    resource_memory_weight: float = Field(default=0.35, ge=0.0, le=1.0)
+    resource_cpu_weight: float = Field(default=0.25, ge=0.0, le=1.0)
+    resource_battery_weight: float = Field(default=0.20, ge=0.0, le=1.0)
+    resource_network_weight: float = Field(default=0.20, ge=0.0, le=1.0)
+    activity_gain_weight: float = Field(default=0.30, ge=0.0, le=1.0)
+    activity_prerequisite_weight: float = Field(default=0.20, ge=0.0, le=1.0)
+    activity_retention_weight: float = Field(default=0.20, ge=0.0, le=1.0)
+    activity_information_weight: float = Field(default=0.15, ge=0.0, le=1.0)
+    activity_misconception_weight: float = Field(default=0.10, ge=0.0, le=1.0)
+    activity_cost_weight: float = Field(default=0.05, ge=0.0, le=1.0)
+    activity_cost_reference_ms: float = Field(default=2.0, gt=0.0)
     response_time_variation_reference_seconds: float = Field(default=5.0, gt=0.0)
     model_artifact_path: str = "data/models/response_predictor.joblib"
     supported_model_version: str = "0.1.0"
@@ -43,6 +54,16 @@ class Settings(BaseSettings):
             raise ValueError("Resource thresholds must be ordered: critical <= low <= moderate")
         if self.misconception_minimum_evidence > self.misconception_evidence_window:
             raise ValueError("Misconception evidence count cannot exceed its window")
+        resource_weight_sum = sum(
+            (
+                self.resource_memory_weight,
+                self.resource_cpu_weight,
+                self.resource_battery_weight,
+                self.resource_network_weight,
+            )
+        )
+        if abs(resource_weight_sum - 1.0) > 1e-9:
+            raise ValueError("Resource-score weights must sum to 1")
         return self
 
     @property

@@ -3,15 +3,15 @@
 from app.evaluation.config import ExperimentConfig
 
 ABLATIONS = (
+    "static_baseline",
+    "bkt_only",
+    "bkt_uncertainty",
+    "pedagogical_adaptive",
     "full",
     "no_uncertainty",
     "no_forgetting",
     "no_misconceptions",
     "no_resource_awareness",
-    "no_offline_adaptation",
-    "no_ml",
-    "bkt_only",
-    "static_baseline",
 )
 
 _FULL = {
@@ -19,6 +19,7 @@ _FULL = {
     "enable_bkt": True,
     "enable_uncertainty": True,
     "enable_forgetting": True,
+    "enable_prerequisites": True,
     "enable_misconceptions": True,
     "enable_resource_awareness": True,
     "enable_offline_adaptation": True,
@@ -34,6 +35,7 @@ def condition_config(config: ExperimentConfig, condition: str) -> ExperimentConf
         flags.update(
             enable_uncertainty=False,
             enable_forgetting=False,
+            enable_prerequisites=False,
             enable_misconceptions=False,
             enable_resource_awareness=False,
             enable_offline_adaptation=False,
@@ -42,6 +44,7 @@ def condition_config(config: ExperimentConfig, condition: str) -> ExperimentConf
     elif condition == "bkt_uncertainty":
         flags.update(
             enable_forgetting=False,
+            enable_prerequisites=False,
             enable_misconceptions=False,
             enable_resource_awareness=False,
             enable_offline_adaptation=False,
@@ -70,3 +73,25 @@ def condition_config(config: ExperimentConfig, condition: str) -> ExperimentConf
     elif condition != "full":
         raise ValueError(f"unknown condition: {condition}")
     return ExperimentConfig.model_validate(config.model_dump() | {"condition": condition} | flags)
+
+
+def condition_matrix(config: ExperimentConfig) -> list[dict[str, str | bool]]:
+    """Return the exact runtime switches for the canonical paper conditions."""
+    fields = (
+        "enable_bkt",
+        "enable_uncertainty",
+        "enable_forgetting",
+        "enable_prerequisites",
+        "enable_misconceptions",
+        "enable_resource_awareness",
+        "enable_offline_adaptation",
+        "enable_ml",
+    )
+    return [
+        {"condition": condition}
+        | {
+            field.removeprefix("enable_"): getattr(condition_config(config, condition), field)
+            for field in fields
+        }
+        for condition in ABLATIONS
+    ]

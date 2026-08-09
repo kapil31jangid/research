@@ -5,6 +5,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from app.evaluation.statistics import bootstrap_confidence_interval
+
 
 def write_plots(interactions: pd.DataFrame, directory: Path) -> None:
     plots = directory / "plots"
@@ -55,6 +57,8 @@ def write_suite_plots(
     interactions: pd.DataFrame,
     matched_predictions: pd.DataFrame,
     directory: Path,
+    bootstrap_seed: int = 42,
+    bootstrap_samples: int = 10_000,
 ) -> None:
     plots = directory / "plots"
     plots.mkdir(exist_ok=True)
@@ -137,6 +141,92 @@ def write_suite_plots(
         for extension in ("png", "pdf"):
             figure.savefig(plots / f"{filename}.{extension}", bbox_inches="tight", dpi=160)
         plt.close(figure)
+
+    major_conditions = [
+        "static_baseline",
+        "bkt_only",
+        "bkt_uncertainty",
+        "pedagogical_adaptive",
+        "full",
+    ]
+    gain_rows = []
+    for condition in major_conditions:
+        values = (
+            seed_metrics.loc[seed_metrics.condition == condition, "mean_synthetic_normalised_gain"]
+            .dropna()
+            .astype(float)
+            .tolist()
+        )
+        if values:
+            low, high = bootstrap_confidence_interval(values, bootstrap_seed, bootstrap_samples)
+            gain_rows.append(
+                {
+                    "condition": condition,
+                    "mean_normalized_gain": float(pd.Series(values).mean()),
+                    "ci_low": low,
+                    "ci_high": high,
+                }
+            )
+    gain_frame = pd.DataFrame(gain_rows)
+    gain_frame.to_csv(plots / "figure_4_normalized_gain.csv", index=False)
+    if not gain_frame.empty:
+        figure, axis = plt.subplots(figsize=(7.0, 4.2))
+        means = gain_frame.mean_normalized_gain.to_numpy()
+        axis.bar(
+            gain_frame.condition,
+            means,
+            yerr=[means - gain_frame.ci_low, gain_frame.ci_high - means],
+            capsize=3,
+        )
+        axis.tick_params(axis="x", rotation=25)
+        axis.set(
+            title="Normalized gain under synthetic evaluation",
+            xlabel="Experimental condition",
+            ylabel="Mean normalized gain (95% bootstrap CI)",
+        )
+        axis.axhline(0.0, color="black", linewidth=0.7)
+        for extension in ("png", "pdf"):
+            figure.savefig(
+                plots / f"figure_4_normalized_gain.{extension}",
+                bbox_inches="tight",
+                dpi=300,
+            )
+        plt.close(figure)
+
+    resource_frame = (
+        seed_metrics.groupby("condition", as_index=False)
+        .agg(
+            mean_resource_score=("mean_resource_score", "mean"),
+            resource_normalised_utility=("resource_normalised_utility", "mean"),
+            mean_latency_ms=("mean_latency", "mean"),
+        )
+        .sort_values("condition")
+    )
+    resource_frame.to_csv(plots / "figure_5_resource_performance.csv", index=False)
+    figure, axis = plt.subplots(figsize=(7.0, 4.2))
+    scatter = axis.scatter(
+        resource_frame.mean_latency_ms,
+        resource_frame.resource_normalised_utility,
+        c=resource_frame.mean_resource_score,
+        cmap="viridis",
+    )
+    for row in resource_frame.itertuples(index=False):
+        axis.annotate(
+            row.condition, (row.mean_latency_ms, row.resource_normalised_utility), fontsize=7
+        )
+    axis.set(
+        title="Resource-performance comparison under synthetic evaluation",
+        xlabel="Mean adaptive latency (ms)",
+        ylabel="Resource-normalized utility",
+    )
+    figure.colorbar(scatter, ax=axis, label="Mean resource score")
+    for extension in ("png", "pdf"):
+        figure.savefig(
+            plots / f"figure_5_resource_performance.{extension}",
+            bbox_inches="tight",
+            dpi=300,
+        )
+    plt.close(figure)
     for filename, kind in (
         ("ml_predicted_vs_observed", "scatter"),
         ("ml_calibration_curve", "calibration"),

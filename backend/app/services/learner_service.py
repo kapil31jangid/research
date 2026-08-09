@@ -1,6 +1,7 @@
 """Learner-state persistence and read-model operations."""
 
 import json
+from datetime import datetime
 
 import networkx as nx
 from sqlalchemy import select
@@ -84,7 +85,9 @@ def active_concept_ids(learner_id: str, db: Session) -> set[str]:
     return concept_ids_for_subject(learner.active_subject_id)
 
 
-def serialise_state(state: LearnerConceptState) -> LearnerConceptStateRead:
+def serialise_state(
+    state: LearnerConceptState, now: datetime | None = None
+) -> LearnerConceptStateRead:
     """Apply dynamic forgetting decay while preserving stored mastery."""
     settings = get_settings()
     rate = (
@@ -95,7 +98,9 @@ def serialise_state(state: LearnerConceptState) -> LearnerConceptStateRead:
     return LearnerConceptStateRead(
         concept_id=state.concept_id,
         mastery_probability=state.mastery_probability,
-        retained_mastery=retained_mastery(state.mastery_probability, state.last_practised_at, rate),
+        retained_mastery=retained_mastery(
+            state.mastery_probability, state.last_practised_at, rate, now
+        ),
         uncertainty=state.uncertainty,
         attempts=state.attempts,
         correct_attempts=state.correct_attempts,

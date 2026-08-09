@@ -1,8 +1,8 @@
 {
-  "experiment_name": "final-study",
+  "experiment_name": "weight-sensitivity",
   "random_seed": 11,
-  "learner_count": 500,
-  "interactions_per_learner": 40,
+  "learner_count": 50,
+  "interactions_per_learner": 20,
   "condition": "full",
   "learner_profile_distribution": {
     "fast_learner": 0.125,
@@ -14,10 +14,9 @@
     "intermittent": 0.125,
     "constrained_resource": 0.125
   },
-  "output_dir": "results/paper_full/raw",
-  "max_interactions_without_override": 900000,
+  "output_dir": "results/paper_full/sensitivity_runs",
+  "max_interactions_without_override": 100000,
   "bootstrap_samples": 10000,
   "ml_minimum_interactions": 10,
-  "suite_workers": 8,
-  "publish_paper_layout": true
+  "suite_workers": 8
 }
