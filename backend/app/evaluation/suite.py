@@ -119,7 +119,19 @@ def paired_comparisons(
                     "matched_seed_count": len(valid),
                 }
             )
-    return pd.DataFrame(rows)
+    return pd.DataFrame(
+        rows,
+        columns=[
+            "metric",
+            "reference_condition",
+            "comparison_condition",
+            "mean_difference",
+            "ci_low",
+            "ci_high",
+            "effect_size",
+            "matched_seed_count",
+        ],
+    )
 
 
 def run_suite(

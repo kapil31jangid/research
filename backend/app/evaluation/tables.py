@@ -103,15 +103,18 @@ def write_suite_tables(
         "mean_latency": "Delta Latency",
         "resource_normalised_utility": "Delta Utility",
     }
-    ablation_effects = (
-        paired.loc[paired.metric.isin(ablation_fields)]
-        .pivot(index="comparison_condition", columns="metric", values="mean_difference")
-        .reset_index()
-        .rename(
-            columns={"comparison_condition": "Ablation"}
-            | {field: label for field, label in ablation_fields.items()}
+    if paired.empty or "metric" not in paired:
+        ablation_effects = pd.DataFrame(columns=["Ablation", *ablation_fields.values()])
+    else:
+        ablation_effects = (
+            paired.loc[paired.metric.isin(ablation_fields)]
+            .pivot(index="comparison_condition", columns="metric", values="mean_difference")
+            .reset_index()
+            .rename(
+                columns={"comparison_condition": "Ablation"}
+                | {field: label for field, label in ablation_fields.items()}
+            )
         )
-    )
     _write_formats(ablation_effects, tables / "ablation_effects")
     ml_fields = [
         "condition",

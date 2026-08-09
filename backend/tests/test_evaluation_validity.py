@@ -550,3 +550,20 @@ def test_multi_seed_suite_writes_aggregate_statistics_plots_and_tables(tmp_path)
     main = pd.read_csv(directory / "tables" / "main_comparison.csv")
     assert "Normalized Gain 95% CI Low" in main
     assert "Normalized Gain 95% CI High" in main
+
+
+def test_single_condition_suite_handles_empty_paired_comparisons(tmp_path) -> None:
+    config = ExperimentConfig(
+        experiment_name="single-condition",
+        random_seed=3,
+        learner_count=1,
+        interactions_per_learner=1,
+        output_dir=str(tmp_path / "artifacts"),
+        learner_profile_distribution={"mixed": 1.0},
+        bootstrap_samples=100,
+    )
+    directory = run_suite(config, ("no_ml",), [3])
+    paired = pd.read_csv(directory / "paired_comparisons.csv")
+    effects = pd.read_csv(directory / "tables" / "ablation_effects.csv")
+    assert paired.empty
+    assert effects.empty
