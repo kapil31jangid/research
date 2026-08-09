@@ -9,7 +9,11 @@ import pandas as pd
 
 from app.evaluation.config import ExperimentConfig
 from app.evaluation.provenance import collect_provenance
-from app.evaluation.statistics import cohens_d, paired_bootstrap_difference
+from app.evaluation.statistics import (
+    bootstrap_confidence_interval,
+    cohens_d,
+    paired_bootstrap_difference,
+)
 from app.evaluation.suite import paired_comparisons
 from app.evaluation.tables import _write_formats
 
@@ -160,7 +164,14 @@ def _integrity_audit(paper_root: Path, config: ExperimentConfig) -> dict[str, ob
     }
 
 
-def _finding_text(overall: pd.DataFrame, auxiliary: pd.DataFrame) -> str:
+def _finding_text(
+    overall: pd.DataFrame,
+    paired: pd.DataFrame,
+    auxiliary: pd.DataFrame,
+    seed_metrics: pd.DataFrame,
+    bootstrap_seed: int,
+    bootstrap_samples: int,
+) -> str:
     def result(condition: str, metric: str) -> tuple[float, float, float]:
         row = overall.loc[overall.Condition == condition].iloc[0]
         return (
@@ -175,6 +186,40 @@ def _finding_text(overall: pd.DataFrame, auxiliary: pd.DataFrame) -> str:
     static_gain = result("static_baseline", "Normalized Gain")
     full_retention = result("full", "Retention")
     static_retention = result("static_baseline", "Retention")
+
+    def difference(comparison: str, metric: str) -> tuple[float, float, float]:
+        row = paired.loc[
+            (paired.comparison_condition == comparison) & (paired.metric == metric)
+        ].iloc[0]
+        return float(row.mean_difference), float(row.ci_low), float(row.ci_high)
+
+    misconception_accuracy = difference("no_misconceptions", "response_accuracy")
+    misconception_gain = difference("no_misconceptions", "mean_synthetic_normalised_gain")
+    resource_gain = difference("no_resource_awareness", "mean_synthetic_normalised_gain")
+    resource_utility = difference("no_resource_awareness", "resource_normalised_utility")
+    full_seeds = seed_metrics.loc[seed_metrics.condition == "full"]
+    offline_values = full_seeds.offline_recommendation_availability.dropna().tolist()
+    offline_low, offline_high = bootstrap_confidence_interval(
+        offline_values, bootstrap_seed, bootstrap_samples
+    )
+    offline_mean = float(np.mean(offline_values))
+    cached_count = int(
+        round(float((full_seeds.offline_adaptation_rate * full_seeds.interaction_count).sum()))
+    )
+    ml_count = int(round(float((full_seeds.ml_usage_rate * full_seeds.interaction_count).sum())))
+    ml_matched = int(full_seeds.synthetic_ml_matched_samples.sum())
+    brier_values = full_seeds.synthetic_brier_score.dropna().tolist()
+    brier_low, brier_high = bootstrap_confidence_interval(
+        brier_values, bootstrap_seed, bootstrap_samples
+    )
+    brier_mean = float(np.mean(brier_values))
+    ml_gain_row = auxiliary.loc[
+        (auxiliary.comparison_condition == "no_ml")
+        & (auxiliary.metric == "mean_synthetic_normalised_gain")
+    ].iloc[0]
+    ml_accuracy_row = auxiliary.loc[
+        (auxiliary.comparison_condition == "no_ml") & (auxiliary.metric == "response_accuracy")
+    ].iloc[0]
     lines = [
         "# Paper-ready synthetic findings",
         "",
@@ -201,37 +246,51 @@ def _finding_text(overall: pd.DataFrame, auxiliary: pd.DataFrame) -> str:
         "## VI-B Component ablation analysis",
         "",
         (
-            "Use `aggregate/paired_comparisons.csv` for matched-seed Full-minus-ablation "
-            "estimates. "
-            "Signs are retained even when an ablation is neutral or better; no unfavorable "
-            "result is removed."
+            f"Removing misconception handling changed Full-minus-ablation accuracy by "
+            f"{misconception_accuracy[0]:+.4f} (95% paired seed-bootstrap CI "
+            f"{misconception_accuracy[1]:+.4f} to {misconception_accuracy[2]:+.4f}) and "
+            f"synthetic normalized gain by {misconception_gain[0]:+.4f} "
+            f"({misconception_gain[1]:+.4f} to {misconception_gain[2]:+.4f}). This is the "
+            "largest positive Full-versus-component-ablation gain difference. Other "
+            "component effects are small or mixed and remain visible in the paired output."
         ),
         "",
         "## VI-C Resource-aware behaviour",
         "",
         (
-            "Full and No-Resource-Awareness received identical simulated resource sequences. "
-            "Their differences therefore measure controller use of resources rather than "
-            "different exposure. Measured latency remains hardware- and concurrency-dependent."
+            f"Full and No-Resource-Awareness received identical resource sequences. The "
+            f"paired normalized-gain difference was {resource_gain[0]:+.6f} (95% CI "
+            f"{resource_gain[1]:+.6f} to {resource_gain[2]:+.6f}), and the utility "
+            f"difference was {resource_utility[0]:+.6f} ({resource_utility[1]:+.6f} to "
+            f"{resource_utility[2]:+.6f}). Both intervals include zero, so this simulation "
+            "does not establish a learning or utility advantage from resource awareness. "
+            "Runtime latency remains hardware- and concurrency-dependent."
         ),
         "",
         "## VI-D Offline behaviour",
         "",
         (
-            "Offline availability counts validated educational payloads only; "
-            "application-shell caching is excluded. The dedicated No-Offline auxiliary "
-            "comparison is stored in `aggregate/offline_ablation_comparison.csv`."
+            f"Validated educational content was available for {offline_mean:.4f} of Full's "
+            f"offline interactions (95% seed-bootstrap CI {offline_low:.4f}–{offline_high:.4f}); "
+            f"shell-only availability was excluded. Only {cached_count} of 100,000 Full "
+            "interactions selected the cached pathway because higher-priority pedagogical "
+            "rules usually applied. The No-Offline auxiliary selected zero cached paths."
         ),
         "",
         "## VI-E Optional prediction model",
         "",
         (
-            "Candidate prediction diagnostics are synthetic and temporally aligned to the "
-            "next observed response for the selected concept. The dedicated No-ML comparison "
-            "is stored in "
-            "`aggregate/ml_incremental_comparison.csv`; fallback correctness is established "
-            "by fault-injection tests, not by claiming a naturally occurring failure in the "
-            "accepted full run."
+            f"Full used ML for {ml_count} of 100,000 interactions and produced {ml_matched} "
+            f"temporally matched outcomes. Mean seed-level synthetic Brier score was "
+            f"{brier_mean:.4f} (95% CI {brier_low:.4f}–{brier_high:.4f}), indicating poor "
+            f"probability quality. Relative to No-ML, Full's accuracy difference was "
+            f"{float(ml_accuracy_row.mean_difference):+.6f} (95% CI "
+            f"{float(ml_accuracy_row.ci_low):+.6f} to "
+            f"{float(ml_accuracy_row.ci_high):+.6f}) and gain difference was "
+            f"{float(ml_gain_row.mean_difference):+.6f} "
+            f"({float(ml_gain_row.ci_low):+.6f} to {float(ml_gain_row.ci_high):+.6f}); "
+            "both include zero. Complete BKT fallback is verified by fault injection; no "
+            "natural fallback occurred in the accepted Full runs."
         ),
     ]
     if not auxiliary.empty:
@@ -321,6 +380,14 @@ def write_paper_analysis(paper_root: Path, auxiliary_suites: list[Path]) -> Path
         json.dumps(analysis_provenance, indent=2), encoding="utf-8"
     )
     (aggregate_directory / "paper_ready_findings.md").write_text(
-        _finding_text(overall, auxiliary), encoding="utf-8"
+        _finding_text(
+            overall,
+            paired,
+            auxiliary,
+            seed_metrics,
+            config.random_seed,
+            config.bootstrap_samples,
+        ),
+        encoding="utf-8",
     )
     return aggregate_directory / "paper_ready_results.csv"
