@@ -18,6 +18,11 @@ from app.evaluation.learning_effects import (
 )
 from app.evaluation.metrics import condition_metrics, learner_metrics
 from app.evaluation.ml_metrics import synthetic_ml_metrics
+from app.evaluation.paper_analysis import (
+    REPORT_METRICS,
+    build_auxiliary_comparisons,
+    build_overall_table,
+)
 from app.evaluation.policy import EvaluationPolicy
 from app.evaluation.provenance import collect_provenance
 from app.evaluation.response_simulator import simulate_response
@@ -464,6 +469,45 @@ def test_seeded_bootstrap_paired_difference_and_effect_size() -> None:
     assert difference == 2.0
     assert low == high == 2.0
     assert cohens_d([3, 4], [1, 2]) == 0.0
+
+
+def test_paper_analysis_preserves_intervals_and_matched_auxiliary_seeds() -> None:
+    aggregate = pd.DataFrame(
+        [
+            {
+                "condition": "full",
+                "metric": metric,
+                "mean": 0.5,
+                "ci_low": 0.4,
+                "ci_high": 0.6,
+            }
+            for metric in REPORT_METRICS
+        ]
+    )
+    overall = build_overall_table(aggregate)
+    full = overall.loc[overall.Condition == "full"].iloc[0]
+    assert full["Accuracy"] == 0.5
+    assert full["Accuracy 95% CI Low"] == 0.4
+    primary = pd.DataFrame(
+        [
+            {"condition": "full", "random_seed": seed, **{metric: 0.6 for metric in REPORT_METRICS}}
+            for seed in (11, 22)
+        ]
+    )
+    auxiliary = pd.DataFrame(
+        [
+            {
+                "condition": "no_ml",
+                "random_seed": seed,
+                **{metric: 0.5 for metric in REPORT_METRICS},
+            }
+            for seed in (11, 22)
+        ]
+    )
+    comparisons = build_auxiliary_comparisons(primary, [auxiliary], 7, 100)
+    assert set(comparisons.comparison_condition) == {"no_ml"}
+    assert set(comparisons.matched_seed_count) == {2}
+    assert comparisons.mean_difference.tolist() == pytest.approx([0.1] * len(REPORT_METRICS))
 
 
 def test_provenance_distinguishes_generated_metadata_from_runtime_source() -> None:

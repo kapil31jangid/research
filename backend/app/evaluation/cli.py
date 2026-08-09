@@ -6,6 +6,7 @@ from pathlib import Path
 
 from app.evaluation.ablations import ABLATIONS
 from app.evaluation.config import ExperimentConfig
+from app.evaluation.paper_analysis import write_paper_analysis
 from app.evaluation.sensitivity import WEIGHT_VARIANTS, run_weight_sensitivity
 from app.evaluation.simulator import run_experiment
 from app.evaluation.suite import run_suite
@@ -36,13 +37,20 @@ def main() -> None:
             "run-sensitivity",
             "plan",
             "summarize",
+            "analyze-paper",
         ],
     )
     parser.add_argument("--config", type=Path)
     parser.add_argument("--seeds", nargs="*", type=int)
     parser.add_argument("--experiment", type=Path)
+    parser.add_argument("--auxiliary-suites", nargs="*", type=Path, default=[])
     parser.add_argument("--allow-large-run", action="store_true")
     args = parser.parse_args()
+    if args.command == "analyze-paper":
+        if args.experiment is None:
+            raise SystemExit("--experiment is required for analyze-paper")
+        print(write_paper_analysis(args.experiment, args.auxiliary_suites))
+        return
     if args.command == "summarize":
         directory = args.experiment
         if directory is None:
