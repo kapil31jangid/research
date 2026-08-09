@@ -66,6 +66,28 @@ def test_simulator_latent_mastery_is_not_copied_to_system_state(tmp_path) -> Non
     )
 
 
+def test_resource_ablation_preserves_external_resource_exposure(tmp_path) -> None:
+    rows = []
+    base = ExperimentConfig(
+        experiment_name="resource-exposure",
+        learner_count=1,
+        interactions_per_learner=1,
+        random_seed=19,
+        output_dir=str(tmp_path / "artifacts"),
+        learner_profile_distribution={"constrained_resource": 1.0},
+        bootstrap_samples=100,
+        reuse_completed_runs=False,
+    )
+    for condition in ("full", "no_resource_awareness"):
+        frame = pd.read_parquet(
+            run_experiment(condition_config(base, condition)) / "interactions.parquet"
+        )
+        rows.append(frame.iloc[0])
+    assert rows[0].resource_profile == rows[1].resource_profile == "low_end"
+    assert rows[0].resource_score == pytest.approx(rows[1].resource_score)
+    assert rows[0].network_available == rows[1].network_available
+
+
 def test_publication_profiles_expose_bounded_parameters() -> None:
     required = {
         "fast_learner",

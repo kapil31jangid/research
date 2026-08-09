@@ -168,11 +168,7 @@ def run_experiment(config: ExperimentConfig) -> Path:
                         else step % len(questions)
                     ]
                 )
-                resource_profile = (
-                    "high_end"
-                    if not config.enable_resource_awareness
-                    else synthetic.resource_profile
-                )
+                resource_profile = synthetic.resource_profile
                 resource = simulate_resource(
                     resource_profile,
                     np.random.default_rng(config.random_seed + learner_index * 1000 + step),
@@ -252,7 +248,7 @@ def run_experiment(config: ExperimentConfig) -> Path:
                     submitted_answer=submitted,
                     response_time_ms=response.response_time_ms,
                     hints_used=response.hints_used,
-                    offline=resource.offline if config.enable_offline_adaptation else False,
+                    offline=resource.offline,
                     device_resource_state={
                         key: getattr(resource, key)
                         for key in (
