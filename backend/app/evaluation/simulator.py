@@ -517,7 +517,7 @@ def run_experiment(config: ExperimentConfig) -> Path:
                 "condition": config.condition,
                 "seed": config.random_seed,
                 "bootstrap_samples": config.bootstrap_samples,
-                "experiment_harness_version": "2",
+                "experiment_harness_version": config.harness_version,
                 "simulated_results": True,
                 "data_source": "synthetic",
                 "educational_effectiveness_validated": False,

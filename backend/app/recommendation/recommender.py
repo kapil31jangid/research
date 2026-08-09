@@ -82,6 +82,7 @@ def generate_recommendation(
     forgetting_enabled: bool = True,
     eligible_concept_ids: set[str] | None = None,
     settings: Settings | None = None,
+    now: datetime | None = None,
 ) -> RecommendationRead:
     """Score candidates, retain at least three alternatives when available, and persist."""
     concepts = {concept.id: concept for concept in db.scalars(select(Concept))}
@@ -127,7 +128,7 @@ def generate_recommendation(
         activities_by_id = {activity.id: activity for activity in activities}
         mastery_by_concept = {state.concept_id: state.mastery_probability for state in states}
         graph = build_graph(load_concepts())
-        now = datetime.now(UTC)
+        prediction_time = now or datetime.now(UTC)
         for candidate in candidates:
             state = state_by_concept[candidate.concept_id]
             activity = activities_by_id[candidate.activity_id]
@@ -141,7 +142,7 @@ def generate_recommendation(
                         graph, candidate.concept_id, mastery_by_concept
                     ),
                     resource_score=controller_input.resource.score,
-                    now=now,
+                    now=prediction_time,
                     forgetting_enabled=forgetting_enabled,
                     uncertainty_enabled=uncertainty_enabled,
                 )

@@ -356,6 +356,7 @@ def process_interaction(
                     else active_concept_ids(payload.learner_id, db)
                 ),
                 settings=settings,
+                now=current_time,
             )
 
         try:

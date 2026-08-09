@@ -24,6 +24,7 @@ Condition = Literal[
 
 
 class ExperimentConfig(BaseModel):
+    harness_version: str = "3"
     experiment_name: str = "rapid-learn"
     random_seed: int = 42
     learner_count: int = Field(default=10, gt=0)

@@ -1,5 +1,6 @@
 import json
 import sys
+from datetime import UTC, datetime
 
 import numpy as np
 import pandas as pd
@@ -84,6 +85,38 @@ def test_disabled_ml_never_checks_or_calls_predictor(client, monkeypatch) -> Non
     result = _direct_interaction(client, EvaluationPolicy(enable_ml=False))
     assert result.recommendation.adaptation_path != "lightweight_ml_recommendation"
     assert result.recommendation.selected_candidate_predicted_probability is None
+
+
+def test_simulation_clock_reaches_candidate_feature_generation(client, monkeypatch) -> None:
+    from app.services import interaction_service
+
+    controlled_now = datetime(2026, 2, 3, tzinfo=UTC)
+    original = interaction_service.generate_recommendation
+    captured = None
+
+    def capture(*args, **kwargs):
+        nonlocal captured
+        captured = kwargs.get("now")
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(interaction_service, "generate_recommendation", capture)
+    learner = client(
+        "POST", "/learners", json={"name": "Clock", "age_group": "10-12", "grade": 5}
+    ).json()
+    with client.session_factory() as db:
+        question = db.scalar(select(Question).where(Question.id == "whole_numbers_01"))
+        process_interaction(
+            InteractionCreate(
+                learner_id=learner["id"],
+                question_id=question.id,
+                submitted_answer=question.correct_answer,
+                response_time_ms=1000,
+            ),
+            question,
+            db,
+            now=controlled_now,
+        )
+    assert captured == controlled_now
 
 
 @pytest.mark.parametrize(

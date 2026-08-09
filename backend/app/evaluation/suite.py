@@ -215,6 +215,7 @@ def run_suite(
         "run_count": len(records),
         "bootstrap_samples": config.bootstrap_samples,
         "suite_workers": config.suite_workers,
+        "harness_version": config.harness_version,
         "reused_run_count": reused_run_count,
     }
     (directory / "suite_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
