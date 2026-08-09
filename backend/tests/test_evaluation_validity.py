@@ -546,3 +546,7 @@ def test_multi_seed_suite_writes_aggregate_statistics_plots_and_tables(tmp_path)
     assert summary["bootstrap_samples"] == 100
     paired = pd.read_csv(directory / "paired_comparisons.csv")
     assert "p95_latency" in set(paired.metric)
+    assert "mean_synthetic_retention" in set(paired.metric)
+    main = pd.read_csv(directory / "tables" / "main_comparison.csv")
+    assert "Normalized Gain 95% CI Low" in main
+    assert "Normalized Gain 95% CI High" in main

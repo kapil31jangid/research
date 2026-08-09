@@ -42,6 +42,7 @@ PAIRED_METRICS = (
     "mean_mastery_gain",
     "mean_normalised_gain",
     "mean_retention",
+    "mean_synthetic_retention",
     "mean_synthetic_mastery_gain",
     "mean_synthetic_normalised_gain",
     "mastery_threshold_success_rate",
@@ -336,7 +337,14 @@ def run_suite(
         config.random_seed,
         config.bootstrap_samples,
     )
-    write_suite_tables(seed_metrics, paired_frame, combined_interactions, directory)
+    write_suite_tables(
+        seed_metrics,
+        paired_frame,
+        combined_interactions,
+        directory,
+        bootstrap_seed=config.random_seed,
+        bootstrap_samples=config.bootstrap_samples,
+    )
     if config.publish_paper_layout:
         publish_suite(directory, Path(config.output_dir).parent)
     return directory

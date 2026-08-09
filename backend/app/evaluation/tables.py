@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from app.evaluation.statistics import bootstrap_confidence_interval
 from app.evaluation.synthetic_learners import PROFILES
 
 
@@ -63,6 +64,8 @@ def write_suite_tables(
     paired: pd.DataFrame,
     interactions: pd.DataFrame,
     directory: Path,
+    bootstrap_seed: int = 42,
+    bootstrap_samples: int = 10_000,
 ) -> None:
     tables = directory / "tables"
     tables.mkdir(exist_ok=True)
@@ -74,11 +77,24 @@ def write_suite_tables(
         "resource_normalised_utility": "Resource-Normalized Utility",
     }
     available = [field for field in fields if field in seed_metrics]
-    main = (
-        seed_metrics.groupby("condition", as_index=False)[available]
-        .mean()
-        .rename(columns={"condition": "Condition"} | {field: fields[field] for field in available})
-    )
+    main_rows: list[dict[str, object]] = []
+    for condition, group in seed_metrics.groupby("condition"):
+        row: dict[str, object] = {"Condition": condition}
+        for field in available:
+            values = group[field].dropna().astype(float).tolist()
+            if not values:
+                continue
+            low, high = bootstrap_confidence_interval(
+                values,
+                bootstrap_seed,
+                bootstrap_samples,
+            )
+            label = fields[field]
+            row[label] = sum(values) / len(values)
+            row[f"{label} 95% CI Low"] = low
+            row[f"{label} 95% CI High"] = high
+        main_rows.append(row)
+    main = pd.DataFrame(main_rows)
     _write_formats(main, tables / "main_comparison")
     _write_formats(paired, tables / "ablation_comparisons")
     ablation_fields = {

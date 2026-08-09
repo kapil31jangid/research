@@ -1,0 +1,24 @@
+{
+  "harness_version": "4",
+  "experiment_name": "no-ml-auxiliary",
+  "random_seed": 11,
+  "learner_count": 500,
+  "interactions_per_learner": 40,
+  "condition": "no_ml",
+  "learner_profile_distribution": {
+    "fast_learner": 0.125,
+    "slow_learner": 0.125,
+    "elevated_guess": 0.125,
+    "elevated_slip": 0.125,
+    "stronger_forgetting": 0.125,
+    "misconception_prone": 0.125,
+    "intermittent": 0.125,
+    "constrained_resource": 0.125
+  },
+  "output_dir": "results/paper_full/auxiliary_runs",
+  "max_interactions_without_override": 100000,
+  "bootstrap_samples": 10000,
+  "ml_minimum_interactions": 10,
+  "suite_workers": 5,
+  "publish_paper_layout": false
+}
