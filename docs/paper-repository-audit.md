@@ -145,9 +145,10 @@ seed/learner/step.
 
 - Full achieved higher response accuracy and retention than Static, but lower
   synthetic normalized gain. This mixed outcome must be reported.
-- Removing misconception handling reduced response accuracy but produced higher
-  synthetic mastery gain; the simulator rewards concept-match learning and targeted
-  remediation changes activity allocation. Neither direction is classroom evidence.
+- Removing misconception handling reduced response accuracy and synthetic mastery
+  gain. Full-minus-No-Misconceptions was +0.08039 for accuracy, +0.008733 for raw
+  synthetic mastery gain, and +0.006386 for synthetic normalized gain. These are
+  simulation outcomes, not classroom evidence.
 - Full-versus-No-Resource-Awareness learning differences are near zero. Resource
   awareness changes feasibility/path behavior, but this run does not support a strong
   synthetic learning-gain claim for it.
