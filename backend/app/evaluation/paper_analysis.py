@@ -10,6 +10,7 @@ import pandas as pd
 from app.evaluation.config import ExperimentConfig
 from app.evaluation.provenance import collect_provenance
 from app.evaluation.statistics import cohens_d, paired_bootstrap_difference
+from app.evaluation.suite import paired_comparisons
 from app.evaluation.tables import _write_formats
 
 REPORT_METRICS = {
@@ -179,49 +180,54 @@ def _finding_text(overall: pd.DataFrame, auxiliary: pd.DataFrame) -> str:
         "",
         "## VI-A Overall adaptive performance",
         "",
-        f"Full RAPID-Learn response accuracy was {full_accuracy[0]:.4f} "
-        f"(95% seed-bootstrap CI {full_accuracy[1]:.4f}–{full_accuracy[2]:.4f}), compared "
-        f"with {static_accuracy[0]:.4f} ({static_accuracy[1]:.4f}–{static_accuracy[2]:.4f}) "(
+        (
+            f"Full RAPID-Learn response accuracy was {full_accuracy[0]:.4f} "
+            f"(95% seed-bootstrap CI {full_accuracy[1]:.4f}–{full_accuracy[2]:.4f}), "
+            f"compared with {static_accuracy[0]:.4f} "
+            f"({static_accuracy[1]:.4f}–{static_accuracy[2]:.4f}) "
             "for Static. Full retained mastery was higher, but its synthetic normalized "
             "gain was lower: "
+            f"retention {full_retention[0]:.4f} versus {static_retention[0]:.4f}, and "
+            f"normalized gain {full_gain[0]:.4f} versus {static_gain[0]:.4f}. This mixed "
+            "result indicates a simulator/controller trade-off and does not establish "
+            "educational superiority."
         ),
-        f"retention {full_retention[0]:.4f} versus {static_retention[0]:.4f}, and normalized gain "
-        f"{full_gain[0]:.4f} versus {static_gain[0]:.4f}. This mixed result indicates a "
-        "simulator/controller trade-off and does not establish educational superiority.",
         "",
         "## VI-B Component ablation analysis",
         "",
-        "Use `aggregate/paired_comparisons.csv` for matched-seed Full-minus-ablation estimates. "(
+        (
+            "Use `aggregate/paired_comparisons.csv` for matched-seed Full-minus-ablation "
+            "estimates. "
             "Signs are retained even when an ablation is neutral or better; no unfavorable "
             "result is removed."
         ),
         "",
         "## VI-C Resource-aware behaviour",
         "",
-        "Full and No-Resource-Awareness received identical simulated resource sequences. Their "
-        "differences therefore measure controller use of resources rather than different exposure. "
-        "Measured latency remains hardware- and concurrency-dependent.",
+        (
+            "Full and No-Resource-Awareness received identical simulated resource sequences. "
+            "Their differences therefore measure controller use of resources rather than "
+            "different exposure. Measured latency remains hardware- and concurrency-dependent."
+        ),
         "",
         "## VI-D Offline behaviour",
         "",
         (
             "Offline availability counts validated educational payloads only; "
-            "application-shell caching "
+            "application-shell caching is excluded. The dedicated No-Offline auxiliary "
+            "comparison is stored in `aggregate/offline_ablation_comparison.csv`."
         ),
-        "is excluded. The dedicated No-Offline auxiliary comparison is stored in "
-        "`aggregate/offline_ablation_comparison.csv`.",
         "",
         "## VI-E Optional prediction model",
         "",
         (
             "Candidate prediction diagnostics are synthetic and temporally aligned to the "
-            "next observed "
-        ),
-        "response for the selected concept. The dedicated No-ML comparison is stored in "(
+            "next observed response for the selected concept. The dedicated No-ML comparison "
+            "is stored in "
             "`aggregate/ml_incremental_comparison.csv`; fallback correctness is established "
-            "by fault-injection "
+            "by fault-injection tests, not by claiming a naturally occurring failure in the "
+            "accepted full run."
         ),
-        "tests, not by claiming a naturally occurring failure in the accepted full run.",
     ]
     if not auxiliary.empty:
         lines.extend(
@@ -243,6 +249,26 @@ def write_paper_analysis(paper_root: Path, auxiliary_suites: list[Path]) -> Path
     metadata_directory = paper_root / "metadata"
     aggregate = pd.read_csv(aggregate_directory / "aggregate_metrics.csv")
     seed_metrics = pd.read_csv(aggregate_directory / "seed_metrics.csv")
+    paired = paired_comparisons(seed_metrics, config)
+    paired.to_csv(aggregate_directory / "paired_comparisons.csv", index=False)
+    paired.to_csv(aggregate_directory / "ablation_comparisons.csv", index=False)
+    ablation_labels = {
+        "mean_synthetic_normalised_gain": "Delta Gain",
+        "mean_synthetic_retention": "Delta Retention",
+        "mean_latency": "Delta Latency",
+        "resource_normalised_utility": "Delta Utility",
+    }
+    ablation_table = (
+        paired.loc[paired.metric.isin(ablation_labels)]
+        .pivot(index="comparison_condition", columns="metric", values="mean_difference")
+        .reset_index()
+        .rename(
+            columns={"comparison_condition": "Ablation"}
+            | {field: label for field, label in ablation_labels.items()}
+        )
+    )
+    _write_formats(ablation_table, tables_directory / "ablation_effects")
+    _write_formats(ablation_table, tables_directory / "paper_table_2_ablation")
     overall = build_overall_table(aggregate)
     overall.to_csv(aggregate_directory / "paper_ready_results.csv", index=False)
     _write_formats(overall, tables_directory / "overall_evaluation_with_ci")
